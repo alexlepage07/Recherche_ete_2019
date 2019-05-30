@@ -167,6 +167,15 @@
 \end{frame}
 
 
+\begin{frame}[allowframebreaks]
+	\frametitle{Table des matières}
+	\tableofcontents
+\end{frame}
+
+
+\section{Objectifs du projet}
+
+
 \section{Revue de littérature}
 \subsection{Itre 4}
 \begin{frame}
@@ -174,7 +183,7 @@
 	\framesubtitle{Itre4: Hierarchical Archimedean copulas through multivariate compound
 		distributions \cite{Itre4}}
 	
-	\textbf{Copule archimédienne}
+	\textbf{Copule archimédienne hiérarchique}
 	
 	\begin{itemize}
 		\item Soit $\Theta_i = \sum_{j=1}^{M} B_{i,j}$, où $M$ et $\underline{B}$ sont indépendants et les $B_{i,j}$ sont i.i.d. pour un même $i$.
@@ -194,7 +203,7 @@
 	\framesubtitle{Itre4: Hierarchical Archimedean copulas through multivariate compound
 		distributions \cite{Itre4}}
 	\begin{itemize}
-		\item Copule archimédienne à un niveau:
+		\item Copule archimédienne hiérarchique à un niveau:
 		\begin{align}
 			C(u_1, ... , u_k) 
 			&= \mathcal{L}_{\Theta}\left(
@@ -202,7 +211,7 @@
 			&= \mathcal{L}_{M}\left(
 				\sum_{i=1}^{d} - \ln \left(
 				 \mathcal{L}_{B_i}\left(
-				  \sum_{j=1}^{n_i} \mathcal{L}_{\Theta_i} (u_{i,j})
+				  \sum_{j=1}^{n_i} \mathcal{L}_{\Theta_i}^{-1} (u_{i,j})
 				\right) \right)\right), \label{Copule_Archimedienne}
 		\end{align}
 		où $d$ correspond au nombre de liens de dépendance différents à modéliser à travers la copule et $\{n_i,\ i=1,...,d\}$ correspond au nombre d'uniformes qui sont générées par groupe de dépendance.
@@ -274,7 +283,18 @@
 	
 	\textbf{Méthodes de calcul exact:}
 	\begin{itemize}
-		\item avec la transformation de Fourrier,
+		\item avec la transformation de Fourrier:
+		\begin{itemize}
+			\item Soient $f_{{X_i}_{\Theta_0, \Theta_{0,1}}} = f_{X_i|\Theta_0, \Theta_{0,1}}(x| \theta_0, \theta_{0,1})$, $P_{N_{\Theta_0}}(t) = E[t^n|\Theta_0 = \theta_0]$, $\mathbb{F}$ est la transformation de Fourrier et $\mathbb{F}^{-1}$ est son inverse, alors
+		
+			\begin{equation*}
+				f_{S_{\Theta_0, \Theta_{0,1}}} = \mathbb{F}^{-1} \left(
+					P_{N_{\Theta_0}}\left(
+						\mathbb{F} \left(
+							f_{{X_i}_{\Theta_0, \Theta_{0,1}}}
+				\right) \right) \right).
+			\end{equation*}
+		\end{itemize}
 		\item avec la distribution multivariée de mélange d'Erlang.
 		
 	\end{itemize}
