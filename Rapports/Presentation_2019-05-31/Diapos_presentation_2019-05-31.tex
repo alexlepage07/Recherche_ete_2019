@@ -196,7 +196,7 @@
 	\begin{itemize}
 		\item Copule archimédienne à un niveau:
 		\begin{align}
-			C(u1, ... , u_k) 
+			C(u_1, ... , u_k) 
 			&= \mathcal{L}_{\Theta}\left(
 				\sum_{i=1}^{k} \mathcal{L}_{\Theta}^{-1} (u_i) \right) \nonumber \\
 			&= \mathcal{L}_{M}\left(
@@ -266,11 +266,20 @@
 	\frametitle{Revue de littérature}
 	\framesubtitle{Itre5: Collective Risk Models Dependence \cite{Itre5}}
 	
-	\textbf{Méthodes de simulation:}
+	\textbf{Méthode de simulation:}
 	\begin{itemize}
-		\item avec l'algorithme de Itre 4,
-		\item avec la transformation de Fourrier.
+		\item avec l'algorithme de Itre 4.
 	\end{itemize}
+	\vspace{0.2cm}
+	
+	\textbf{Méthodes de calcul exact:}
+	\begin{itemize}
+		\item avec la transformation de Fourrier,
+		\item avec la distribution multivariée de mélange d'Erlang.
+		
+	\end{itemize}
+
+	
 	
 \end{frame}
 
@@ -279,7 +288,7 @@
 	\frametitle{Revue de littérature}
 	\framesubtitle{Itre5: Collective Risk Models Dependence \cite{Itre5}}
 	
-	\textbf{Calculs exactes} avec la distribution multivariée de mélange d'Erlang:\\
+	\textbf{Calcul exacte} avec la distribution multivariée de mélange d'Erlang:\\
 	
 	\begin{itemize}
 		\item Soit $V_j$, une v.a. permettant d'introduite la dépendance entre les éléments de $\underline{X}$ de telle sorte que les $(X_i|V=v)$ sont conditionnellement indépendants.
