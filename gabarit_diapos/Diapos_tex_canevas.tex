@@ -1,0 +1,248 @@
+\documentclass[11pt]{beamer}
+\usefonttheme[onlymath]{serif}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{bbm}
+\usepackage{lmodern}
+\usepackage{amsthm}
+%\usepackage[francais]{babel}
+% \usepackage[hidelinks]{hyperref}
+\usepackage[autolanguage]{numprint}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{icomma}
+\usepackage{fancybox}
+\usepackage{tikzsymbols}
+\usepackage{MnSymbol,wasysym}
+\newtheorem{rem}{Remarque}
+\newtheorem{deff}{Définition}
+\newtheorem{lem}{Lemme}
+\newtheorem{prop}{Proposition}
+\newtheorem{propr}{Propriété}
+\newtheorem{ex}{Exemple}
+\newtheorem*{ex*}{Exemple}
+\newtheorem{algo}{Algorithme}
+\newtheorem*{algo*}{Algorithme}
+\newtheorem{theoreme}{Théorème}
+\newtheorem*{preuve*}{Preuve}
+\newtheorem{preuve}{Preuve}
+
+\newtheorem{acknowledgement}[theorem]{Remerciements}
+\newtheorem{algorithm}[theorem]{Algorithme}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Propriété}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\newtheorem{criterion}[theorem]{Criterion}
+
+
+\newtheorem{exercise}[theorem]{Exercice}
+
+\newtheorem{notation}[theorem]{Notation}
+
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remarque}
+
+\newtheorem{summary}[theorem]{Résumé}
+\newcounter{saveenumi}
+\newcommand{\seti}{\setcounter{saveenumi}{\value{enumi}}}
+\newcommand{\conti}{\setcounter{enumi}{\value{saveenumi}}}
+\usepackage{tikz-qtree}
+\usepackage{tikz}
+\usepackage{scalerel,stackengine}
+\usepackage{subfig}
+\usepackage{forest}
+\usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
+
+% \usepackage{vietnam}
+\usepackage{varwidth}
+%\usepackage[figurename=Illustration]{caption}
+%\usepackage[francais]{babel}
+
+\smartdiagramset{module minimum width=3cm, module minimum height=2cm, text width=8em, font=\small, circular distance = 5cm}
+
+% Tikz options --------------------------------------------
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+\tikzset{
+  basic/.style  = {draw,  drop shadow, font=Helvetica, rectangle, align=flush center},
+  root/.style   = {basic, rounded corners=2pt, thin, align=flush center, fill=blue!30, text width=13em},
+  level 2/.style = {basic, rounded corners=8pt, align=flush center, fill=blue!20, text width=8em, minimum height=30pt},
+  level 3/.style = {basic,  align=flush left, fill=orange!10, text width=9em, rounded corners = 4pt}
+}
+%---------------------------------------------------------
+
+%\frenchbsetup{CompactItemize=false}
+
+% \usepackage[babel]{csquotes}
+% \usepackage[url=false, doi=false, style=science, backend=bibtex, bibencoding=ascii]{biblatex}
+% \bibliography{IEEEabrv,bib/OAM}
+
+\usepackage{tikz}
+\usepackage{pdfrender}
+
+\usetikzlibrary{shapes,arrows}
+%\setbeamerfont{author}{size=\Huge}
+%\setbeamerfont{institute}{size=\normalsize\itshape}
+%\setbeamerfont{title}{size=\fontsize{30}{36}\bfseries}
+%\setbeamerfont{subtitle}{size=\Large\normalfont\slshape}
+
+\hypersetup{
+  colorlinks=true,
+  citecolor=blue,
+  linkcolor=black,
+  filecolor=magenta,
+  urlcolor=cyan,
+}
+
+\mode<presentation> {
+  % \useoutertheme{infolines} % Pour les thèmes qui n'ont pas de pied-de-page
+  \usetheme{ulaval}
+  %\usecolortheme{ulaval}
+  % \setbeamercovered{transparent}
+  \setbeamercovered{invisible}
+  %\setbeamertemplate{navigation symbols}{} % Enlever les icônes de navigation
+}
+
+
+%\usepackage{bm}
+% For typesetting bold math (not \mathbold)
+%\includeonlyframes{}
+
+%\usepackage{pgfpages}
+%\setbeameroption{show notes on second screen}
+%\setbeameroption{show notes}
+%\setbeamertemplate{note page}[plain]
+
+\logo{%\includegraphics[height=0.6cm]{COPL}\hspace{.5cm}%
+\includegraphics[height=0.5cm]{UL_P}}%\hspace{.2cm}\vspace{.865\paperheight}}
+\titlegraphic{\includegraphics[height=2cm]{UL_actu}}
+
+
+\title[]{Act-2001 Introduction à l'actuariat 2}
+%\subtitle[]{}
+
+\subtitle{\vspace{0.1in} avec Tintin et Milou \newline \newline Les aventures de  ...}
+
+\author[Étienne M.]{Étienne Marceau}
+\institute[École d'actuariat]
+{
+  École d'actuariat \\
+  Université Laval, Québec, Canada \\
+}
+
+\date{2019-01-21} % \today will show current date.
+%\today
+% Alternatively, you can specify a date.
+% \today
+
+
+\AtBeginSection[]{
+\begin{frame}
+\Huge \centerline{\insertsection}
+%  \small \tableofcontents[currentsection, hideothersubsections]
+\end{frame}
+}
+
+\setbeamertemplate{theorems}[numbered]
+
+%\AtBeginSection[]
+%  {
+%     \begin{frame} <beamer>
+%     \frametitle{Agenda}
+%     \tableofcontents[currentsection]
+%     \end{frame}
+%  }
+%  
+\newenvironment{slide}[1]
+{\begin{frame}[environment=slide]
+\frametitle{\insertsection \newline \large{#1}}}
+{\end{frame}}
+
+\begin{document}
+
+\begin{frame}[label=titre, plain]
+\titlepage
+\end{frame}
+
+\section{Avant-propos}
+
+\begin{frame}
+\frametitle{Avant-propos}
+
+\textbf{Source pour le contenu des diapos} : 
+\begin{itemize}
+\item \cite{cossettemarceau2018document}.
+\end{itemize} 
+
+
+\bigskip
+
+\textbf{Calculs et illustrations} :
+\begin{itemize}
+\item Toutes les calculs et les illustrations
+ont \'{e}t\'{e} r\'{e}alis\'{e}s dans le langage R gr\^{a}ce au logiciel GNU
+R mis \`{a} disposition par le R Project.
+\item Les codes R ont \'{e}t\'{e} con%
+\c{c}us dans l'environnement de d\'{e}veloppement int\'{e}gr\'{e} RStudio.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Avant-propos}
+
+
+Le logiciel GNU R et les biblioth\`{e}ques sont disponibles sur le site du R
+Project et du Comprehensive R Archive Network (CRAN) : 
+\begin{equation*}
+\begin{tabular}{l}
+https://cran.r-project.org/.%
+\end{tabular}%
+\end{equation*}
+
+\bigskip
+
+L'environnement RStudio est disponible sur le site suivant :%
+\begin{equation*}
+\begin{tabular}{l}
+https://www.rstudio.com/products/rstudio/download/.%
+\end{tabular}%
+\end{equation*}
+
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+\frametitle{Table des matières}
+\tableofcontents
+\end{frame}
+
+
+
+\section{Section 88}
+
+\subsection{Sous-section 881}
+\begin{frame}
+\frametitle{Section 88}
+\framesubtitle{Sous-section 881}
+
+Test
+
+Test 2
+
+
+\end{frame}
+
+
+\section{Références}
+
+\begin{frame}[allowframebreaks]{\textbf{Références}}
+\bibliography{BibRRT}
+\bibliographystyle{apalike}
+\end{frame}
+
+\end{document}

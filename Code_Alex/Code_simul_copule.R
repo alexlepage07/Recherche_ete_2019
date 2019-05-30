@@ -1,5 +1,7 @@
 #============================= Code pour simuler des copules ======================
 library(actuar)
+
+
 # Loi géométrique
 LST_geom <- function(p, t) {
     p / (exp(t) - (1 - p))
