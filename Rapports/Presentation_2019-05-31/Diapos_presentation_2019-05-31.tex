@@ -56,6 +56,7 @@
 \usepackage{subfig}
 \usepackage{forest}
 \usepackage{smartdiagram}
+\usepackage{dsfont} % Faire des belles indicatrices
 \usesmartdiagramlibrary{additions}
 
 % \usepackage{vietnam}
@@ -186,12 +187,12 @@
 	\textbf{Copule archimédienne hiérarchique}
 	
 	\begin{itemize}
-		\item Soit $\Theta_i = \sum_{j=1}^{M} B_{i,j}$, où $M$ et $\underline{B}$ sont indépendants et les $B_{i,j}$ sont i.i.d. pour un même $i$.
+		\item Soient $\Theta_i = \sum_{j=1}^{M} B_{i,j}$, où $M$ et $\underline{B}$ sont indépendants et les $B_{i,j}$ sont i.i.d. pour un même $i$ et $d$ qui correspond au nombre de groupes de dépendance différents.
 		\begin{figure}[H]
 			\centering
 			\includegraphics[height=3cm]{Hierarchie_1}
 			\renewcommand{\figurename}{Illustration}
-			\caption{Arbre hiérarchique à un niveau.}\label{hierarchie}
+			\caption{Arbre hiérarchique à un niveau.} \label{hierarchie}
 		\end{figure}
 	
 	\end{itemize}
@@ -203,21 +204,51 @@
 	\framesubtitle{Itre4: Hierarchical Archimedean copulas through multivariate compound
 		distributions \cite{Itre4}}
 	\begin{itemize}
-		\item Copule archimédienne hiérarchique à un niveau:
+		\item Copule archimédienne :
 		\begin{align}
-			C(u_1, ... , u_k) 
-			&= \mathcal{L}_{\Theta}\left(
-				\sum_{i=1}^{k} \mathcal{L}_{\Theta}^{-1} (u_i) \right) \nonumber \\
-			&= \mathcal{L}_{M}\left(
-				\sum_{i=1}^{d} - \ln \left(
-				 \mathcal{L}_{B_i}\left(
-				  \sum_{j=1}^{n_i} \mathcal{L}_{\Theta_i}^{-1} (u_{i,j})
-				\right) \right)\right), \label{Copule_Archimedienne}
+		C(u_1, ... , u_k) 
+		&=  \mathcal{L}_{\Theta} \left(
+		\sum_{i=1}^{k} \mathcal{L}_{\Theta}^{-1} 
+		\right) \nonumber \\
+		&= \mathcal{P}_{M}\left(
+		\mathcal{L}_{B} \left(
+		\sum_{j=1}^{k} \mathcal{L}_{\Theta}^{-1} (u_{i,j}) 
+		\right) \right)										\label{Copule_Archimedienne} \\
+		&= \mathcal{P}_{M}\left(
+		\mathcal{L}_{B} \left(
+		\sum_{j=1}^{k} \mathcal{L}_{B}^{-1} \left( 
+		\mathcal{P}_{M}^{-1}(u_{i,j} ) 
+		\right)\right) \right) \nonumber
 		\end{align}
-		où $d$ correspond au nombre de liens de dépendance différents à modéliser à travers la copule et $\{n_i,\ i=1,...,d\}$ correspond au nombre d'uniformes qui sont générées par groupe de dépendance.
 		
 	\end{itemize}
+\end{frame}
 
+
+\begin{frame}
+	\frametitle{Revue de littérature}
+	\framesubtitle{Itre4: Hierarchical Archimedean copulas through multivariate compound
+		distributions \cite{Itre4}}
+	\begin{itemize}
+		\item Copule archimédienne hiérarchique à un niveau: \\
+		\begin{itemize}
+			\item De \eqref{Copule_Archimedienne}, on ajoute différentes lois de probabilités pour $\{B_i, i =1,...,d\}$ et on obtient
+			\begin{align}
+			C(u_1, ... , u_k) 
+			&= \mathcal{P}_{M}\left(
+			\prod_{i=1}^{d} \mathcal{L}_{B_i} \left(
+			\sum_{j=1}^{n_i} \mathcal{L}_{\Theta_i}^{-1} (u_{i,j}) \right) \right) \nonumber \\
+			&= \mathcal{L}_{M}\left(
+			\sum_{i=1}^{d} - \ln \left(
+			\mathcal{L}_{B_i}\left(
+			\sum_{j=1}^{n_i} \mathcal{L}_{\Theta_i}^{-1} (u_{i,j})
+			\right) \right)\right), \label{Copule_Archimedienne_hierarchique}
+			\end{align}
+			où $d$ correspond au nombre de liens de dépendance différents à modéliser à travers la copule et $\{n_i,\ i=1,...,d\}$ correspond au nombre d'uniformes qui sont générées par groupe de dépendance de tel sorte que $k = \sum_{i=1}^{d} n_i$
+			
+		\end{itemize}
+		
+	\end{itemize}
 \end{frame}
 
 
@@ -228,12 +259,12 @@
 
 		\textbf{Le modèle sous-jacent:}
 		\begin{itemize}
-			\item Soient $N$, la v.a. du nombre de sinistres et $X_k$, la v.a. de la sévérité des sinistres.
+			\item Soient $N$, la v.a. du nombre de sinistres et $X_i$, la v.a. de la sévérité des sinistres.
 			
 		\begin{equation}\label{Modele_collectif}
-			S = \sum_{k=1}^{N} X_k,
+			S = \sum_{i=1}^{N} X_i = \sum_{i=1}^{\infty} X_i \times \mathds{1}_{\{N \geq i\}},
 		\end{equation}
-		où $N$ est dépendant de $\underline{X}$ et les $X_k$ sont dépendants entre eux.
+		où $N$ est dépendant de $\underline{X}$ et les $X_i$ sont dépendants entre eux.
 	
 		\end{itemize}
 \end{frame}
@@ -258,7 +289,7 @@
 	\framesubtitle{Itre5: Collective Risk Models Dependence \cite{Itre5}}
 	
 	\begin{itemize}
-		\item Adaptation de la copule archimédienne hiérarchique dont la formule apparaît en \eqref{Copule_Archimedienne} au modèle collectif définit en \eqref{Modele_collectif}.
+		\item Adaptation de la copule archimédienne hiérarchique dont la formule apparaît en \eqref{Copule_Archimedienne_hierarchique} au modèle collectif définit en \eqref{Modele_collectif}.
 
 		\begin{equation*}
 			C(u_0, ..., u_k) = \mathcal{L}_M \left( 
@@ -311,17 +342,62 @@
 	\textbf{Calcul exacte} avec la distribution multivariée de mélange d'Erlang:\\
 	
 	\begin{itemize}
-		\item Soit $V_j$, une v.a. permettant d'introduite la dépendance entre les éléments de $\underline{X}$ de telle sorte que les $(X_i|V=v)$ sont conditionnellement indépendants.
+		\item \textbf{Motivation:} On veut instaurer un lien de dépendance entre les $X_i$ et avec $N$.
+		Pour se faire, définissons une v.a. strictement positive $J_i$ qui servira de paramètre de forme aux $X_i$.
 		
-		\begin{equation*}
-		F_S(x) = Pr(N=0) + \sum_{n=1}^{\infty} \sum_{v=1}^{\infty} \gamma_{N,V}(n,v) H(x; nv, \beta)
-		\end{equation*}
+		\item Soit $X_i$, la v.a. de la sévérité qui est représentée comme $\sum_{j=1}^{J^{(,\perp)}} C_j^{(\perp,\perp)}$, où $C_j^{(\perp,\perp)} \sim C \sim Exp(\beta)$ avec $E[C] = 1/\beta$. 
 		
-		\begin{equation*}
-		TVaR_{\kappa}(S) = \frac{1}{1-\kappa} \sum_{n=1}^{\infty} \sum_{v=1}^{\infty} \gamma_{N,V}(n,v) \frac{nv}{\beta} \bar{H}(VaR_{\kappa}(S); nv + 1, \beta)
-		\end{equation*}
+		\item Les $J_i$ sont dépendants entre eux et dépendants de $N$. Tandis que les $C_{i,j}$ sont i.i.d. et indépendants de $N$ et de $J_i$.
+		
+		\item Il s'ensuit que $X_i \sim Erl(J_i, \beta)$.
 		
 	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Revue de littérature}
+	\framesubtitle{Itre5: Collective Risk Models Dependence \cite{Itre5}}
+	
+	\begin{itemize}
+		\item Soit $S = \sum_{i=1}^{N} X_i$. On peut réécrire $S$ comme $S = \sum_{i=1}^{N} \sum_{j=1}^{J_i} C_{i,j}$. Donc  $S \sim Erl(\sum_{j=1}^{N} J_i, \beta)$.
+		
+		\item Pour simplifier la notation, définissons $L= \sum_{i=1}^{N} J_i$. Il en résulte que $S \sim Erl(L, \beta)$ où
+		\begin{align*}\label{zeta_l}
+		Pr(L=l) &= \zeta_l  \\
+		&= \left\{
+				\begin{array}{ll}
+				Pr(N=0)										& l=0, \\
+				\sum_{i=1}^{l} Pr(N=i, J_1 + ... + J_i = l)	& l \in \mathbb{N}
+				\end{array} 
+			\right.\\
+		&= \left\{
+		\begin{array}{ll}
+		Pr(N=0)														& l=0, \\
+		\sum_{i=1}^{l} \gamma_{N, J_1,...,J_l-i+1}(i, j_1,...j_i)	& l \in \mathbb{N}.
+		\end{array} 
+		\right.			
+		\end{align*}
+		
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Revue de littérature}
+	\framesubtitle{Itre5: Collective Risk Models Dependence \cite{Itre5}}
+		\begin{itemize}
+			\item On obtient donc la fonction de répartition définie en \eqref{F_S_Erl} et la $TVaR$ définie en \eqref{TVaR_Erl}.
+			
+			\begin{equation}\label{F_S_Erl}
+			F_S(x) = \gamma_N(0) + \sum_{l=1}^{\infty} \zeta_l H(x; l, \beta)
+			\end{equation}
+			
+			\begin{equation}\label{TVaR_Erl}
+			TVaR_{\kappa}(S) = \frac{1}{1-\kappa} \sum_{l=1}^{\infty} \zeta_l \frac{l}{\beta} \bar{H}(VaR_{\kappa}(S); l + 1, \beta)
+			\end{equation}
+		\end{itemize}
+
 \end{frame}
 
 
