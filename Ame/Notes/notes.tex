@@ -125,29 +125,68 @@
 	\setcounter{page}{1}
 	\pagestyle{plain}
 	
-	\section{Chaptire 1 - Fonction Maximum de Vraisemblance}
-	\subsection{1.1 - Introduction}
-	
-	On a la copule de clayton $C$:
-	$$C(u_0,\dots,u_n;\alpha) = (  u_0^{-\alpha} + \dots + u_n^{-\alpha})^{-\frac{1}{\alpha}}$$
-	
+	\section{Chaptire 1 - Notions générales}
+	\subsection{1.1 - Fonction Maximum de Vraisemblance}
+
+	Soit $\lambda$ le paramètre de la loi de fréquence et $\beta$ le vecteur de paramètres de la loi de sévérité.
 	La densité d'une distribution multivariée non absolument continue est donné par:
 	\begin{align*}
-	f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n) &= \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n),F_{X_1}(x_1),\dots,F_{X_n}(x_n))\\
-	&   - \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n-1),F_{X_1}(x_1),\dots,F_{X_n}(x_n))
+	f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n;\lambda,\beta) &= \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n;\lambda),F_{X_1;\beta}(x_1),\dots,F_{X_n}(x_n;\beta);\alpha)\\
+	&   - \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n-1;\lambda),F_{X_1}(x_1;\beta),\dots,F_{X_n}(x_n;\beta);\alpha)
 	\end{align*}
 	
-	On utilise cette expression dans la fonction de maximum de vraisemblance avec $\Lambda$ comme vecteur de paramètres:
+	On a $n_0$ le nombre observé de $0$, $n_1$ le nombre observer fréquence $1$, $\dots$, $n_k$ le nombre observer fréquence $k$.
+	$x_{k,i}$ représente la $i$-ième observation du $k$-ième sinistre.\\
+	Afin d'estimer les paramètres, on utilise la fonction de maximum de vraisemblance suivante:
 	
 	\begin{align*}
 	 \mathcal{L}(\Lambda) &= \left( \Pr (N=0)\right)^{n_0} \\
-	 & \times \prod_{n_1}^{} f_{N,X_1}(n,x_1;\Lambda)\\
-	 & \times \prod_{n_2}^{} f_{N,X_1,X_2}(n,x_1,x_2;\Lambda)\\
+	 & \times \prod_{i = 1}^{n_1} f_{N,X_1}(1,x_{1,i};\lambda,\beta)\\
+	 & \times \prod_{i = 1}^{n_2} f_{N,X_1,X_2}(2,x_{1,i},x_{2,i};\lambda,\beta)\\
 	 & \dots\\
-	 & \times \prod_{n_k}^{} f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n;\Lambda)
+	 & \times \prod_{i = 1}^{n_k} f_{N,X_1,\dots,X_n}(k,x_{1,i},\dots,x_{k,i};\lambda,\beta)
 	\end{align*}
 	
+	\section{Chaptire 2 - Copule de Clayton}	
+	On a la copule de clayton $C$:
+	$$C(u_0,\dots,u_n;\alpha) = (  u_0^{-\alpha} + \dots + u_n^{-\alpha} - n)^{-\frac{1}{\alpha}}$$
 	
+	Soit $N \sim Binom(5,q)$ la v.a. de la fréquence et $X_i \sim Exp(\beta)$ la v.a. de la sévérité. 
+	Alors $	f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n;\lambda,\beta)$ devient
+	
+	\begin{align*}
+		f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n;\lambda,\beta) &= \frac{\partial^n}{\partial x_1 \dots \partial_n} (  F_N(n)^{-\alpha} + (1-e^{-\beta x_1})^{-\alpha} + \dots + (1-e^{-\beta x_n} )^{-\alpha} - n)^{-\frac{1}{\alpha}}\\
+		&   - \frac{\partial^n}{\partial x_1 \dots \partial_n}(  F_N(n-1)^{-\alpha} + (1-e^{-\beta x_1})^{-\alpha} + \dots + (1-e^{-\beta x_n} - n)^{-\alpha} - n)^{-\frac{1}{\alpha}}
+	\end{align*}
+	
+	L'expression $\frac{\partial^n}{\partial x_1 \dots \partial_n} (  F_N(n)^{-\alpha} + (1-e^{-\beta x_1})^{-\alpha} + \dots + (1-e^{-\beta x_n} )^{-\alpha} - n)^{-\frac{1}{\alpha}}$ est trouvé à l'aide du package "Deriv".
+	
+	Pour tester le fonctionnement de l'estimation. On simuler $10000$ valeurs de $N$ avec un algorithme de simulation pour la copule de clayton (VOIR diapos de theorie de risque sur les copules)
+	
+	..plus d'explication..
+	
+	\subsection{2.1 - Binomiale}
+	Premier test: les paramètres à estimer: $\alpha = 5$, $q = \frac{2}{5}$ et $\beta = \frac{1}{100}$.
+	
+	MONTRER VALEURS SIMULÉES
+	
+	RESULTATS
+	
+	
+	Premier test: les paramètres à estimer: $\alpha = 10$, $q = \frac{3}{5}$ et $\beta = \frac{1}{1000}$.
+	
+	MONTRER VALEURS SIMULÉES
+	
+	RESULTATS
+	\subsection{2.2 - Poisson}
+	
+	Test: les paramètres à estimer: $\alpha = 5$, $\lambda = 1$ et $\beta = \frac{1}{100}$.
+	
+	MONTRER VALEURS SIMULÉES
+	
+	RESULTATS
+	
+	\section{Chaptire 3 - Copule hiérarchique}	
 
 \end{document}
  

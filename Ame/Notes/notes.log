@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.30)  5 JUN 2019 16:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (MiKTeX 2.9.6840 64-bit) (preloaded format=pdflatex 2018.10.30)  6 JUN 2019 11:40
 entering extended mode
 **./notes.tex
 (notes.tex
@@ -1302,11 +1302,26 @@ File: uwasy.fd 2003/10/30 v2.0 Wasy-2 symbol font definitions
 \openout5 = `notes.toc'.
 
 
-[1] [1] (notes.aux) ) 
+[1]
+Overfull \hbox (69.07133pt too wide) in paragraph at lines 154--156
+[]\T1/cmr/m/n/10 Soit $\OML/cmm/m/it/10 N \OMS/cmsy/m/n/10  \OML/cmm/m/it/10 B
+inom\OT1/cmr/m/n/10 (5\OML/cmm/m/it/10 ; q\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 la 
+v.a. de la fré-quence et $\OML/cmm/m/it/10 X[] \OMS/cmsy/m/n/10  \OML/cmm/m/it
+/10 Exp\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 \OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 la 
+v.a. de la sé-vé-rité. Alors $\OML/cmm/m/it/10 f[]\OT1/cmr/m/n/10 (\OML/cmm/m/i
+t/10 n; x[]; [] ; x[]\OT1/cmr/m/n/10 ; \OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 )$
+ []
+
+
+Overfull \hbox (23.30588pt too wide) detected at line 160
+[]
+ []
+
+[1] [2] (notes.aux) ) 
 Here is how much of TeX's memory you used:
  31912 strings out of 492970
  722322 string characters out of 3135854
- 1082630 words of memory out of 3000000
+ 1088630 words of memory out of 3000000
  35161 multiletter control sequences out of 15000+200000
  13474 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1328,9 +1343,9 @@ nts/type1/public/amsfonts/cm/cmr5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/
 public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
 fonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
 /cmsy7.pfb>
-Output written on notes.pdf (3 pages, 150781 bytes).
+Output written on notes.pdf (4 pages, 174216 bytes).
 PDF statistics:
- 248 PDF objects out of 1000 (max. 8388607)
+ 292 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  18 words of extra memory for PDF output out of 10000 (max. 10000000)
 
