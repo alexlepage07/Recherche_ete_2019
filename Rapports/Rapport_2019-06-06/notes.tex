@@ -136,6 +136,12 @@
 	\pagenumbering{arabic} % Pagination en chiffres normaux
 	\setcounter{page}{1}
 	
+	\section{Introduction}
+	Le présent projet consiste à estimer les paramètres d'un modèle collectif du risque incluant de la dépendance entre la variable dénombrante et les variables de sévérité prises individuellement.\\
+	
+	Tout d'abord, la section sur les notions préliminaires expose le dit modèle de risque avec lien de dépendance, puis introduit la notion d'estimation de paramètres par la méthode du maximum de vraisemblance. Par la suite, on aborde le sujet des copules archimédiennes hiérarchiques puisque celles-ci constituent une classe de copule offrant une grande flexibilité.
+	Finalement, la dernière section présente les résultats de simulation afin de tester le modèle présenté.
+	
 	\section{Notions préliminaires}
 	\subsection{Modèle collectif du risque}\label{sect_Modele_Collectif}
 	
@@ -209,7 +215,7 @@
 		\caption{Arbre hiérarchique à un niveau.} \label{graph_hierarchie}
 	\end{figure}
 
-	Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}^+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut suivre des distributions discrètes comme continues en excluant les valeurs inférieurs ou égales à 0. \\
+	Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}^+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut suivre des distributions discrètes comme continues en excluant les valeurs inférieures ou égales à 0. \\
 	
 	Sous cette représentation, on obtient une copule archimédienne hiérarchique s'exprimant comme
 	
@@ -252,7 +258,7 @@
 		\caption[Estimations avec une copule de Clayton et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} \label{tbl_Clayton_Binom}
 	\end{table}
 	
-	Suite aux résultats concluants du premier exemple, un modèle avec $N \sim Pois(\lambda)$ peut ajouter un défi en terme de temps de calcul puisque cette loi a un support pouvant atteindre de grands nombres. Soient $N \sim Binom(n,q)$ et $X_i \sim X \sim Exp(\beta)$, les résultats obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
+	Suite aux résultats concluants du premier exemple, un modèle avec $N \sim Pois(\lambda)$ peut ajouter un défi en terme de temps de calcul puisque cette loi a un support pouvant atteindre de grands nombres. Soient $N \sim Pois(\lambda)$ et $X_i \sim X \sim Exp(\beta)$, les résultats obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
 	
 	% latex table generated in R 3.6.0 by xtable 1.8-4 package
 	% Thu Jun 06 16:25:40 2019
@@ -305,11 +311,6 @@
 	\clearpage
 	\bibliography{BibRRT_Presentation_2019-05-31.bib}
 	\bibliographystyle{apalike}
-	\clearpage
-	
-	\pagenumbering{arabic}% resets `page` counter to 1
-	\renewcommand*{\thepage}{A\arabic{page}}
-	\appendix
 
 \end{document}
  
