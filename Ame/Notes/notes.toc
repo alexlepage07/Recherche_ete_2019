@@ -1,7 +1,0 @@
-\babel@toc {french}{}
-\contentsline {section}{Chaptire 1 - Notions g\IeC {\'e}n\IeC {\'e}rales}{1}
-\contentsline {subsection}{1.1 - Fonction Maximum de Vraisemblance}{1}
-\contentsline {section}{Chaptire 2 - Copule de Clayton}{1}
-\contentsline {subsection}{2.1 - Binomiale}{1}
-\contentsline {subsection}{2.2 - Poisson}{2}
-\contentsline {section}{Chaptire 3 - Copule hi\IeC {\'e}rarchique}{2}

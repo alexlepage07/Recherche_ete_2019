@@ -2,6 +2,7 @@
 library(copula)
 library(Deriv)
 library(stringr)
+library(xtable)
 
 
 # ================================== Simulations des données d'entraînement ================
@@ -9,7 +10,7 @@ n <- 5
 p <- 2/5
 alpha <- 6
 lambda <- 1/100
-nsim <- 1e+3
+nsim <- 1e+4
 
 
 DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = 6))
@@ -111,6 +112,6 @@ system.time(
                        ci = c(0, 0, 0, 0),
                        outer.eps = 1e-5 )
 )
-round(mle$par, 3)
-para
-# .Machine$double.eps
+(resultats <- rbind("Estimateurs" = round(mle$par, 2), "Vrais paramètres" = para))
+xtable(resultats)
+load("Clayton_Binomial.RData")
