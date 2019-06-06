@@ -1,0 +1,153 @@
+\documentclass{article}
+\usepackage[top=0.75in, bottom=0.75in, left=1.25in, right=1in]{geometry} %formatage%
+\usepackage{amsmath} %pour utiliser des maths de base%
+\usepackage{amssymb} %pour faire \mathcal{}=>des lettres ''cursives''%
+\usepackage{graphicx} %pour importer des images...http://www.tex.ac.uk/cgi-bin/texfaq2html?label=figurehere%
+\usepackage{titlesec} %automatique, pour faire des sous-titres moins laids%
+\usepackage{cancel}
+\usepackage[procnames]{listings}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}        %http://tex.stackexchange.com/questions/11897/draw-a-diagonal-arrow-across-an-expression-in-a-formula-to-show-that-it-vanishes%
+\usepackage[frenchb]{babel}
+\usepackage{xcolor}
+\usepackage[squaren]{SIunits}
+\usepackage{subcaption} % Avoir plusieurs sous-figures (graphiques) dans une figures et pouvoire les étiqueter
+\usepackage{color}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage{wasysym}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{bbm}
+\usepackage{array}
+\usepackage{diagbox}                                 %diagonale dans les tableaux
+\usepackage{float}%placer les tableaux et images où tu veux
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{comment}
+\usepackage{pst-node}
+\usepackage{enumitem}
+\usepackage{graphicx} % Insérer des graphiques
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm, compat=1.9}
+\usetikzlibrary{patterns,decorations.pathreplacing}
+\renewcommand{\figurename}{Illustration}
+\newcommand{\tikzmark}[2]{%
+	\tikz[remember picture,baseline=(#1.base)]
+	\node[circle,red,draw,text=black,anchor=center,inner sep=1pt] (#1) {#2};}
+\newcommand{\tikzmarkk}[2]{%
+	\tikz[remember picture,baseline=(#1.base)]
+	\node (#1) {#2};}
+
+
+\setcounter{secnumdepth}{0} % sections are level 1
+
+\newtheorem{lemme}{Lemme}
+\newtheorem{preuve}{Preuve}
+\newtheorem{defini}{Définition}
+\newtheorem{propo}{Proposition}
+\newtheorem{algo}{Algorithme}
+
+\begin{document}
+	
+		\begin{titlepage}
+		\centering % Centre everything on the title page
+		
+		\scshape % Use small caps for all text on the title page
+		
+		\vspace*{3\baselineskip} % White space at the top of the page
+		
+		%------------------------------------------------
+		%	Title
+		%------------------------------------------------
+		
+		\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt} % Thick horizontal rule
+		\rule{\textwidth}{0.4pt} % Thin horizontal rule
+		
+		\vspace{0.75\baselineskip} % Whitespace above the title
+		
+		{\LARGE Notes de travail \\} % Title
+		\vspace{0.75\baselineskip} % Whitespace below the title
+		
+		\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt} % Thin horizontal rule
+		\rule{\textwidth}{1.6pt} % Thick horizontal rule
+		
+		\vspace{2\baselineskip} % Whitespace after the title block
+		
+		%------------------------------------------------
+		%	Subtitle
+		%------------------------------------------------
+		{\scshape\Large Prof. Étienne Marceau\\} % Editor list
+		
+		\vspace*{3\baselineskip}
+		
+		Estimation de copules hiérarchiques pour un modèle de risque collectif \\% Subtitle or further description
+		
+		\vspace*{3\baselineskip} % Whitespace under the subtitle
+		
+		%------------------------------------------------
+		%	Editor(s)
+		%------------------------------------------------
+		
+		Préparé par
+		
+		\vspace{0.5\baselineskip} % Whitespace before the editors
+		
+		{\scshape\Large Alexandre Lepage, 
+			Diamilatou N'diaye, Amedeo Zito \\} % Editor list
+		
+		\vspace*{3\baselineskip}
+		
+		le 06 juin 2019
+		
+		\vspace{0.5\baselineskip} % Whitespace below the editor list
+		
+		\vfill % Whitespace between editor names and publisher logo
+		
+		%------------------------------------------------
+		%	Publisher
+		%------------------------------------------------
+		
+		\includegraphics[height=1.2cm]{UL_P.pdf}\\
+		
+		Faculté des sciences et de génie\\
+		École d'actuariat\\
+		Université Laval\\
+		Automone 2018       
+	\end{titlepage}
+	
+	\newpage
+	\pagestyle{empty}
+	
+	\tableofcontents
+	
+	\newpage
+	\setcounter{page}{1}
+	\pagestyle{plain}
+	
+	\section{Chaptire 1 - Fonction Maximum de Vraisemblance}
+	\subsection{1.1 - Introduction}
+	
+	On a la copule de clayton $C$:
+	$$C(u_0,\dots,u_n;\alpha) = (  u_0^{-\alpha} + \dots + u_n^{-\alpha})^{-\frac{1}{\alpha}}$$
+	
+	La densité d'une distribution multivariée non absolument continue est donné par:
+	\begin{align*}
+	f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n) &= \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n),F_{X_1}(x_1),\dots,F_{X_n}(x_n))\\
+	&   - \frac{\partial^n}{\partial x_1 \dots \partial_n} C(F_N(n-1),F_{X_1}(x_1),\dots,F_{X_n}(x_n))
+	\end{align*}
+	
+	On utilise cette expression dans la fonction de maximum de vraisemblance avec $\Lambda$ comme vecteur de paramètres:
+	
+	\begin{align*}
+	 \mathcal{L}(\Lambda) &= \left( \Pr (N=0)\right)^{n_0} \\
+	 & \times \prod_{n_1}^{} f_{N,X_1}(n,x_1;\Lambda)\\
+	 & \times \prod_{n_2}^{} f_{N,X_1,X_2}(n,x_1,x_2;\Lambda)\\
+	 & \dots\\
+	 & \times \prod_{n_k}^{} f_{N,X_1,\dots,X_n}(n,x_1,\dots,x_n;\Lambda)
+	\end{align*}
+	
+	
+
+\end{document}
+ 
