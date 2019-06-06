@@ -1,4 +1,4 @@
-set.seed(2^30)
+
 ##algo 13
 
 
@@ -38,8 +38,29 @@ sim_algo <- function(mm,alpha_0,alpha_1,q_M_gen,q_B_gen,
   }
   return(X)
 }
-
-#fonction LTS
+# PARAMETRISATION --------------------------------------------------------------
+#PARAMETRISATION SIMULATION ET ESTIMATION
+#NOMBRE DE SIMULATION
+m <- 10^4
+#DEFINITION et PARAMETRE LOI FREQ
+lam <- 0.1
+qFreq <- function(x){
+  qpois(x,lam)
+}
+pFreq <- function(x,par) {
+  ppois(x,par)
+}
+#NOMBRE MAX DE DERIVE
+N_MAX <- qpois(0.999999,lam)
+#DEFINITION et PARAMETRE LOI SEVERITE
+al <- 1/100
+qSev <- function(x){
+  qexp(x,al)
+}
+F_x_EXP <- "(1-exp(-pa3 * X))"
+#DEFINITION et PARAMETRE LOI M
+##M est logarithmique
+a0_1 <- -log(0.5)
 LTS_M <- function(t,alpha0){
   (-1/alpha0) * log(1-(1-exp(-alpha0))*exp(-t))
 }
@@ -55,6 +76,16 @@ qu_M_gen <- function(para){
     qlogarithmic(p,1-exp(-para))
   }
 }
+PGF_LOG <- "log(1 - (pa1)*(z)) / log(1 - (pa1))"
+PGFInv_LOG <- "((1 - (1 - (pa1))^(z))/(pa1))"
+
+Lap_LOG <- "log(1 - (pa1) * exp(-(z))) / log(1 - (pa1))"
+LapInv_LOG <- "-log((1 - (1 - (pa1))^(z)) / (pa1))"
+
+
+#DEFINITION et PARAMETRE LOI B
+##B est gamma
+a1_1 <- 5
 
 LTS_B <- function(t,alpha1){
   (1/(1+t))^(1/alpha1)
@@ -72,61 +103,8 @@ qu_B_gen <- function(para){
   }
 }
 
-a0_1 <- -log(0.5)
-a0_2 <- -log(0.1)
-
-a1_1 <- 5
-a1_2 <- 25
-
-
-# Simulation --------------------------------------------------------------
-
-lam <- 0.1
-
-m <- 10^4
-# XX <- sim_algo(m,a0_1,a1_1,qu_M_gen,qu_B_gen,LTS_M_gen,LTS_B_gen,
-#                function(p) qpois(p,lam),function(p) qpareto(p,3,100))
-XX <- sim_algo(m,a0_1,a1_1,qu_M_gen,qu_B_gen,LTS_M_gen,LTS_B_gen,
-                function(p) qpois(p,lam),function(p) qexp(p,1/100))
-length(XX)
-
-LOSS <- unlist(XX)
-
-LOSS <- LOSS[LOSS>0]
-mean(LOSS)
-FREQ_LOSS <- unlist(lapply(XX,function(i) sum(i>0)))
-mean(FREQ_LOSS)
-
-S <- unlist(lapply(XX,function(i) sum(i)))
-mean(S)
-###hypothèse indép pois et pareto
-# neg_log_pois <- function(lam){
-#   -sum(log(dpois(FREQ_LOSS,lam)))
-# }
-# optimise(neg_log_pois,c(0,5))
-# 
-# neg_log_par <- function(para){
-#   -sum(log(dpareto(LOSS,para[1],para[2])))
-# }
-# constrOptim(c(3, 100), neg_log_par, grad = NULL, 
-#             ui = diag(2), ci = c(0, 0),outer.eps = .Machine$double.eps)
-
-
-# Estimation --------------------------------------------------------------
-N_MAX <- qpois(0.999999,lam)
-# N_MAX <- qpois(0.99999,lam)
-##### Estimation du M (root) et B en même temps --------------------------------------------------
-
-
-X <- matrix(rep(0,N_MAX*m),m,N_MAX)
-
-LOSS <- list()
-
-for (i in 1:N_MAX){
-  X[,i] <- unlist(lapply(XX, function(x) x[i]))
-}
-
-X[3:10,]
+Lap_GAM <- "(1 / (1 + (z)))^(1/pa2)"
+LapInv_GAM <- "((z)^(-(pa2)) - 1)"
 
 
 #library(copula)
@@ -139,6 +117,34 @@ X[3:10,]
 # Lap_M <- "(gamma)*exp(-(z)) / (1 - (1 - (gamma)) * exp(-(z)))"
 # LapInv_M <- "-log(1 / (((gamma)/(z)) + (1 - (gamma))))"
 
+# EXECUTION ---------------------------------------------------------------
+set.seed(2^30)
+XX <- sim_algo(m,a0_1,a1_1,qu_M_gen,qu_B_gen,LTS_M_gen,LTS_B_gen,
+               qFreq,qSev)
+length(XX)
+
+LOSS <- unlist(XX)
+
+LOSS <- LOSS[LOSS>0]
+mean(LOSS)
+FREQ_LOSS <- unlist(lapply(XX,function(i) sum(i>0)))
+mean(FREQ_LOSS)
+
+S <- unlist(lapply(XX,function(i) sum(i)))
+mean(S)
+
+##### Estimation du M (root) et B en même temps --------------------------------------------------
+
+
+X <- matrix(rep(0,N_MAX*m),m,N_MAX)
+
+LOSS <- list()
+
+for (i in 1:N_MAX){
+  X[,i] <- unlist(lapply(XX, function(x) x[i]))
+}
+
+X[3:10,]
 
 calcules_derive <- function(dim,F_x,Lap_M,LapInv_M,PGFInv_M,Lap_B,LapInv_B){
   C01 <- stringr::str_replace_all(Lap_M, "z", "z0 - log(z1)")
@@ -200,16 +206,7 @@ generateur_evalue_deriv <- function(dC01_v){
   }
 }
 
-F_x_EXP <- "(1-exp(-pa3 * X))"
-##M est logarithmique
-PGF_LOG <- "log(1 - (pa1)*(z)) / log(1 - (pa1))"
-PGFInv_LOG <- "((1 - (1 - (pa1))^(z))/(pa1))"
 
-Lap_LOG <- "log(1 - (pa1) * exp(-(z))) / log(1 - (pa1))"
-LapInv_LOG <- "-log((1 - (1 - (pa1))^(z)) / (pa1))"
-##B est gamma
-Lap_GAM <- "(1 / (1 + (z)))^(1/pa2)"
-LapInv_GAM <- "((z)^(-(pa2)) - 1)"
 
 dC01 <- calcules_derive(N_MAX,F_x_EXP,Lap_LOG,LapInv_LOG,PGFInv_LOG,Lap_GAM,LapInv_GAM)
 calc_deriv_dC01 <- generateur_evalue_deriv(dC01)
@@ -239,7 +236,7 @@ neg_log_vrais_C01 <- function(para,pFreq,data_N=FREQ_LOSS, data_X=X){
 }
 
 val_depart <- c(0.5,5, 1/100,lam)
-system.time(mle <- constrOptim(val_depart, neg_log_vrais_C01, pFreq = function(x,par) ppois(x,par), grad = NULL, 
+system.time(mle <- constrOptim(val_depart, neg_log_vrais_C01, pFreq = pFreq, grad = NULL, 
                    ui = diag(4), ci = c(0, 0,0,0),outer.eps = 0.01 )
 )
 ##.Machine$double.eps
