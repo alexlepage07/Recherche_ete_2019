@@ -1,46 +1,68 @@
 # On commence par tester avec une gentille petite copule de Clayton
 library(copula)
+library(nCopula)
 library(Deriv)
 library(stringr)
 library(xtable)
 
 
 # ================================== Simulations des données d'entraînement ================
-lambda <- 2
+source("../Code_simul_copule.R")
+n <- 5
+q <- 2/5
 beta <- 1/100
-alpha <- 6
-nsim <- 1e+4
-nb_xi <- ceiling(qpois(0.99999, lambda))
+alpha0 <- 0.5
+alpha1 <- 5
 
-DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = nb_xi))
-DATA_train <- cbind(qpois(DATA_train[,1], lambda),
+nsim <- 1e+3
+
+DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
+DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
-summary(DATA_train)
-nb_xi <- max(DATA_train[,1])
+
+(sommaire_train <- summary(DATA_train))
+xtable(sommaire_train)
+
+par(mfrow=c(1,2))
+hist(DATA_train[,1], breaks = 0:5, probability = T)
+hist(dbinom(0:5, n, q), breaks = 0:5, probability = T)
+plot(ecdf(DATA_train[,-1]))
+plot(0:800, pexp(0:800, beta), type="l")
+par(mfrow=c(1,1))
 
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(lambda=1, beta=1/100, alpha=6)
+para <- c(q=2/5, beta=1/100, alpha0=0.5, alpha1=5)
 
-
-F_N <- function(x0, pa1) ppois(x0, pa1)
+F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
-str_copule_ext <- "(U - n + 1) ^ (-1/pa3)"
-str_copule_int <- " u ^ (-pa3)"
+
+LST.Log <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
+LST.Log.inv <- "- log((1 - exp(-pa3 * U)) / (1 - exp(-pa3)))"
+LST.Gamma <- "(1 + T)^(- 1 / pa4)"
+LST.Gamma.inv <- "(U^(-pa4) - 1)"
+
+str_copule_ext <- str_replace(LST.Log, "T",
+                              paste0(
+                                  str_replace(LST.Log.inv, "U", "F_N(x0, pa1)"),
+                                  " + log(", LST.Gamma,")"
+                                  )
+                              )
+str_copule_int <- str_replace(LST.Gamma.inv, "U",
+                              paste0("exp(-",LST.Log.inv,")"))
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     # Génère la chaîne de caractères qui permettra d'effectuer les dérivées.
     str_tot <- str_copule_ext
-    str_int <- str_replace(str_copule_int, "u", "F_N(x0, pa1)")
+    str_int <- "0"
 
     for (i in 1:nb_xi) {
         str_int <- paste(str_int, "+", str_copule_int)
-        str_int <- str_replace(str_int,"u", paste0("(",F_X,")"))
+        str_int <- str_replace(str_int,"U", paste0("(",F_X,")"))
         str_int <- str_replace(str_int,"x_i", paste0("x",i))
     }
-    str_tot <- str_replace(str_tot, "U", str_int)
-    str_tot <- str_replace(str_tot, "n", as.character(nb_xi + 1))
+    str_tot <- str_replace(str_tot, "T", str_int)
     return(str_tot)
 }
 
@@ -55,9 +77,9 @@ chain_derivative <- function(str_copule, nb_xi){
     return(derivees)
 }
 
-time <- system.time(
-    # Évaluation des dérivées
-    derivees <- lapply(1:nb_xi, function(n)
+temps_deriv <- system.time(
+    # Calcul des dérivées
+    derivees <- lapply(1:5, function(n)
         parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
 )
 
@@ -78,6 +100,11 @@ generateur_evalue_deriv <- function(derivee){
 }
 densite <- generateur_evalue_deriv(derivees)
 
+# densite(1,c(1), para)
+# densite(2,c(100, 100), para)
+# densite(3,c(200, 200, 200), para)
+# densite(4,c(500, 500, 500, 500), para)
+# densite(5,c(900, 900, 900, 900, 900), para)
 
 dCopule <- function(n, xx=NULL, para){
     # Fonction de densité de la copule
@@ -87,7 +114,12 @@ dCopule <- function(n, xx=NULL, para){
         d <- densite(n, xx, para) - densite(n-1, xx, para)
     return(unname(d))
 }
-
+# dCopule(0,NULL, para)
+# dCopule(1,c(1), para)
+# dCopule(2,c(100, 100), para)
+# dCopule(3,c(200, 200, 200), para)
+# dCopule(4,c(500, 500, 500, 500), para)
+# dCopule(5,c(900, 900, 900, 900, 900), para)
 
 fct_Score <- function(para, Data = DATA_train){
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
@@ -100,17 +132,20 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- para
+val_depart <- c("q"=mean(DATA_train[,1] / 5),
+                "beta"=1/mean(DATA_train[,-1]),
+                "alpha0"=0.1,
+                "alpha1"=0.1)
 
-time <- time + system.time(
+
+temps_solv <- system.time(
     mle <- constrOptim(val_depart, 
                        fct_Score,
                        grad = NULL, 
-                       ui = diag(3),
-                       ci = c(0, 0, 0),
+                       ui = diag(4),
+                       ci = c(0, 0, 0, 0),
                        outer.eps = 1e-5 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 2), "Vrais paramètres" = para))
-time
+(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = para))
+(rbind(temps_deriv, temps_solv))
 xtable(resultats)
-load("Clayton_Poisson.RData")

@@ -6,34 +6,56 @@ library(xtable)
 
 
 # ================================== Simulations des données d'entraînement ================
-n <- 5
-p <- 2/5
+lambda <- 1
+beta <- 1/100
 alpha <- 6
-lambda <- 1/100
 nsim <- 1e+4
+nb_xi <- ceiling(qpois(99.9999/100, lambda))
 
-
-DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = 6))
-DATA_train <- cbind(qbinom(DATA_train[,1], n, p),
-                    qexp(DATA_train[,-1], lambda)
+DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = nb_xi))
+DATA_train <- cbind(qpois(DATA_train[,1], lambda),
+                    qexp(DATA_train[,-1], beta)
                     )
-summary(DATA_train)
+
+(sommaire_train <- summary(DATA_train))
+xtable(sommaire_train)
+
+nb_xi <- max(DATA_train[,1])
+
+par(mfrow=c(1,2))
+
+hist(DATA_train[,1], breaks = 0:nb_xi, probability = T,
+     xlab = "n", ylab = "F_N(n)",
+     main = "Empirique")
+hist(qpois((0:100)/100, lambda), breaks = 0:nb_xi, probability = T,
+     xlab = "n", ylab = "F_N(n)",
+     main = "Théorique")
+
+max_X <- max(DATA_train[,-1])
+plot(ecdf(DATA_train[,-1]), xlim = c(0, max_X),
+     xlab = "x", ylab = "F_X(x)",
+     main = "Empirique")
+plot(0:max_X, pexp(0:max_X, beta), type="l",
+     xlab = "x", ylab = "F_X(x)",
+     main = "Théorique")
+
+par(mfrow=c(1,1))
 
 
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(n=5, p=2/5, lambda=1/100, alpha=6)
+para <- c(lambda=1, beta=1/100, alpha=6)
 
 
-F_N <- function(x0, pa1, pa2) pbinom(x0, pa1, pa2)
-F_X <- "1 - exp(-x_i * pa3)"
-str_copule_ext <- "(U - n + 1) ^ (-1/pa4)"
-str_copule_int <- " u ^ (-pa4)"
+F_N <- function(x0, pa1) ppois(x0, pa1)
+F_X <- "1 - exp(-x_i * pa2)"
+str_copule_ext <- "(U - n + 1) ^ (-1/pa3)"
+str_copule_int <- " u ^ (-pa3)"
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     # Génère la chaîne de caractères qui permettra d'effectuer les dérivées.
     str_tot <- str_copule_ext
-    str_int <- str_replace(str_copule_int, "u", "F_N(x0, pa1, pa2)")
+    str_int <- str_replace(str_copule_int, "u", "F_N(x0, pa1)")
 
     for (i in 1:nb_xi) {
         str_int <- paste(str_int, "+", str_copule_int)
@@ -56,10 +78,11 @@ chain_derivative <- function(str_copule, nb_xi){
     return(derivees)
 }
 
-
-derivees <- lapply(1:5, function(n)
-    parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
-
+temps_deriv <- system.time(
+    # Calcul des dérivées
+    derivees <- lapply(1:nb_xi, function(n)
+        parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
+)
 
 generateur_evalue_deriv <- function(derivee){
     # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable.
@@ -82,7 +105,7 @@ densite <- generateur_evalue_deriv(derivees)
 dCopule <- function(n, xx=NULL, para){
     # Fonction de densité de la copule
     if (n == 0)
-        d <- F_N(0, para[1], para[2])
+        d <- F_N(0, para[1])
     else
         d <- densite(n, xx, para) - densite(n-1, xx, para)
     return(unname(d))
@@ -102,16 +125,17 @@ fct_Score <- function(para, Data = DATA_train){
 
 val_depart <- para
 
-
-
-system.time(
+temps_solv <- system.time(
     mle <- constrOptim(val_depart, 
                        fct_Score,
                        grad = NULL, 
-                       ui = diag(4),
-                       ci = c(0, 0, 0, 0),
+                       ui = diag(3),
+                       ci = c(0, 0, 0),
                        outer.eps = 1e-5 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 2), "Vrais paramètres" = para))
+(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = para))
+(rbind(temps_deriv, temps_solv))
 xtable(resultats)
-load("Clayton_Binomial.RData")
+
+load("Clayton_Poisson.RData")
+

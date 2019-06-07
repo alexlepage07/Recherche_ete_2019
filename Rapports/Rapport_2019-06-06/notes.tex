@@ -137,17 +137,17 @@
 	\setcounter{page}{1}
 	
 	\section{Introduction}
-	Le présent projet consiste à estimer les paramètres d'un modèle collectif du risque incluant de la dépendance entre la variable dénombrante et les variables de sévérité prises individuellement.\\
+	Le présent projet consiste à estimer les paramètres d'un modèle collectif du risque incorporant une structure de dépendance entre la variable aléatoire de dénombrement (fréquence) et les variables aléatoires représentant les montants individuels de sinistre.\\
 	
-	Tout d'abord, la section sur les notions préliminaires expose le dit modèle de risque avec lien de dépendance, puis introduit la notion d'estimation de paramètres par la méthode du maximum de vraisemblance. Par la suite, on aborde le sujet des copules archimédiennes hiérarchiques puisque celles-ci constituent une classe de copule offrant une grande flexibilité.
-	Finalement, la dernière section présente les résultats de simulation afin de tester le modèle présenté.
+	Tout d'abord, la section sur les notions préliminaires expose le modèle de risque avec dépendance, puis introduit la notion d'estimation de paramètres par la méthode du maximum de vraisemblance. Par la suite, on présente les copules archimédiennes hiérarchiques.
+	Finalement, la dernière section expose les résultats d'estimations sur des données simulées.
 	
 	\section{Notions préliminaires}
 	\subsection{Modèle collectif du risque}\label{sect_Modele_Collectif}
 	
 		Dans \cite{Itre5}, on propose un modèle collectif du risque dont les composantes sont dépendants entre elles. Ce modèle s'exprime comme suit: \\
 		
-		Soient $N$, la v.a. du nombre de sinistres, tel que $N \in \mathbb{N}$, et $\{X_i, i=1, \dots, n\}$, la v.a. de la sévérité des sinistres, tel que $X_i\sim X \in \mathbb{R}^+$, on a
+		Soient $N$, la v.a. du nombre de sinistres, tel que $N \in \mathbb{N}$, et la suite de v.a. $\{X_i, i \in \mathbb{N_+}\}$ représentant les montants de sinistres tel que $X_i\sim X \in \mathbb{R}_+$. On a
 		
 		\begin{equation}\label{Modele_collectif}
 			S = \sum_{i=1}^{\infty} X_i \times \mathds{1}_{\{N \geq i\}},
@@ -164,7 +164,7 @@
 		C(u_0,\dots,u_n;\alpha) = (  u_0^{-\alpha} + \dots + u_n^{-\alpha} - n)^{-\frac{1}{\alpha}}.
 		\end{equation}
 	
-		Avec le modèle posé dans la section \ref{sect_Modele_Collectif}, on peut trouver la fonction de densité de la copule $C$ de la manière suivante:\\
+		Avec le modèle posé dans la section \ref{sect_Modele_Collectif}, on peut trouver la fonction de densité de la copule $C$ de la manière décrite comme suit.\\
 	
 		Soient $\lambda$ et $\beta$ les paramètres des lois de fréquence et de sévérité respectivement, ainsi que $\alpha$, le paramètre de la copule de Clayton, alors la densité conjointe des v.a. $N$ et $(X_1, \dots X_N)$ est donnée par
 		\begin{align}
