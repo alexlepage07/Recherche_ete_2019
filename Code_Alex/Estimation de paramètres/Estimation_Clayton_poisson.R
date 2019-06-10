@@ -3,10 +3,12 @@ library(copula)
 library(Deriv)
 library(stringr)
 library(xtable)
+library(ggplot2)
+library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
-lambda <- 1
+lambda <- 1.5
 beta <- 1/100
 alpha <- 6
 nsim <- 1e+4
@@ -14,33 +16,44 @@ nb_xi <- ceiling(qpois(99.9999/100, lambda))
 
 DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = nb_xi))
 DATA_train <- cbind(qpois(DATA_train[,1], lambda),
-                    qexp(DATA_train[,-1], beta)
-                    )
+                    qexp(DATA_train[,-1], beta))
+nb_xi <- max(DATA_train[,1])
+colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
 
 (sommaire_train <- summary(DATA_train))
 xtable(sommaire_train)
 
-nb_xi <- max(DATA_train[,1])
 
-par(mfrow=c(1,2))
 
-hist(DATA_train[,1], breaks = 0:nb_xi, probability = T,
-     xlab = "n", ylab = "F_N(n)",
-     main = "Empirique")
-hist(qpois((0:100)/100, lambda), breaks = 0:nb_xi, probability = T,
-     xlab = "n", ylab = "F_N(n)",
-     main = "Théorique")
+datas <- data.frame(c(DATA_train[,1], qpois((0:100)/100, lambda)),
+               Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
 
-max_X <- max(DATA_train[,-1])
-plot(ecdf(DATA_train[,-1]), xlim = c(0, max_X),
-     xlab = "x", ylab = "F_X(x)",
-     main = "Empirique")
-plot(0:max_X, pexp(0:max_X, beta), type="l",
-     xlab = "x", ylab = "F_X(x)",
-     main = "Théorique")
+ggplot(datas, aes(datas[,1], fill = Source)) + 
+    geom_histogram(alpha = 0.3, aes(y = ..density..), position = 'identity', binwidth = 1)+
+    xlab("n") + ylab("Probabilité") +
+    theme(legend.title = element_blank())
 
-par(mfrow=c(1,1))
 
+datas <- data.frame(c(DATA_train[,-1], qexp((0:100)/100, beta)),
+                    Source <- c(rep("Simul", length(DATA_train[,-1])),rep("théorique", 101)))
+
+ggplot() + 
+    geom_histogram(alpha = 0.3, aes(x= DATA_train[,-1], y = ..density.., fill = "Empirique"), position = 'identity')+
+    geom_density(alpha = 0.3, aes(x= qexp((0:100)/100, beta), y = ..density.., fill = "Théorique")) + 
+    xlab("x") + ylab("Densité") +
+    theme(legend.title = element_blank())
+
+pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
+
+# panel.cor <- function(x, y){
+#     usr <- par("usr"); on.exit(par(usr))
+#     par(usr = c(0, 1, 0, 1))
+#     r <- round(cor(x, y, method = "spearman"), digits=4)
+#     txt <- paste0("R = ", r)
+#     cex.cor <- 0.8/strwidth(txt)
+#     text(0.5, 0.5, txt, cex = cex.cor * r)
+# }
+# pairs(DATA_train, upper.panel = panel.cor, lower.panel = function(x,y) points(x,y))
 
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c(lambda=1, beta=1/100, alpha=6)
@@ -133,9 +146,10 @@ temps_solv <- system.time(
                        ci = c(0, 0, 0),
                        outer.eps = 1e-5 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = para))
-(rbind(temps_deriv, temps_solv))
+(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("temps de dérivation"=temps_deriv[[3]], "temps d'estimation"=temps_solv[[3]]))
 xtable(resultats)
+xtable(temps_tot)
 
 load("Clayton_Poisson.RData")
 

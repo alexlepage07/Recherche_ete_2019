@@ -3,6 +3,8 @@ library(copula)
 library(Deriv)
 library(stringr)
 library(xtable)
+library(ggplot2)
+library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
@@ -17,28 +19,30 @@ DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = 6))
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
+colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
 
 (sommaire_train <- summary(DATA_train))
 xtable(sommaire_train)
 
-par(mfrow=c(1,2))
+datas <- data.frame(c(DATA_train[,1], qbinom((0:100)/100, n, q)),
+                    Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
 
-hist(DATA_train[,1], breaks = 0:n, probability = T,
-     xlab = "n", ylab = "F_N(n)",
-     main = "Empirique")
-hist(qbinom((0:100)/100, n, q), breaks = 0:n, probability = T,
-     xlab = "n", ylab = "F_N(n)",
-     main = "Théorique")
+ggplot(datas, aes(datas[,1], fill = Source)) + 
+    geom_histogram(alpha = 0.3, aes(y = ..density..), position = 'identity', binwidth = 1)+
+    xlab("n") + ylab("Probabilité") +
+    theme(legend.title = element_blank())
 
-max_X <- max(DATA_train[,-1])
-plot(ecdf(DATA_train[,-1]), xlim = c(0, max_X),
-     xlab = "x", ylab = "F_X(x)",
-     main = "Empirique")
-plot(0:max_X, pexp(0:max_X, beta), type="l",
-     xlab = "x", ylab = "F_X(x)",
-     main = "Théorique")
 
-par(mfrow=c(1,1))
+datas <- data.frame(c(DATA_train[,-1], qexp((0:100)/100, beta)),
+                    Source <- c(rep("Simul", length(DATA_train[,-1])),rep("théorique", 101)))
+
+ggplot() + 
+    geom_histogram(alpha = 0.3, aes(x= DATA_train[,-1], y = ..density.., fill = "Empirique"), position = 'identity')+
+    geom_density(alpha = 0.3, aes(x= qexp((0:100)/100, beta), y = ..density.., fill = "Théorique")) + 
+    xlab("x") + ylab("Densité") +
+    theme(legend.title = element_blank())
+
+pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
 
 
 # ================================== Estimation des paramètres d'entraînement ======================
@@ -136,8 +140,10 @@ temps_solv <- system.time(
                        outer.eps = 1e-5 )
 )
 
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = para))
-(rbind(temps_deriv, temps_solv))
+(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("temps de dérivation"=temps_deriv[[3]], "temps d'estimation"=temps_solv[[3]]))
 xtable(resultats)
+xtable(temps_tot)
 
 load("Clayton_Binomial.RData")
+
