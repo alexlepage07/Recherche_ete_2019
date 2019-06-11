@@ -8,7 +8,7 @@ library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
-lambda <- 1.5
+lambda <- 1
 beta <- 1/100
 alpha <- 6
 nsim <- 1e+4
@@ -45,15 +45,6 @@ ggplot() +
 
 pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
 
-# panel.cor <- function(x, y){
-#     usr <- par("usr"); on.exit(par(usr))
-#     par(usr = c(0, 1, 0, 1))
-#     r <- round(cor(x, y, method = "spearman"), digits=4)
-#     txt <- paste0("R = ", r)
-#     cex.cor <- 0.8/strwidth(txt)
-#     text(0.5, 0.5, txt, cex = cex.cor * r)
-# }
-# pairs(DATA_train, upper.panel = panel.cor, lower.panel = function(x,y) points(x,y))
 
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c(lambda=1, beta=1/100, alpha=6)
@@ -84,18 +75,25 @@ chain_derivative <- function(str_copule, nb_xi){
     # Fonction qui effectue les dérivations en chaîne sur le texte généré précédemment
     X_i <- sapply(1:nb_xi, function(i) paste0("x",i))
     derivees <- str_copule
-    
     for (xi in X_i){
         derivees <- Deriv(derivees, xi, cache.exp = T)
     }
     return(derivees)
 }
 
-temps_deriv <- system.time(
+temps_deriv <- numeric(nb_xi)
+for (n in 1:(nb_xi)){
     # Calcul des dérivées
-    derivees <- lapply(1:nb_xi, function(n)
-        parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
-)
+    temps_deriv[n] <- system.time(
+    derivees <- parse(text = 
+            chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n))
+    )[[3]]
+    print(c("Dérivée"=n, "temps"=temps_deriv[n]))
+}
+plot(temps_deriv[1:8], ylim=c(0,500), type="l",
+     xlab="nb de dérivées partielles",
+     ylab="temps de dérivation")
+
 
 generateur_evalue_deriv <- function(derivee){
     # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable.
@@ -136,7 +134,7 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- para
+val_depart <- c(mean(DATA_train[,1]), 1/mean(DATA_train[,-1]), 1)
 
 temps_solv <- system.time(
     mle <- constrOptim(val_depart, 
@@ -151,5 +149,5 @@ temps_solv <- system.time(
 xtable(resultats)
 xtable(temps_tot)
 
-load("Clayton_Poisson.RData")
+load("Estimation_Clayton_poisson_2.RData")
 

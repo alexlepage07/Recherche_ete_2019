@@ -16,4 +16,9 @@ Cossette, H., Gadoury, S.-P., Marceau, E., and Robert, C.~Y. (2019a).
 Cossette, H., Marceau, E., and Mtalai, I. (2019b).
 \newblock Collective risk models with dependance.
 
+\bibitem[Klugman et~al., 2012]{LossModels_Klugman2012}
+Klugman, S., Panjer, H., and Willmot, G. (2012).
+\newblock {\em Loss Models: From Data to Decisions}.
+\newblock Wiley, fourth edition.
+
 \end{thebibliography}

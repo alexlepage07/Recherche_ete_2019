@@ -14,45 +14,45 @@ I was expecting a `,' or a `}'---line 37 of file BibRRT_Presentation_2019-05-31.
 (Error may have been on previous line)
 I'm skipping whatever remains of this entry
 Warning--empty journal in Itre5
-You've used 3 entries,
+You've used 4 entries,
             1935 wiz_defined-function locations,
-            490 strings with 4312 characters,
-and the built_in function-call counts, 1089 in all, are:
-= -- 97
-> -- 64
+            497 strings with 4448 characters,
+and the built_in function-call counts, 1438 in all, are:
+= -- 129
+> -- 82
 < -- 0
-+ -- 23
-- -- 22
-* -- 92
-:= -- 211
-add.period$ -- 8
-call.type$ -- 3
-change.case$ -- 26
-chr.to.int$ -- 2
-cite$ -- 4
-duplicate$ -- 39
-empty$ -- 61
-format.name$ -- 25
-if$ -- 197
++ -- 29
+- -- 28
+* -- 121
+:= -- 275
+add.period$ -- 11
+call.type$ -- 4
+change.case$ -- 34
+chr.to.int$ -- 3
+cite$ -- 5
+duplicate$ -- 53
+empty$ -- 84
+format.name$ -- 32
+if$ -- 264
 int.to.chr$ -- 2
 int.to.str$ -- 0
-missing$ -- 3
-newline$ -- 17
-num.names$ -- 9
-pop$ -- 24
+missing$ -- 5
+newline$ -- 22
+num.names$ -- 12
+pop$ -- 34
 preamble$ -- 1
-purify$ -- 26
+purify$ -- 34
 quote$ -- 0
-skip$ -- 32
+skip$ -- 41
 stack$ -- 0
-substring$ -- 36
-swap$ -- 2
+substring$ -- 48
+swap$ -- 3
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 18
+type$ -- 22
 warning$ -- 1
-while$ -- 6
+while$ -- 8
 width$ -- 0
-write$ -- 38
+write$ -- 51
 (There were 2 error messages)

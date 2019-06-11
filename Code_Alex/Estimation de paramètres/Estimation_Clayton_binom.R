@@ -13,6 +13,7 @@ q <- 2/5
 alpha <- 6
 beta <- 1/100
 nsim <- 1e+4
+xtable(data.frame(n, q, alpha, beta))
 
 
 DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = 6))
@@ -128,7 +129,7 @@ fct_Score <- function(para, Data = DATA_train){
 
 val_depart <- c("q"=mean(DATA_train[,1] / 5),
                 "beta"=1/mean(DATA_train[,-1]),
-                "alpha"=0.1)
+                "alpha"=1)
 
 
 temps_solv <- system.time(
