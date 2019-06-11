@@ -191,302 +191,305 @@
 		 & \times \prod_{i = 1}^{n_k} f_{N,X_1,\dots,X_k}(k,x_{i,1},\dots,x_{i,k};\lambda,\beta, \alpha).
 		\end{align*}
 		 
-		Par la suite, afin d'estimer les paramètres, il faut avoir recours à une méthode d'optimisation numérique. Cela implique de trouver le minimum d'une fonction strictement décroissante. Pour cette raison, il faut minimiser la log-vraisemblance négative.\\
+		Par la suite, afin d'estimer les paramètres, il faut avoir recours à une méthode d'optimisation numérique afin de maximiser le log de la fonction de vraisemblance.\\
 		
-		On obtient donc
+		On obtient
 		\begin{align}
 		\ell(\lambda, \beta, \alpha) 
-		&=  - n_0 \times \ln \left( \Pr (N=0 ; \lambda) \right) \nonumber\\
-		& - \sum_{i=1}^{n_1} \ln \left(f_{N,X_1}(1,x_{i,1};\lambda,\beta, \alpha) \right) \nonumber \\
-		& - \sum_{i=1}^{n_2} \ln \left(f_{N,X_1,X_2}(2,x_{i,1},x_{i,2};\lambda,\beta, \alpha)\right) \label{logLikelyhood_neg} \\
+		&= n_0 \times \ln \left( \Pr (N=0 ; \lambda) \right) \nonumber\\
+		& + \sum_{i=1}^{n_1} \ln \left(f_{N,X_1}(1,x_{i,1};\lambda,\beta, \alpha) \right) \nonumber \\
+		& + \sum_{i=1}^{n_2} \ln \left(f_{N,X_1,X_2}(2,x_{i,1},x_{i,2};\lambda,\beta, \alpha)\right) \label{logLikelyhood} \\
 		& \dots \nonumber\\
-		& - \sum_{i=1}^{n_k} \ln \left( f_{N,X_1,\dots,X_k}(k,x_{i,1},\dots,x_{i,k};\lambda,\beta, \alpha)\right). \nonumber
+		& + \sum_{i=1}^{n_k} \ln \left( f_{N,X_1,\dots,X_k}(k,x_{i,1},\dots,x_{i,k};\lambda,\beta, \alpha)\right). \nonumber
 		\end{align}
 		
-		Finalement, on calcule numériquement les paramètres en utilisant la fonction \texttt{R} \texttt{constrOptim}\footnote{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/constrOptim.html}. Afin de s'assurer que le processus d'optimisation numérique soit le plus précis possible, il faut entrer en argument de cette fonction des valeurs initiales adéquates pour chacun des paramètres à estimer. Pour ce faire, la méthode du maximum de vraisemblance de la distribution marginale de chacune des variables est un choix judicieux. Dans le cas où cette méthode s'avère trop laborieuse, on peut compenser avec la méthode des moments ou des quantiles (voir \cite{LossModels_Klugman2012}).
+		Finalement, on calcule numériquement les paramètres en utilisant la fonction \texttt{R} \texttt{constrOptim}\footnote{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/constrOptim.html}. Cette dernière cherche à minimiser une fonction passée en argument. La fonction qui sera donc insérée en argument sera le négatif de \eqref{logLikelyhood}.
+		Afin de s'assurer que le processus d'optimisation numérique soit le plus précis possible, il faut entrer en argument de cette fonction des valeurs initiales adéquates pour chacun des paramètres à estimer. Pour ce faire, la méthode du maximum de vraisemblance de la distribution marginale de chacune des variables est un choix judicieux. Dans le cas où cette méthode s'avère trop laborieuse, on peut compenser avec la méthode des moments ou des quantiles (voir \cite{LossModels_Klugman2012}).
 		
 
 	\subsection{Copule archimédienne hiérarchique}	
-	Comme les copules archimédiennes hiérarchiques offrent une bonne flexibilité dans la modélisation de la dépendance, la présente section se penchera sur ce sujet d'intérêt.\\
+		Comme les copules archimédiennes hiérarchiques offrent une bonne flexibilité dans la modélisation de la dépendance, la présente section se penchera sur ce sujet d'intérêt.\\
+		
+		Les copules archimédiennes hiérarchiques avec des distributions multivariées composées sont décrites dans \cite{Itre4}. La représentation graphique du modèle collectif du risque tel que décrit dans la section \ref{sect_Modele_Collectif} et expliquée dans \cite{Itre5} est présentée dans l'illustration \ref{graph_hierarchie}.
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=5cm]{Hierarchie}
+			\renewcommand{\figurename}{Illustration}
+			\caption{Arbre hiérarchique à un niveau.} \label{graph_hierarchie}
+		\end{figure}
 	
-	Les copules archimédiennes hiérarchiques avec des distributions multivariées composées sont décrites dans \cite{Itre4}. La représentation graphique du modèle collectif du risque tel que décrit dans la section \ref{sect_Modele_Collectif} et expliquée dans \cite{Itre5} est présentée dans l'illustration \ref{graph_hierarchie}.
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[height=5cm]{Hierarchie}
-		\renewcommand{\figurename}{Illustration}
-		\caption{Arbre hiérarchique à un niveau.} \label{graph_hierarchie}
-	\end{figure}
-
-	Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}_+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut appartenir à $R_+$ comme à $N_+$. \\
-	
-	Sous cette représentation, on obtient une copule archimédienne hiérarchique s'exprimant comme
-	
-	\begin{equation}
-	C(u_0, u_1, \dots, u_n) =
-		\mathscr{L}_{\theta_0} \left(
-			\mathscr{L}_{\theta_0}^{-1}(u_0) - \ln \left( 
-				\mathscr{L}_B  \left(
-					\sum_{i=1}^{n} \mathscr{L}_{B}^{-1} \left(
-					 \exp \left(
-					  - \mathscr{L}_{\theta_0}^{-1}(u_i) 
-					  \right) \right)\right)\right)\right),
-	\end{equation}
-	où $\mathscr{L}$ correspond à la transformée de Laplace-Stieltjes d'une variable aléatoire.\\
-	
-	À ce point-ci, afin de trouver les paramètres d'une telle copule, il suffit d'appliquer \eqref{densite_composee} et \eqref{logLikelyhood_neg}, puis d'optimiser numériquement.
-	
+		Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}_+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut appartenir à $R_+$ comme à $N_+$. \\
+		
+		Sous cette représentation, on obtient une copule archimédienne hiérarchique s'exprimant comme
+		
+		\begin{equation}
+		C(u_0, u_1, \dots, u_n) =
+			\mathscr{L}_{\theta_0} \left(
+				\mathscr{L}_{\theta_0}^{-1}(u_0) - \ln \left( 
+					\mathscr{L}_B  \left(
+						\sum_{i=1}^{n} \mathscr{L}_{B}^{-1} \left(
+						 \exp \left(
+						  - \mathscr{L}_{\theta_0}^{-1}(u_i) 
+						  \right) \right)\right)\right)\right),
+		\end{equation}
+		où $\mathscr{L}$ correspond à la transformée de Laplace-Stieltjes d'une variable aléatoire.\\
+		
+		À ce point-ci, afin de trouver les paramètres d'une telle copule, il suffit d'appliquer \eqref{densite_composee} et \eqref{logLikelyhood}, puis d'optimiser numériquement.
+		
 	\section{Résultats}
-	La présente section explique les scénarios testés ainsi que les résultats obtenus avec la méthodologie expliquée dans la section \ref{sect_Maxlikelyhood}.\\
-	
-	Pour les fins du présent travail, les estimations sont faites sur des données simulées. Pour faire ces simulations, le module \texttt{R} nommé \texttt{copula} \footnote{https://cran.r-project.org/web/packages/copula/copula.pdf}
-	offre une fonction \texttt{rCopula} avec laquelle, il est possible de simuler différentes copules connues, dont la copule de Clayton. \\
-	
-	Pour les copules archimédiennes hiérarchique, le module \texttt{nCopula} \footnote{https://cran.r-project.org/web/packages/nCopula/nCopula.pdf} offre une fonction nommée \texttt{rCompCop} qui permet de simuler de la même façon que \texttt{rCopula}, mais en entrant comme argument la structure hiérarchique.
+		La présente section explique les scénarios testés ainsi que les résultats obtenus avec la méthodologie expliquée dans la section \ref{sect_Maxlikelyhood}.\\
+		
+		Pour les fins du présent travail, les estimations sont faites sur des données simulées. Pour faire ces simulations, le module \texttt{R} nommé \texttt{copula} \footnote{https://cran.r-project.org/web/packages/copula/copula.pdf}
+		offre une fonction \texttt{rCopula} avec laquelle, il est possible de simuler différentes copules connues, dont la copule de Clayton. \\
+		
+		Pour les copules archimédiennes hiérarchique, le module \texttt{nCopula} \footnote{https://cran.r-project.org/web/packages/nCopula/nCopula.pdf} offre une fonction nommée \texttt{rCompCop} qui permet de simuler de la même façon que \texttt{rCopula}, mais en entrant comme argument la structure hiérarchique.
 	
 	\subsection{Copule de Clayton}
-	\begin{Scenario}\label{scenario_Clayton_Binom}
-		\textbf{Binomial}:
-	\end{Scenario}
-		Pour débuter gentiment, prenons un modèle binomial-exponentiel avec une copule de Clayton dont la représentation est exprimée en \eqref{Copule_Clayton}.
-		Soient $N \sim Binom(n,q)$ et $X_i \sim X \sim Exp(\beta)$ et le paramètre de dépendance de la copule est dénotée $\alpha$.\\
-	
-	
-	 Pour le premier scénario, on utilise des données simulées avec les paramètre initiaux présentés dans le tableau \ref{tbl_para_initiaux_Clayton_Binom}.
+%		Scénario 1 : Binomial
+		 \begin{Scenario}\label{scenario_Clayton_Binom}
+			\textbf{Binomial}:
+		 \end{Scenario}
 	 
-	 \begin{table}[H]
-	 	\centering
-	 	\begin{tabular}{cccc}
-	 		\hline
-	 		$n$ & $q$ & $\alpha$ & $\beta$ \\ 
-	 		\hline
-	 		5.00 & 0.40 & 6.00 & 0.01 \\ 
-	 		\hline
-	 	\end{tabular}
- 	\caption{Paramètres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta)$.}
- 	\label{tbl_para_initiaux_Clayton_Binom}
-	 \end{table}
-	 
-	 Le sommaire des données simulées aux fins de l'estimation sont présentées dans le tableau \ref{tbl_sommaire_Clayton_Binom}. On y voit que la moyenne du nombre de sinistres est de 2 et que la moyenne des $x_i$ est très proche de 100; ce qui correspond aux attentes.
-	 De plus, les quantiles des $X_i$ sont très proches l'un de l'autre; ce qui signifie que l'adéquation des variables simulées est bonne. Visuellement parlant, l'illustration \ref{graph_densite_Binom} présente l'adéquation des données empiriques avec les lois théoriques. On voit donc que les variables simulées ont un comportement très similaire à la distribution marginale théorique des variables.\\
+		 Pour débuter gentiment, prenons un modèle binomial-exponentiel avec une copule de Clayton dont la représentation est exprimée en \eqref{Copule_Clayton}.
+		 Soient $N \sim Binom(n,q)$ et $X_i \sim X \sim Exp(\beta)$ et le paramètre de dépendance de la copule est dénotée $\alpha$.\\
 	
-	% latex table generated in R 3.6.0 by xtable 1.8-4 package
-	% Mon Jun 10 14:46:22 2019
-	\begin{table}[H]
-		\centering
-		\begin{tabular}[width=\textwidth]{llllll}
-			\hline
-			       $N$ &       $X_1$ &       $X_2$ &             \\ 
-			\hline
-			Min.   :0.000   & Min.   :  0.0046   & Min.   :   0.0035      \\ 
-			1st Qu.:1.000   & 1st Qu.: 28.5104   & 1st Qu.:  28.2379      \\ 
-			Median :2.000   & Median : 68.3689   & Median :  68.8120      \\ 
-			Mean   :2.001   & Mean   :100.8227   & Mean   : 100.1348      \\ 
-			3rd Qu.:3.000   & 3rd Qu.:139.9337   & 3rd Qu.: 136.6506      \\ 
-			Max.   :5.000   & Max.   :997.1353   & Max.   :1186.4911      \\ 
-			\hline
-		\end{tabular}
-		%
-		\begin{tabular}[width=\textwidth]{lll}
-			\hline
-			       $X_3$ &       $X_4$ &       $X_5$ \\ 
-			\hline
-			 Min.   :  0.0032   & Min.   :   0.0035   & Min.   :  0.0028   \\ 
-			 1st Qu.: 28.5687   & 1st Qu.:  28.2418   & 1st Qu.: 28.7874   \\ 
-			 Median : 68.7141   & Median :  68.1072   & Median : 68.0692   \\ 
-			 Mean   : 99.0552   & Mean   : 100.5849   & Mean   :100.6532   \\ 
-			 3rd Qu.:136.9080   & 3rd Qu.: 138.4138   & 3rd Qu.:139.0188   \\ 
-			 Max.   :857.5771   & Max.   :1026.7730   & Max.   :952.8392   \\ 
-			\hline
-		\end{tabular}
-	\caption[Sommaire des données simulées pour une copule de Clayton avec une loi de fréquence binomiale.]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}
-	\label{tbl_sommaire_Clayton_Binom}
-	\end{table}
-
-
-	\begin{figure}[H]
-	\begin{subfigure}[l]{0.5\textwidth}
-		\includegraphics[width=\textwidth]{Graph/Clayton_Binom_N.png}
-		\caption{Fréquence}
-	\end{subfigure}
-	%
-	\begin{subfigure}[r]{0.5\textwidth}
-		\includegraphics[width=\textwidth]{Graph/Clayton_Binom_X.png}
-		\caption{Sévérité}
-	\end{subfigure}
-	\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_Clayton_Binom}.}
-	\label{graph_densite_Binom}
-	\end{figure}
-	
-	Pour ce qui est du comportement entre les variables, l'illustration \ref{graph_scatterplot_Binom} présente les nuages de points représentant les corrélations. On y voit que le $\rho$ de Spearman est différent si l'une des deux variables impliquée est discrète et l'autre est continue. Puis, on voit que la corrélation est la même pour tous les $X_i$ entre eux. De plus, la forme des nuages de points pour les variables continues est caractéristique de la copule de Clayton. Cela indique que la simulation sort des résultats adéquats.\\
-	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[height=10cm]{Graph/scatterplot_Binom.png}
-		\caption[Nuage de points avec copule de Clayton, $N\sim Binom(5, 2/5)$ et $X\sim Exp(1/100)$]
-		{Nuage de points du scénario \ref{scenario_Clayton_Binom}: \\
-			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon des variables continues. Cela implique que la première ligne n'est pas valide.}
-		\label{graph_scatterplot_Binom}
-	\end{figure}
-	
-	\begin{enumerate}
-		\item[Scénario]  test
-	\end{enumerate}
+		 Pour le premier scénario, on utilise des données simulées avec les paramètre initiaux présentés dans le tableau \ref{tbl_para_initiaux_Clayton_Binom}.
+		 
+		 \begin{table}[H]
+		 	\centering
+		 	\begin{tabular}{cccc}
+		 		\hline
+		 		$n$ & $q$ & $\alpha$ & $\beta$ \\ 
+		 		\hline
+		 		5.00 & 0.40 & 6.00 & 0.01 \\ 
+		 		\hline
+		 	\end{tabular}
+	 	\caption{Paramètres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta)$.}
+	 	\label{tbl_para_initiaux_Clayton_Binom}
+		 \end{table}
+		 
+		Le sommaire des données simulées aux fins de l'estimation sont présentées dans le tableau \ref{tbl_sommaire_Clayton_Binom}. On y voit que la moyenne du nombre de sinistres est de 2 et que la moyenne des $x_i$ est très proche de 100; ce qui correspond aux attentes.
+		De plus, les quantiles des $X_i$ sont très proches l'un de l'autre; ce qui signifie que les variables $X_i$ sont identiquement distribués. Visuellement parlant, l'illustration \ref{graph_densite_Binom} présente l'adéquation des données empiriques avec les lois théoriques. On voit donc que les variables simulées ont un comportement très similaire à la distribution marginale théorique des variables.\\
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Mon Jun 10 14:46:22 2019
+		\begin{table}[H]
+			\centering
+			\begin{tabular}[width=\textwidth]{llllll}
+				\hline
+				       $N$ &       $X_1$ &       $X_2$ &             \\ 
+				\hline
+				Min.   :0.000   & Min.   :  0.0046   & Min.   :   0.0035      \\ 
+				1st Qu.:1.000   & 1st Qu.: 28.5104   & 1st Qu.:  28.2379      \\ 
+				Median :2.000   & Median : 68.3689   & Median :  68.8120      \\ 
+				Mean   :2.001   & Mean   :100.8227   & Mean   : 100.1348      \\ 
+				3rd Qu.:3.000   & 3rd Qu.:139.9337   & 3rd Qu.: 136.6506      \\ 
+				Max.   :5.000   & Max.   :997.1353   & Max.   :1186.4911      \\ 
+				\hline
+			\end{tabular}
+			%
+			\begin{tabular}[width=\textwidth]{lll}
+				\hline
+				       $X_3$ &       $X_4$ &       $X_5$ \\ 
+				\hline
+				 Min.   :  0.0032   & Min.   :   0.0035   & Min.   :  0.0028   \\ 
+				 1st Qu.: 28.5687   & 1st Qu.:  28.2418   & 1st Qu.: 28.7874   \\ 
+				 Median : 68.7141   & Median :  68.1072   & Median : 68.0692   \\ 
+				 Mean   : 99.0552   & Mean   : 100.5849   & Mean   :100.6532   \\ 
+				 3rd Qu.:136.9080   & 3rd Qu.: 138.4138   & 3rd Qu.:139.0188   \\ 
+				 Max.   :857.5771   & Max.   :1026.7730   & Max.   :952.8392   \\ 
+				\hline
+			\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Binom}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}
+		\label{tbl_sommaire_Clayton_Binom}
+		\end{table}
 	
 	
-	Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeur de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $q \approx E[N]/n$, $\beta \approx 1/E[X]$. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\
-	
-	Pour ce scénario, on a comme valeur de départ $q \approx 0.400\,280, \beta \approx 0.009\,975$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs  présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
-	
-	% latex table generated in R 3.6.0 by xtable 1.8-4 package
-	% Mon Jun 10 14:54:45 2019
-	\begin{table}[H]
-		\centering
-		\begin{tabular}{rrrr}
-			\hline
-			& q & beta & alpha \\ 
-			\hline
-			Estimateurs & 0.4024 & 0.0099 & 5.9539 \\ 
-			Vrais paramètres & 0.4000 & 0.0100 & 6.0000 \\ 
-			\hline
-		\end{tabular}
-		%
-		\begin{tabular}{rr}
-			\hline
-			&  \\ 
-			\hline
-			temps de dérivation & 4.22 \\ 
-			temps d'estimation & 180.23 \\ 
-			\hline
-		\end{tabular}
-		\caption[Estimations avec une copule de Clayton et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
-		\label{tbl_Clayton_Binom}
-	\end{table}
-	
-	\paragraph{Poisson:} À la suite des résultats concluants du premier exemple, un modèle avec une loi de fréquence ayant un support infini peut ajouter un défi en terme de temps de calcul. Pour ce scénario, posons que $N \sim Pois(\lambda=1)$ et $X_i \sim X \sim Exp(\beta=1/100)$ et que le paramètre de dépendance de la Copule de Clayton est $\alpha = 6$. \\
-	
-	Comme pour le scénario précédent, un sommaire des données simulées aux fins de l'estimation est présenté dans le tableau \ref{tbl_sommaire_Clayton_Pois_1}, l'illustrations \ref{graph_scatterplot_Poiss_1} compare la distribution marginale des données simulées avec celle des lois théorique et l'illustration \ref{graph_scatterplot_Poiss_1} présente les nuages de points des variables simulées afin de voir les corrélations.
-	
-	% latex table generated in R 3.6.0 by xtable 1.8-4 package
-	% Mon Jun 10 10:40:57 2019
-	\begin{table}[H]
-		\centering
-		\begin{tabular}{lllll}
-			\hline
-			       $N$ &      $X_1$ &      $X_2$ &       $X_3$ &       $X_4$ \\
-			\hline
-			 Min.   :0.0000   & Min.   :   0.0093   & Min.   :  0.012   & Min.   :  0.0129   & Min.   :   0.0172 \\
-			 1st Qu.:0.0000   & 1st Qu.:  29.7317   & 1st Qu.: 29.593   & 1st Qu.: 29.4194   & 1st Qu.:  29.5410 \\
-			 Median :1.0000   & Median :  70.2592   & Median : 70.060   & Median : 70.3962   & Median :  70.1612 \\
-			 Mean   :0.9989   & Mean   : 101.2211   & Mean   :101.325   & Mean   :100.4977   & Mean   : 101.1802 \\
-			 3rd Qu.:2.0000   & 3rd Qu.: 140.8462   & 3rd Qu.:141.488   & 3rd Qu.:136.6166   & 3rd Qu.: 139.6666 \\
-			 Max.   :6.0000   & Max.   :1003.4804   & Max.   :884.530   & Max.   :875.3387   & Max.   :1071.0681 \\
-			\hline
-		\end{tabular}
-
-		\begin{tabular}{llll}
-			\hline
-			$X_5$ &      $X_6$ &       $X_7$ &       $X_8$ \\ 
-			\hline
-			Min.   :   0.0121   & Min.   :  0.0118   & Min.   :  0.01   & Min.   :   0.0105   \\ 
-			1st Qu.:  29.3078   & 1st Qu.: 29.7289   & 1st Qu.: 29.23   & 1st Qu.:  29.6958   \\ 
-			Median :  70.1336   & Median : 70.0210   & Median : 70.47   & Median :  70.2837   \\ 
-			Mean   : 100.2858   & Mean   :100.6869   & Mean   :100.69   & Mean   : 100.3833   \\ 
-			3rd Qu.: 137.5781   & 3rd Qu.:138.3483   & 3rd Qu.:136.65   & 3rd Qu.: 138.1448   \\ 
-			Max.   :1089.6821   & Max.   :952.6193   & Max.   :810.01   & Max.   :1029.2935   \\ 
-			\hline
-	\end{tabular}
-	\caption[Sommaire des données simulées pour une copule de Clayton avec une loi de fréquence de Poisson.]{Sommaire de $10\,000$ simulations d'une copule de Clayton avec $N \sim Pois(1),\ X\sim Exp(1/100)$ et $\alpha=6$.}\label{tbl_sommaire_Clayton_Pois_1}
-	\end{table}
-	
-	\begin{figure}[H]
+		\begin{figure}[H]
 		\begin{subfigure}[l]{0.5\textwidth}
-			\includegraphics[width=\textwidth]{Graph/Clayton_Poiss_1_N.png}
+			\includegraphics[width=\textwidth]{Graph/Clayton_Binom_N.png}
 			\caption{Fréquence}
 		\end{subfigure}
 		%
 		\begin{subfigure}[r]{0.5\textwidth}
-			\includegraphics[width=\textwidth]{Graph/Clayton_Poiss_1_X.png}
+			\includegraphics[width=\textwidth]{Graph/Clayton_Binom_X.png}
 			\caption{Sévérité}
 		\end{subfigure}
-		\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario avec une copule de Clayton, $N \sim Pois(1)$ et $X_i \sim X \sim Exp(1/100)$.}\label{graph_densite_Poisson_1}
-	\end{figure}
-
-	\begin{figure}[H]
-		\centering
-		\includegraphics[height=10cm]{Graph/scatterplot_Poisson_1.png}
-		\caption[Nuage de points avec copule de Clayton, $N\sim Pois(1)$ et $X\sim Exp(1/100)$]{Nuage de points avec copule de Clayton, $N\sim Pois(1)$, $X\sim Exp(1/100)$ et $\alpha = 6$: \\
-			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, se trouve les coefficients de corrélation de Spearman.} 
-		\label{graph_scatterplot_Poiss_1}
-	\end{figure}
-
-	Comme pour le Scénario précédent, le tableau \ref{tbl_sommaire_Clayton_Pois_1} et les illustrations \ref{graph_scatterplot_Poiss_1} démontrent que les résultats de la simulation sont adéquats.\\
+		\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_Clayton_Binom}.}
+		\label{graph_densite_Binom}
+		\end{figure}
+		
+		Pour ce qui est du comportement entre les variables, l'illustration \ref{graph_scatterplot_Binom} présente les nuages de points représentant les corrélations. On y voit que le $\rho$ de Spearman est le même pour tous les $X_i$. De plus, la forme des nuages de points pour les variables continues est caractéristique de la copule de Clayton. Cela indique que la simulation sort des résultats adéquats.\\
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=10cm]{Graph/scatterplot_Binom.png}
+			\caption[Nuages de points du scénario \ref{scenario_Clayton_Binom}]
+			{Nuages de points avec copule de Clayton ($\alpha = 6$), $N\sim Binom(5,2/5)$ et $X_i \sim X\sim Exp(1/100)$:
+				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+			\label{graph_scatterplot_Binom}
+		\end{figure}
+		
+		Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeurs de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $q \approx E[N]/n$, $\beta \approx 1/E[X]$. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\
+		
+		Pour ce scénario, on a comme valeur de départ $q \approx 0.400\,280, \beta \approx 0.009\,975$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs  présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Mon Jun 10 14:54:45 2019
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{rrrr}
+				\hline
+				& q & beta & alpha \\ 
+				\hline
+				Estimateurs & 0.4024 & 0.0099 & 5.9539 \\ 
+				Vrais paramètres & 0.4000 & 0.0100 & 6.0000 \\ 
+				\hline
+			\end{tabular}
+			%
+			\begin{tabular}{rr}
+				\hline
+				&  \\ 
+				\hline
+				temps de dérivation & 4.22 \\ 
+				temps d'estimation & 180.23 \\ 
+				\hline
+			\end{tabular}
+			\caption[Estimations avec une copule de Clayton et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
+			\label{tbl_Clayton_Binom}
+		\end{table}
+		
+%		Scénario 2 : Poisson
+		\begin{Scenario}\label{scenario_Clayton_Pois}
+			\textbf{Poisson}:
+		\end{Scenario}
 	
-	Pour ce qui est de l'estimation des paramètres, commençons par définir les paramètres initiaux. On pose donc $\lambda = E[N] = 0.998\,900, \beta = 0.009\,922$ et comme pour l'exemple précédent, prenons 1 comme valeur de départ pour $\alpha$. Les estimations obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
+		À la suite des résultats concluants du premier exemple, un modèle avec une loi de fréquence ayant un support infini peut ajouter un défi en terme de temps de calcul. Pour ce scénario, posons que $N \sim Pois(\lambda=1)$ et $X_i \sim X \sim Exp(\beta=1/100)$ et que le paramètre de dépendance de la Copule de Clayton est $\alpha = 6$. \\
+		
+		Comme pour le scénario \ref{scenario_Clayton_Binom}, un sommaire des données simulées est présenté dans le tableau \ref{tbl_sommaire_Clayton_Pois_1}, l'illustrations \ref{graph_scatterplot_Poiss_1} compare la distribution marginale des données empiriques avec celle des lois théorique et l'illustration \ref{graph_scatterplot_Poiss_1} présente les nuages de points afin de voir les corrélations.
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Mon Jun 10 10:40:57 2019
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lllll}
+				\hline
+				       $N$ &      $X_1$ &      $X_2$ &       $X_3$ &       $X_4$ \\
+				\hline
+				 Min.   :0.0000   & Min.   :   0.0093   & Min.   :  0.012   & Min.   :  0.0129   & Min.   :   0.0172 \\
+				 1st Qu.:0.0000   & 1st Qu.:  29.7317   & 1st Qu.: 29.593   & 1st Qu.: 29.4194   & 1st Qu.:  29.5410 \\
+				 Median :1.0000   & Median :  70.2592   & Median : 70.060   & Median : 70.3962   & Median :  70.1612 \\
+				 Mean   :0.9989   & Mean   : 101.2211   & Mean   :101.325   & Mean   :100.4977   & Mean   : 101.1802 \\
+				 3rd Qu.:2.0000   & 3rd Qu.: 140.8462   & 3rd Qu.:141.488   & 3rd Qu.:136.6166   & 3rd Qu.: 139.6666 \\
+				 Max.   :6.0000   & Max.   :1003.4804   & Max.   :884.530   & Max.   :875.3387   & Max.   :1071.0681 \\
+				\hline
+			\end{tabular}
 	
-	% latex table generated in R 3.6.0 by xtable 1.8-4 package
-	% Thu Jun 06 16:25:40 2019
-	\begin{table}[H]
-		\centering
-		\begin{tabular}{rrrr}
+			\begin{tabular}{llll}
+				\hline
+				$X_5$ &      $X_6$ &       $X_7$ &       $X_8$ \\ 
+				\hline
+				Min.   :   0.0121   & Min.   :  0.0118   & Min.   :  0.01   & Min.   :   0.0105   \\ 
+				1st Qu.:  29.3078   & 1st Qu.: 29.7289   & 1st Qu.: 29.23   & 1st Qu.:  29.6958   \\ 
+				Median :  70.1336   & Median : 70.0210   & Median : 70.47   & Median :  70.2837   \\ 
+				Mean   : 100.2858   & Mean   :100.6869   & Mean   :100.69   & Mean   : 100.3833   \\ 
+				3rd Qu.: 137.5781   & 3rd Qu.:138.3483   & 3rd Qu.:136.65   & 3rd Qu.: 138.1448   \\ 
+				Max.   :1089.6821   & Max.   :952.6193   & Max.   :810.01   & Max.   :1029.2935   \\ 
+				\hline
+		\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Pois}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Pois(1)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}\label{tbl_sommaire_Clayton_Pois_1}
+		\end{table}
+		
+		\begin{figure}[H]
+			\begin{subfigure}[l]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/Clayton_Poiss_1_N.png}
+				\caption{Fréquence}
+			\end{subfigure}
+			%
+			\begin{subfigure}[r]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/Clayton_Poiss_1_X.png}
+				\caption{Sévérité}
+			\end{subfigure}
+			\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_Clayton_Pois}.}\label{graph_densite_Poisson_1}
+		\end{figure}
+	
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=10cm]{Graph/scatterplot_Poisson_1.png}
+			\caption[Nuages de points du scénario \ref{scenario_Clayton_Pois}]{Nuages de points avec copule de Clayton ($\alpha = 6$), $N\sim Pois(1)$ et $X_i \sim X\sim Exp(1/100)$:
+			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont  continues. Cela implique que la première ligne n'est pas valide.} 
+			\label{graph_scatterplot_Poiss_1}
+		\end{figure}
+	
+		Comme pour le scénario \ref{scenario_Clayton_Binom}, le tableau \ref{tbl_sommaire_Clayton_Pois_1} et les illustrations \ref{graph_scatterplot_Poiss_1} démontrent que les résultats de la simulation sont adéquats.\\
+		
+		Pour ce qui est de l'estimation des paramètres, commençons par définir les paramètres initiaux. On pose donc $\lambda = E[N] = 0.998\,900, \beta = 0.009\,922$ et comme pour l'exemple précédent, prenons 1 comme valeur de départ pour $\alpha$. Les estimations obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Thu Jun 06 16:25:40 2019
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{rrrr}
+				\hline
+				& lambda & beta & alpha \\ 
+				\hline
+				Estimateurs & 1.0006 & 0.0099 & 5.9160 \\ 
+				Vrais paramètres & 1.0000 & 0.0100 & 6.0000 \\ 
+				\hline
+			\end{tabular}
+	%	
+		\begin{tabular}{rr}
 			\hline
-			& lambda & beta & alpha \\ 
+			&  \\ 
 			\hline
-			Estimateurs & 1.0006 & 0.0099 & 5.9160 \\ 
-			Vrais paramètres & 1.0000 & 0.0100 & 6.0000 \\ 
+			temps de dérivation & 13.29 \\ 
+			temps d'estimation & 86.24 \\ 
 			\hline
 		\end{tabular}
-%	
-	\begin{tabular}{rr}
-		\hline
-		&  \\ 
-		\hline
-		temps de dérivation & 13.29 \\ 
-		temps d'estimation & 86.24 \\ 
-		\hline
-	\end{tabular}
-		\caption[Estimations avec une copule de Clayton et $N\sim Poisson$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
-	\end{table}
-
-	Dans cet exemple, l'estimation n'est pas significativement plus longue puisque le paramètre de la poisson n'est pas très grand. Cependant, si on l'augmente un tant soit peu, les quantiles de la variable de fréquence, on obtient des quantiles élevés qui font en sorte que le temps de dérivation augmente de façon exponentielle.\\
-
-	Par exemple, si $N \sim Pois(2)$, le temps de calcul dépasse 12 heures puisque le 99,9999 percentile de cette loi est de 12. Ainsi la méthode du maximum de vraisemblance nécessite de générer une liste de douze fonctions qui sont dérivées jusqu'à douze fois. Même avec la fonction \texttt{Deriv} de \texttt{R}, ce processus est extrêmement long. À cet effet, l'illustration \ref{graph_temps_deriv} présente le temps de dérivation selon le nombre de dérivées partielles à effectuer sur une copule de Clayton.
+			\caption[Estimations avec une copule de Clayton et $N\sim Poisson$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
+		\end{table}
 	
-	\begin{figure}[H]
-		\centering
-		\includegraphics[height=8cm]{Graph/graph_temps_deriv.png}
-		\caption{Temps de dérivation d'une copule de Clayton en fonction du nombre de dérivées partielles à effectuer.}
-		\label{graph_temps_deriv}
-	\end{figure}
+		Dans cet exemple, l'estimation n'est pas plus longue puisque le paramètre de la poisson n'est pas très grand. Cependant, si on l'augmente un tant soit peu, on obtient des quantiles élevés qui font en sorte que le temps de dérivation augmente de façon exponentielle.\\
 	
+		Par exemple, si $N \sim Pois(2)$, le temps de calcul dépasse 12 heures puisque le 99,9999 percentile de cette loi est de 12. Ainsi la méthode du maximum de vraisemblance nécessite de générer une liste de douze fonctions qui sont dérivées jusqu'à douze fois. Même avec la fonction \texttt{Deriv} de \texttt{R}, ce processus est extrêmement long. À cet effet, l'illustration \ref{graph_temps_deriv} présente le temps de dérivation selon le nombre de dérivées partielles à effectuer sur une copule de Clayton.
 		
-	Ce que l'on peut observer avec ces deux résultats, c'est, d'une part, qu'avec 10\,000 simulations, on obtient des résultats très adéquats. D'autre part, on peut observer que le temps de calcul augmente significativement si $N$ peut prendre des valeurs supérieures à 7 et si le nombre de paramètres à estimer est grand. Le temps de calcul est donc un enjeu important.
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=8cm]{Graph/graph_temps_deriv.png}
+			\caption{Temps de dérivation d'une copule de Clayton en fonction du nombre de dérivées partielles à effectuer.}
+			\label{graph_temps_deriv}
+		\end{figure}
+		
+			
+		Ce que l'on peut observer avec ces deux résultats, c'est, d'une part, qu'avec 10\,000 simulations, on obtient des résultats très adéquats. D'autre part, on peut observer que le temps de calcul augmente significativement si $N$ peut prendre des valeurs supérieures à 7 et si le nombre de paramètres à estimer est grand. Le temps de calcul est donc un enjeu important.
 
 	\subsection{Copule archimédienne hiérarchique}
-	Désormais, prenons la copule qui nous intéresse vraiment: la copule archimédienne hiérarchique. Avec $\theta_0 \sim logarithmique\left(\gamma = 1-\exp(-\alpha_0)\right)$, $B \sim Gamma(1/\alpha_1, 1)$, $N \sim Binom(5,q)$ et $X_i \sim X \sim Exp(\beta)$ on obtient les résultats présentés dans le tableau \ref{tbl_archi_hierar}.
-	\begin{table}[H]
-		\centering
-		\begin{tabular}{rrrrr}
-			\hline
-			& $\alpha_{0}$ & $\alpha_{1}$ & $\beta$ & $q$ \\ 
-			\hline
-			Estimateurs & 0.50 & 5.17 & 0.01 & 0.40 \\ 
-			Vrais Paramètres & 0.50 & 5.00 & 0.01 & 0.40 \\ 
-			\hline
-			Temps de calcul & 821.4 sec. \\
-			\hline
-		\end{tabular}
-		\caption[Estimations avec une copule archimédienne hiérarchique et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique, $N \sim Binomiale(5, q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} \label{tbl_archi_hierar}
-	\end{table}
-
-	Dans cet exemple, on note que le temps de calcul est significativement supérieur à celui présenté dans le tableau \ref{tbl_Clayton_Binom}. Ce phénomène est explicable du fait qu'il y a plus de paramètres à estimer et que la copule contient plusieurs fonctions imbriquées qui nécessitent plus d'étapes dans le processus de dérivation en chaîne.
+		Désormais, prenons la copule qui nous intéresse vraiment: la copule archimédienne hiérarchique. Avec $\theta_0 \sim logarithmique\left(\gamma = 1-\exp(-\alpha_0)\right)$, $B \sim Gamma(1/\alpha_1, 1)$, $N \sim Binom(5,q)$ et $X_i \sim X \sim Exp(\beta)$ on obtient les résultats présentés dans le tableau \ref{tbl_archi_hierar}.
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{rrrrr}
+				\hline
+				& $\alpha_{0}$ & $\alpha_{1}$ & $\beta$ & $q$ \\ 
+				\hline
+				Estimateurs & 0.50 & 5.17 & 0.01 & 0.40 \\ 
+				Vrais Paramètres & 0.50 & 5.00 & 0.01 & 0.40 \\ 
+				\hline
+				Temps de calcul & 821.4 sec. \\
+				\hline
+			\end{tabular}
+			\caption[Estimations avec une copule archimédienne hiérarchique et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique, $N \sim Binomiale(5, q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
+			\label{tbl_archi_hierar}
+		\end{table}
 	
+		Dans le tableau \ref{tbl_archi_hierar}, on note que le temps de calcul est significativement supérieur à celui présenté dans le tableau \ref{tbl_Clayton_Binom}. Ce phénomène est explicable du fait qu'il y a plus de paramètres à estimer et que la copule contient plusieurs fonctions imbriquées qui nécessitent plus d'étapes dans le processus de dérivation en chaîne.
+		
 	\section{Conclusion}
-	Pour conclure, le modèle collectif du risque présenté dans \cite{Itre5} présente un défi dans l'estimation des paramètres par la méthode du maximum de vraisemblance tel que présentée dans la section \ref{sect_Maxlikelyhood} puisque la dérivation en chaîne sur un grand nombre de variables pose un problème de temps de calcul.\\
-	
-	 À cet effet, une solution envisageable pourrait être d'utiliser la vraisemblance par décomposition hiérarchique proposé dans \cite{LikelyhoodEstimation} afin de trouver le paramètre de dépendance entre $N$ et $X_1$, puis de se limiter à un nombre restreint de $X_i$ (disons 5) afin d'estimer le paramètre de dépendance entre les $X_i$. Cependant, avec cette méthode le fait de travailler avec des variables continues et discrètes peut causer un problème. Pour ce qui est de trouver les paramètres des lois de $N$ et $X$, la méthode du maximum de vraisemblance classique (de façon univariée) pourrait être envisagée.
- 
-	
+		Pour conclure, le modèle collectif du risque présenté dans \cite{Itre5} présente un défi dans l'estimation des paramètres par la méthode du maximum de vraisemblance tel que présentée dans la section \ref{sect_Maxlikelyhood} puisque la dérivation en chaîne sur un grand nombre de variables pose un problème de temps de calcul.\\
+		
+		À cet effet, une solution envisageable pourrait être d'utiliser la vraisemblance par décomposition hiérarchique proposé dans \cite{LikelyhoodEstimation} afin de trouver le paramètre de dépendance entre $N$ et $X_1$, puis de se limiter à un nombre restreint de $X_i$ (disons 5) afin d'estimer le paramètre de dépendance entre les $X_i$. Cependant, avec cette méthode le fait de travailler avec des variables continues et discrètes peut causer un problème. Pour ce qui est de trouver les paramètres des lois de $N$ et $X$, la méthode du maximum de vraisemblance classique (de façon univariée) pourrait être envisagée.
+	 
+		
 	\clearpage
 	\bibliography{BibRRT_Presentation_2019-05-31.bib}
 	\bibliographystyle{apalike}

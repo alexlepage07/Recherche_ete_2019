@@ -1,7 +1,7 @@
 \select@language {french}
 \contentsline {figure}{\numberline {1}{\ignorespaces Arbre hi\IeC {\'e}rarchique \IeC {\`a} un niveau.\relax }}{3}
 \contentsline {figure}{\numberline {2}{\ignorespaces Comparaisons de la distribution marginale des donn\IeC {\'e}es simul\IeC {\'e}es avec les distributions th\IeC {\'e}oriques pour le sc\IeC {\'e}nario \ref {scenario_Clayton_Binom}.\relax }}{4}
-\contentsline {figure}{\numberline {3}{\ignorespaces Nuage de points avec copule de Clayton, $N\sim Binom(5, 2/5)$ et $X\sim Exp(1/100)$}}{5}
-\contentsline {figure}{\numberline {4}{\ignorespaces Comparaisons de la distribution marginale des donn\IeC {\'e}es simul\IeC {\'e}es avec les distributions th\IeC {\'e}oriques pour le sc\IeC {\'e}nario avec une copule de Clayton, $N \sim Pois(1)$ et $X_i \sim X \sim Exp(1/100)$.\relax }}{6}
-\contentsline {figure}{\numberline {5}{\ignorespaces Nuage de points avec copule de Clayton, $N\sim Pois(1)$ et $X\sim Exp(1/100)$}}{7}
+\contentsline {figure}{\numberline {3}{\ignorespaces Nuages de points du sc\IeC {\'e}nario \ref {scenario_Clayton_Binom}}}{5}
+\contentsline {figure}{\numberline {4}{\ignorespaces Comparaisons de la distribution marginale des donn\IeC {\'e}es simul\IeC {\'e}es avec les distributions th\IeC {\'e}oriques pour le sc\IeC {\'e}nario \ref {scenario_Clayton_Pois}.\relax }}{6}
+\contentsline {figure}{\numberline {5}{\ignorespaces Nuages de points du sc\IeC {\'e}nario \ref {scenario_Clayton_Pois}}}{7}
 \contentsline {figure}{\numberline {6}{\ignorespaces Temps de d\IeC {\'e}rivation d'une copule de Clayton en fonction du nombre de d\IeC {\'e}riv\IeC {\'e}es partielles \IeC {\`a} effectuer.\relax }}{8}

@@ -1,7 +1,7 @@
 \select@language {french}
 \contentsline {table}{\numberline {1}{\ignorespaces Param\IeC {\`e}tres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta )$.\relax }}{4}
-\contentsline {table}{\numberline {2}{\ignorespaces Sommaire des donn\IeC {\'e}es simul\IeC {\'e}es pour une copule de Clayton avec une loi de fr\IeC {\'e}quence binomiale.}}{4}
+\contentsline {table}{\numberline {2}{\ignorespaces Sommaire des donn\IeC {\'e}es simul\IeC {\'e}es pour le sc\IeC {\'e}nario \ref {scenario_Clayton_Binom}}}{4}
 \contentsline {table}{\numberline {3}{\ignorespaces Estimations avec une copule de Clayton et $N\sim Binomiale$}}{5}
-\contentsline {table}{\numberline {4}{\ignorespaces Sommaire des donn\IeC {\'e}es simul\IeC {\'e}es pour une copule de Clayton avec une loi de fr\IeC {\'e}quence de Poisson.}}{6}
+\contentsline {table}{\numberline {4}{\ignorespaces Sommaire des donn\IeC {\'e}es simul\IeC {\'e}es pour le sc\IeC {\'e}nario \ref {scenario_Clayton_Pois}}}{6}
 \contentsline {table}{\numberline {5}{\ignorespaces Estimations avec une copule de Clayton et $N\sim Poisson$}}{7}
 \contentsline {table}{\numberline {6}{\ignorespaces Estimations avec une copule archim\IeC {\'e}dienne hi\IeC {\'e}rarchique et $N\sim Binomiale$}}{8}

@@ -8,12 +8,12 @@ library(xtable)
 
 # ================================== Simulations des données d'entraînement ================
 source("../Code_simul_copule.R")
-n <- 3
-q <- 2/3
+n <- 4
+q <- 1/2
 beta <- 1/100
 alpha0 <- 0.5
 alpha1 <- 0.8
-nsim <- 1e+3
+nsim <- 1e+4
 
 DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
@@ -56,19 +56,19 @@ para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
 F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
 
-LST.Log_M <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
-LST.Log_M.inv <- "- log((1 - exp(-pa3 * U)) / (1 - exp(-pa3)))"
-LST.Log_B <- "-1 / pa4 * log(1 - (1 - exp(-pa4)) * exp(-T)) "
-LST.Log_B.inv <- "- log((1 - exp(-pa4 * U)) / (1 - exp(-pa4)))"
+LST.M <- "(1 - pa3)/(exp(T) - pa3)"
+LST.M.inv <- "log((1 - pa3) / U + pa3)"
+LST.B <- "-1 / pa4 * log(1 - (1 - exp(-pa4)) * exp(-T)) "
+LST.B.inv <- "- log((1 - exp(-pa4 * U)) / (1 - exp(-pa4)))"
 
-str_copule_ext <- str_replace(LST.Log_M, "T",
+str_copule_ext <- str_replace(LST.M, "T",
                               paste0(
-                                  str_replace(LST.Log_M.inv, "U", "F_N(x0, pa1)"),
-                                  " + log(", LST.Log_B,")"
+                                  str_replace(LST.M.inv, "U", "F_N(x0, pa1)"),
+                                  " - log(", LST.B,")"
                                   )
                               )
-str_copule_int <- str_replace(LST.Log_B.inv, "U",
-                              paste0("exp(-",LST.Log_M.inv,")"))
+str_copule_int <- str_replace(LST.B.inv, "U",
+                              paste0("exp(-",LST.M.inv,")"))
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
@@ -77,7 +77,7 @@ func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     str_int <- "0"
 
     for (i in 1:nb_xi) {
-        str_int <- paste(str_int, "+", str_copule_int)
+        str_int <- paste(str_int, "-", str_copule_int)
         str_int <- str_replace(str_int,"U", paste0("(",F_X,")"))
         str_int <- str_replace(str_int,"x_i", paste0("x",i))
     }
@@ -106,7 +106,7 @@ for (n in 1:(nb_xi)){
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
-plot(temps_deriv[1:nb_xi], type="l",
+plot(temps_deriv[1:5], type="l",
      xlab="nb de dérivées partielles",
      ylab="temps de dérivation")
 
@@ -129,10 +129,10 @@ generateur_evalue_deriv <- function(derivee){
     }
 }
 densite <- generateur_evalue_deriv(derivees)
-typeof(derivees)
-densite(1,c(1), para)
-densite(2,c(100, 100), para)
-densite(3,c(200, 200, 200), para)
+
+# densite(1,c(40), para)
+# densite(2,c(100, 100), para)
+# densite(3,c(200, 200, 200), para)
 # densite(4,c(500, 500, 500, 500), para)
 # densite(5,c(900, 900, 900, 900, 900), para)
 
