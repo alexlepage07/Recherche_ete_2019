@@ -50,6 +50,7 @@
 \newtheorem{defini}{Définition}
 \newtheorem{propo}{Proposition}
 \newtheorem{algo}{Algorithme}
+\newtheorem{Scenario}{Scénario}
 
 \begin{document}
 	\renewcommand{\figurename}{Illustration}
@@ -147,14 +148,14 @@
 	\section{Notions préliminaires}
 	\subsection{Modèle collectif du risque}\label{sect_Modele_Collectif}
 	
-		Dans \cite{Itre5}, on propose un modèle collectif du risque dont les composantes sont dépendants entre elles. Ce modèle s'exprime comme suit: \\
+		Dans \cite{Itre5}, on propose un modèle collectif du risque dont les composantes sont dépendantes entre elles. Ce modèle s'exprime comme suit. \\
 		
 		Soient $N$, la v.a. du nombre de sinistres, tel que $N \in \mathbb{N}$, et la suite de v.a. $\{X_i, i \in \mathbb{N_+}\}$ représentant les montants de sinistres tel que $X_i\sim X \in \mathbb{R}_+$. On a
 		
 		\begin{equation}\label{Modele_collectif}
 			S = \sum_{i=1}^{\infty} X_i \times \mathds{1}_{\{N \geq i\}},
 		\end{equation}
-		où $N$ est dépendant de $\underline{X}$ et les $X_i$ sont dépendants entre eux. \\
+		où $\{N, X_1, X_2, \dots, X_k\}$ est une suite de v.a. dépendantes. Pour chaque $k \in \mathbb{N_+}$, la loi multivariée de $(N, X_1, X_2, \dots, X_k)$ est définie par une copule archimédienne hiérarchique. \\
 		
 		Maintenant, on cherche à estimer les paramètres afférents à un tel modèle. Pour y arriver, \cite{LikelyhoodEstimation} propose une approche de calcul de la vraisemblance par décomposition hiérarchique et une autre méthode, dite plus classique, qui prend l'ensemble du modèle. Dans le cas présent, compte tenu que la variable dénombrante est discrète et que les variables de sinistres sont continues, il est plus simple d'utiliser la méthode de vraisemblance complète. Le présent rapport présente donc les résultats d'une telle approche.
 				
@@ -163,22 +164,23 @@
 	
 		Soit une copule de Clayton multivariée dénotée $C$ et représentée par
 		\begin{equation}\label{Copule_Clayton}
-		C(u_0,\dots,u_n;\alpha) = (  u_0^{-\alpha} + \dots + u_n^{-\alpha} - n)^{-\frac{1}{\alpha}}.
+		C(u_0,\dots,u_k;\alpha) = (  u_0^{-\alpha} + \dots + u_k^{-\alpha} - k)^{-\frac{1}{\alpha}},
 		\end{equation}
 	
-		Avec le modèle posé dans la section \ref{sect_Modele_Collectif}, on peut trouver la fonction de densité de la copule $C$ de la manière décrite comme suit.\\
+		$k \in \mathbb{N_+}$. Avec le modèle posé dans la section \ref{sect_Modele_Collectif}, on peut trouver la fonction de densité de la copule $C$ de la manière décrite comme suit.\\
 	
-		Soient $\lambda$ et $\beta$ les paramètres des lois de fréquence et de sévérité respectivement, ainsi que $\alpha$, le paramètre de la copule de Clayton, alors la densité conjointe des v.a. $N$ et $(X_1, \dots X_N)$ est donnée par
+		Soient $\lambda$ et $\beta$ les paramètres des lois de fréquence et de sévérité respectivement, ainsi que $\alpha$, le paramètre de la copule de Clayton. La densité conjointe des v.a. $N$ et $(X_1, \dots X_N)$ est donnée par
 		\begin{align}
 		f_{N, X_1, \dots, X_n}(n, x_1, \dots, x_n; \lambda, \beta, \alpha) 
 		&= \frac{\partial^n}{\partial x_1 \dots \partial x_n} C(F_N(n;\lambda),F_{X_1}(x_1; \beta),\dots,F_{X_n}(x_n;\beta);\alpha)  \nonumber \\
-		&   - \frac{\partial^n}{\partial x_1 \dots \partial x_n} C(F_N(n-1;\lambda),F_{X_1}(x_1;\beta),\dots,F_{X_n}(x_n;\beta);\alpha). \label{densite_composee}
+		&   - \frac{\partial^n}{\partial x_1 \dots \partial x_n} C(F_N(n-1;\lambda),F_{X_1}(x_1;\beta),\dots,F_{X_n}(x_n;\beta);\alpha), \label{densite_composee}
 		\end{align}
+		
+		$n \in \mathbb{N_+}$. On observe que $f_{N, X_1, \dots, X_n}$ n'est pas une fonction de densité au sens strict du terme, car $N$ est une v.a. discrète et $X_1, \dots, X_n$ sont des v.a. continues. \\
 		
 		Puisque la dérivation en chaîne nécessaire pour trouver \eqref{densite_composee} est excessivement longue à calculer, on peut utiliser \texttt{R} à l'aide de la fonction \texttt{Deriv}\footnote{https://cran.r-project.org/web/packages/Deriv/Deriv.pdf} du package du même nom pour y arriver. Cependant, il est important de noter que, même avec cet outil, si la loi de fréquence admet des valeurs supérieures à 5, le temps de calcul peut grimper très rapidement.\\
 		
-		Soient $n_k$, le nombre d'observations où $N = k$, et $x_{i,k}$ représente le $k$-ième sinistre de la $i$-ième observation,
-		la fonction de vraisemblance du modèle énoncé dans la section \ref{sect_Modele_Collectif} est donné par
+		Soient $n_j$, le nombre d'observations où $N = j$, $n_{total}$, le nombre d'observations total tel que $\sum_{j=1}^{k} n_j = n_{total}$, et $x_{i,j}$, le $j$-ième sinistre de la $i$-ième observation, la fonction de vraisemblance du modèle énoncé dans la section \ref{sect_Modele_Collectif} est donné par
 		
 		\begin{align*}
 		 \mathcal{L}(\lambda, \beta, \alpha) 
@@ -188,7 +190,7 @@
 		 & \dots\\
 		 & \times \prod_{i = 1}^{n_k} f_{N,X_1,\dots,X_k}(k,x_{i,1},\dots,x_{i,k};\lambda,\beta, \alpha).
 		\end{align*}
-		
+		 
 		Par la suite, afin d'estimer les paramètres, il faut avoir recours à une méthode d'optimisation numérique. Cela implique de trouver le minimum d'une fonction strictement décroissante. Pour cette raison, il faut minimiser la log-vraisemblance négative.\\
 		
 		On obtient donc
@@ -201,7 +203,7 @@
 		& - \sum_{i=1}^{n_k} \ln \left( f_{N,X_1,\dots,X_k}(k,x_{i,1},\dots,x_{i,k};\lambda,\beta, \alpha)\right). \nonumber
 		\end{align}
 		
-		Finalement, on trouve les paramètres avec \texttt{R} en utilisant la fonction \texttt{constrOptim}\footnote{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/constrOptim.html}. Afin de s'assurer que le processus d'optimisation numérique soit le plus précis possible, il faut entrer en argument de cette fonction des valeurs initiales adéquates pour chacun des paramètres à estimer. Pour ce faire, la méthode du maximum de vraisemblance de la distribution marginale de chacune des variables est un choix judicieux. Dans le cas où cette méthode s'avère trop laborieuse, on peut compenser avec la méthode des moments ou des quantiles (voir \cite{LossModels_Klugman2012}).
+		Finalement, on calcule numériquement les paramètres en utilisant la fonction \texttt{R} \texttt{constrOptim}\footnote{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/constrOptim.html}. Afin de s'assurer que le processus d'optimisation numérique soit le plus précis possible, il faut entrer en argument de cette fonction des valeurs initiales adéquates pour chacun des paramètres à estimer. Pour ce faire, la méthode du maximum de vraisemblance de la distribution marginale de chacune des variables est un choix judicieux. Dans le cas où cette méthode s'avère trop laborieuse, on peut compenser avec la méthode des moments ou des quantiles (voir \cite{LossModels_Klugman2012}).
 		
 
 	\subsection{Copule archimédienne hiérarchique}	
@@ -243,10 +245,14 @@
 	Pour les copules archimédiennes hiérarchique, le module \texttt{nCopula} \footnote{https://cran.r-project.org/web/packages/nCopula/nCopula.pdf} offre une fonction nommée \texttt{rCompCop} qui permet de simuler de la même façon que \texttt{rCopula}, mais en entrant comme argument la structure hiérarchique.
 	
 	\subsection{Copule de Clayton}
-	\paragraph{Binomial:}Pour débuter gentiment, prenons un modèle binomial-exponentiel avec une copule de Clayton dont la représentation est exprimée en \eqref{Copule_Clayton}.
-	Soient $N \sim Binom(n,q)$ et $X_i \sim X \sim Exp(\beta)$ et le paramètre de dépendance de la copule est dénotée $\alpha$.\\
+	\begin{Scenario}\label{scenario_Clayton_Binom}
+		\textbf{Binomial}:
+	\end{Scenario}
+		Pour débuter gentiment, prenons un modèle binomial-exponentiel avec une copule de Clayton dont la représentation est exprimée en \eqref{Copule_Clayton}.
+		Soient $N \sim Binom(n,q)$ et $X_i \sim X \sim Exp(\beta)$ et le paramètre de dépendance de la copule est dénotée $\alpha$.\\
 	
-	 Pour le premier scénario, on simule en utilisant les paramètre initiaux présenté dans le tableau \ref{tbl_para_initiaux_Clayton_Binom}.
+	
+	 Pour le premier scénario, on utilise des données simulées avec les paramètre initiaux présentés dans le tableau \ref{tbl_para_initiaux_Clayton_Binom}.
 	 
 	 \begin{table}[H]
 	 	\centering
@@ -257,7 +263,7 @@
 	 		5.00 & 0.40 & 6.00 & 0.01 \\ 
 	 		\hline
 	 	\end{tabular}
- 	\caption{Paramètres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta)$}
+ 	\caption{Paramètres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta)$.}
  	\label{tbl_para_initiaux_Clayton_Binom}
 	 \end{table}
 	 
@@ -293,7 +299,7 @@
 			 Max.   :857.5771   & Max.   :1026.7730   & Max.   :952.8392   \\ 
 			\hline
 		\end{tabular}
-	\caption[Sommaire des données simulées pour une copule de Clayton avec une loi de fréquence binomiale.]{Sommaire de $10\,000$ simulations d'une copule de Clayton avec $N \sim Bin(5, 2/5),\ X_i \sim X \sim Exp(1/100)$ et $\alpha = 6$.}
+	\caption[Sommaire des données simulées pour une copule de Clayton avec une loi de fréquence binomiale.]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}
 	\label{tbl_sommaire_Clayton_Binom}
 	\end{table}
 
@@ -308,7 +314,7 @@
 		\includegraphics[width=\textwidth]{Graph/Clayton_Binom_X.png}
 		\caption{Sévérité}
 	\end{subfigure}
-	\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario avec une copule de Clayton, $N \sim Binom(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$.}
+	\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_Clayton_Binom}.}
 	\label{graph_densite_Binom}
 	\end{figure}
 	
@@ -317,12 +323,15 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[height=10cm]{Graph/scatterplot_Binom.png}
-		\caption[Nuage de points avec copule de Clayton, $N\sim Binom(5, 2/5)$ et $X\sim Exp(1/100)$]{Nuage de points avec copule de Clayton, $N\sim Binom(5, 2/5)$, $X\sim Exp(1/100)$ et $\alpha = 6$: \\
-			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, se trouve les coefficients de corrélation de Spearman.} 
+		\caption[Nuage de points avec copule de Clayton, $N\sim Binom(5, 2/5)$ et $X\sim Exp(1/100)$]
+		{Nuage de points du scénario \ref{scenario_Clayton_Binom}: \\
+			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon des variables continues. Cela implique que la première ligne n'est pas valide.}
 		\label{graph_scatterplot_Binom}
 	\end{figure}
 	
-	
+	\begin{enumerate}
+		\item[Scénario]  test
+	\end{enumerate}
 	
 	
 	Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeur de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $q \approx E[N]/n$, $\beta \approx 1/E[X]$. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\

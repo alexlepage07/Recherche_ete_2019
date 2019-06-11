@@ -1,41 +1,44 @@
 # On commence par tester avec une gentille petite copule de Clayton
 library(copula)
+library(nCopula)
 library(Deriv)
 library(stringr)
 library(xtable)
-library(ggplot2)
-library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
-lambda <- 1
+source("../Code_simul_copule.R")
+n <- 5
+q <- 2/5
 beta <- 1/100
-alpha <- 6
+alpha0 <- 0.5
+alpha1 <- 0.8
 nsim <- 1e+4
-nb_xi <- ceiling(qpois(99.9999/100, lambda))
 
-DATA_train <- rCopula(nsim, claytonCopula(alpha, dim = nb_xi))
-DATA_train <- cbind(qpois(DATA_train[,1], lambda),
-                    qexp(DATA_train[,-1], beta))
-nb_xi <- max(DATA_train[,1])
+DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
+DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
+                    qexp(DATA_train[,-1], beta)
+                    )
 colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+nb_xi <- n
 
+# Sommaire des résultats de simulation
 (sommaire_train <- summary(DATA_train))
-xtable(sommaire_train)
+xtable(sommaire_train)  # Permet de  convertir un tableau de R à LaTeX.
 
 
+#Graphiques de goodness of fit pour les données simulées.
+datas <- data.frame(c(DATA_train[,1], qbinom((0:100)/100, n, q)),
+                    Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
 
-datas <- data.frame(c(DATA_train[,1], qpois((0:100)/100, lambda)),
-               Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
-
-ggplot(datas, aes(datas[,1], fill = Source)) + 
+ggplot(datas,  aes(datas[, 1], fill = Source)) + 
     geom_histogram(alpha = 0.3, aes(y = ..density..), position = 'identity', binwidth = 1)+
     xlab("n") + ylab("Probabilité") +
     theme(legend.title = element_blank())
 
 
 datas <- data.frame(c(DATA_train[,-1], qexp((0:100)/100, beta)),
-                    Source <- c(rep("Simul", length(DATA_train[,-1])),rep("théorique", 101)))
+                    Source <- c(rep("Simul", length(DATA_train[,-1])), rep("théorique", 101)))
 
 ggplot() + 
     geom_histogram(alpha = 0.3, aes(x= DATA_train[,-1], y = ..density.., fill = "Empirique"), position = 'identity')+
@@ -43,31 +46,42 @@ ggplot() +
     xlab("x") + ylab("Densité") +
     theme(legend.title = element_blank())
 
+
+# Scatterplot
 pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
 
-
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(lambda=1, beta=1/100, alpha=6)
+para <- c("q"=2/5, "beta"=1/100, "alpha0"=alpha0, "alpha1"=alpha1)
 
-
-F_N <- function(x0, pa1) ppois(x0, pa1)
+F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
-str_copule_ext <- "(U - n + 1) ^ (-1/pa3)"
-str_copule_int <- " u ^ (-pa3)"
+
+LST.Log_M <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
+LST.Log_M.inv <- "- log((1 - exp(-pa3 * U)) / (1 - exp(-pa3)))"
+LST.Log_B <- "-1 / pa4 * log(1 - (1 - exp(-pa4)) * exp(-T)) "
+LST.Log_B.inv <- "- log((1 - exp(-pa4 * U)) / (1 - exp(-pa4)))"
+
+str_copule_ext <- str_replace(LST.Log_M, "T",
+                              paste0(
+                                  str_replace(LST.Log_M.inv, "U", "F_N(x0, pa1)"),
+                                  " + log(", LST.Log_B,")"
+                                  )
+                              )
+str_copule_int <- str_replace(LST.Log_B.inv, "U",
+                              paste0("exp(-",LST.Log_M.inv,")"))
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     # Génère la chaîne de caractères qui permettra d'effectuer les dérivées.
     str_tot <- str_copule_ext
-    str_int <- str_replace(str_copule_int, "u", "F_N(x0, pa1)")
+    str_int <- "0"
 
     for (i in 1:nb_xi) {
         str_int <- paste(str_int, "+", str_copule_int)
-        str_int <- str_replace(str_int,"u", paste0("(",F_X,")"))
+        str_int <- str_replace(str_int,"U", paste0("(",F_X,")"))
         str_int <- str_replace(str_int,"x_i", paste0("x",i))
     }
-    str_tot <- str_replace(str_tot, "U", str_int)
-    str_tot <- str_replace(str_tot, "n", as.character(nb_xi + 1))
+    str_tot <- str_replace(str_tot, "T", str_int)
     return(str_tot)
 }
 
@@ -75,18 +89,20 @@ chain_derivative <- function(str_copule, nb_xi){
     # Fonction qui effectue les dérivations en chaîne sur le texte généré précédemment
     X_i <- sapply(1:nb_xi, function(i) paste0("x",i))
     derivees <- str_copule
+    
     for (xi in X_i){
         derivees <- Deriv(derivees, xi, cache.exp = T)
     }
     return(derivees)
 }
 
+
 temps_deriv <- numeric(nb_xi)
 for (n in 1:(nb_xi)){
     # Calcul des dérivées
     temps_deriv[n] <- system.time(
-    derivees <- parse(text = 
-            chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n))
+        derivees <- parse(text = 
+                              chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n))
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
@@ -114,6 +130,11 @@ generateur_evalue_deriv <- function(derivee){
 }
 densite <- generateur_evalue_deriv(derivees)
 
+# densite(1,c(1), para)
+# densite(2,c(100, 100), para)
+# densite(3,c(200, 200, 200), para)
+# densite(4,c(500, 500, 500, 500), para)
+# densite(5,c(900, 900, 900, 900, 900), para)
 
 dCopule <- function(n, xx=NULL, para){
     # Fonction de densité de la copule
@@ -123,7 +144,12 @@ dCopule <- function(n, xx=NULL, para){
         d <- densite(n, xx, para) - densite(n-1, xx, para)
     return(unname(d))
 }
-
+# dCopule(0,NULL, para)
+# dCopule(1,c(1), para)
+# dCopule(2,c(100, 100), para)
+# dCopule(3,c(200, 200, 200), para)
+# dCopule(4,c(500, 500, 500, 500), para)
+# dCopule(5,c(900, 900, 900, 900, 900), para)
 
 fct_Score <- function(para, Data = DATA_train){
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
@@ -136,20 +162,21 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- c(mean(DATA_train[,1]), 1/mean(DATA_train[,-1]), 1)
+val_depart <- c("q"=mean(DATA_train[,1] / 5),
+                "beta"=1/mean(DATA_train[,-1]),
+                "alpha0"=0.1,
+                "alpha1"=0.1)
+
 
 temps_solv <- system.time(
     mle <- constrOptim(val_depart, 
                        fct_Score,
                        grad = NULL, 
-                       ui = diag(3),
-                       ci = c(0, 0, 0),
-                       outer.eps = 1e-5 )
+                       ui = diag(4),
+                       ci = c(0, 0, 0, 0),
+                       outer.eps = 0.01 )
 )
 (resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
 (temps_tot <- rbind("temps de dérivation"=temps_deriv[[3]], "temps d'estimation"=temps_solv[[3]]))
 xtable(resultats)
 xtable(temps_tot)
-
-load("Estimation_Clayton_poisson_2.RData")
-

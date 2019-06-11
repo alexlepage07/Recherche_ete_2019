@@ -6,7 +6,6 @@
 \contentsline {subsection}{\numberline {2.3}Copule archim\IeC {\'e}dienne hi\IeC {\'e}rarchique}{2}
 \contentsline {section}{\numberline {3}R\IeC {\'e}sultats}{3}
 \contentsline {subsection}{\numberline {3.1}Copule de Clayton}{3}
-\contentsline {paragraph}{Binomial:}{3}
 \contentsline {paragraph}{Poisson:}{5}
 \contentsline {subsection}{\numberline {3.2}Copule archim\IeC {\'e}dienne hi\IeC {\'e}rarchique}{8}
 \contentsline {section}{\numberline {4}Conclusion}{8}
