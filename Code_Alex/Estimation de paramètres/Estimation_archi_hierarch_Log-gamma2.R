@@ -4,58 +4,80 @@ library(nCopula)
 library(Deriv)
 library(stringr)
 library(xtable)
+library(ggplot2)
+library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
 source("../Code_simul_copule.R")
-n <- 5
+n <- 4
 q <- 2/5
 beta <- 1/100
 alpha0 <- 0.5
-alpha1 <- 5
+alpha1 <- 0.8
+nsim <- 1e+4
 
-nsim <- 1e+3
-
-DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
+DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), n, "gamma", 1/alpha1)
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
+colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+nb_xi <- n
 
+# Sommaire des résultats de simulation
 (sommaire_train <- summary(DATA_train))
-xtable(sommaire_train)
+xtable(sommaire_train)  # Permet de  convertir un tableau de R à LaTeX.
 
-par(mfrow=c(1,2))
-hist(DATA_train[,1], breaks = 0:5, probability = T)
-hist(dbinom(0:5, n, q), breaks = 0:5, probability = T)
-plot(ecdf(DATA_train[,-1]))
-plot(0:800, pexp(0:800, beta), type="l")
-par(mfrow=c(1,1))
+
+#Graphiques de goodness of fit pour les données simulées.
+datas <- data.frame(c(DATA_train[,1], qbinom((0:100)/100, n, q)),
+                    Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
+
+ggplot(datas,  aes(datas[, 1], fill = Source)) + 
+    geom_histogram(alpha = 0.3, aes(y = ..density..), position = 'identity', binwidth = 1)+
+    xlab("n") + ylab("Probabilité") +
+    theme(legend.title = element_blank())
+
+
+datas <- data.frame(c(DATA_train[,-1], qexp((0:100)/100, beta)),
+                    Source <- c(rep("Simul", length(DATA_train[,-1])), rep("théorique", 101)))
+
+ggplot() + 
+    geom_histogram(alpha = 0.3, aes(x= DATA_train[,-1], y = ..density.., fill = "Empirique"), position = 'identity')+
+    geom_density(alpha = 0.3, aes(x= qexp((0:100)/100, beta), y = ..density.., fill = "Théorique")) + 
+    xlab("x") + ylab("Densité") +
+    theme(legend.title = element_blank())
+
+
+# Scatterplot
+pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
 
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(q=2/5, beta=1/100, alpha0=0.5, alpha1=5)
+para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
+nb_para <- length(para)
 
 F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
 
-LST.Log <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
-LST.Log.inv <- "- log((1 - exp(-pa3 * U)) / (1 - exp(-pa3)))"
-LST.Gamma <- "(1 + T)^(- 1 / pa4)"
-LST.Gamma.inv <- "(U^(-pa4) - 1)"
+LST.Log_M <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
+LST.Log_M.inv <- "- log((1 - exp(-pa3 * U)) / (1 - exp(-pa3)))"
+LST.Log_B <- "(1 + T)^(- 1 / pa4)"
+LST.Log_B.inv <- "(U^(-pa4) - 1)"
 
-str_copule_ext <- str_replace(LST.Log, "T",
+str_copule_ext <- str_replace(LST.Log_M, "T",
                               paste0(
-                                  str_replace(LST.Log.inv, "U", "F_N(x0, pa1)"),
-                                  " + log(", LST.Gamma,")"
+                                  str_replace(LST.Log_M.inv, "U", "F_N(x0, pa1)"),
+                                  " + log(", LST.Log_B,")"
                                   )
                               )
-str_copule_int <- str_replace(LST.Gamma.inv, "U",
-                              paste0("exp(-",LST.Log.inv,")"))
+str_copule_int <- str_replace(LST.Log_B.inv, "U",
+                              paste0("exp(-",LST.Log_M.inv,")"))
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     # Génère la chaîne de caractères qui permettra d'effectuer les dérivées.
     str_tot <- str_copule_ext
-    str_int <- "0"
+    str_int <- ""
 
     for (i in 1:nb_xi) {
         str_int <- paste(str_int, "+", str_copule_int)
@@ -77,18 +99,29 @@ chain_derivative <- function(str_copule, nb_xi){
     return(derivees)
 }
 
-temps_deriv <- system.time(
+derivees <- list()
+temps_deriv <- numeric(nb_xi)
+for (n in 1:(nb_xi)){
     # Calcul des dérivées
-    derivees <- lapply(1:5, function(n)
-        parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
-)
+    temps_deriv[n] <- system.time(
+        derivees <- append(derivees, parse(text = 
+                              chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
+    )[[3]]
+    print(c("Dérivée"=n, "temps"=temps_deriv[n]))
+}
+plot(temps_deriv[1:nb_xi], type="l",
+     xlab="nb de dérivées partielles",
+     ylab="temps de dérivation")
+
+temps_deriv <- sum(temps_deriv)
+
 
 generateur_evalue_deriv <- function(derivee){
     # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable.
     # à partir de la liste de dérivées saisie en argument.
     function(n, xx, para){
         # Fonction générée à l'aide des dérivées.
-        for (i in 1:length(para)) {
+        for (i in 1:nb_para) {
             assign(paste0("pa", i), para[i])
         }
         x0 <- n
@@ -132,20 +165,18 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- c("q"=mean(DATA_train[,1] / 5),
+val_depart <- c("q"=mean(DATA_train[,1]) / n,
                 "beta"=1/mean(DATA_train[,-1]),
-                "alpha0"=0.1,
-                "alpha1"=0.1)
-
+                "alpha0"=0.4,
+                "alpha1"=0.4)
 
 temps_solv <- system.time(
-    mle <- constrOptim(val_depart, 
-                       fct_Score,
-                       grad = NULL, 
-                       ui = diag(4),
-                       ci = c(0, 0, 0, 0),
-                       outer.eps = 1e-5 )
+    mle <- constrOptim(val_depart, fct_Score, grad = NULL, 
+                       ui = diag(nb_para),
+                       ci = rep(0, nb_para),
+                       outer.eps = 1e-2 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = para))
-(rbind(temps_deriv, temps_solv))
-xtable(resultats)
+(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("temps de dérivation"=temps_deriv, "temps d'estimation"=temps_solv[[3]]))
+xtable(resultats,digits = 4)
+xtable(temps_tot)

@@ -4,18 +4,20 @@ library(nCopula)
 library(Deriv)
 library(stringr)
 library(xtable)
+library(ggplot2)
+library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
 source("../Code_simul_copule.R")
-n <- 3
-q <- 2/3
+n <- 5
+q <- 2/5
 beta <- 1/100
 alpha0 <- 0.5
 alpha1 <- 0.8
-nsim <- 1e+3
+nsim <- 1e+4
 
-DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
+DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), n, "log", 1-exp(-alpha1))
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
@@ -52,8 +54,9 @@ pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch="."
 
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
+nb_para <- length(para)
 
-F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
+F_N <- function(x0, pa1) pbinom(x0, n, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
 
 LST.Log_M <- "-1 / pa3 * log(1 - (1 - exp(-pa3)) * exp(-T)) "
@@ -77,7 +80,7 @@ func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
     str_int <- "0"
 
     for (i in 1:nb_xi) {
-        str_int <- paste(str_int, "+", str_copule_int)
+        str_int <- paste(str_int, "-", str_copule_int)
         str_int <- str_replace(str_int,"U", paste0("(",F_X,")"))
         str_int <- str_replace(str_int,"x_i", paste0("x",i))
     }
@@ -118,7 +121,7 @@ generateur_evalue_deriv <- function(derivee){
     # à partir de la liste de dérivées saisie en argument.
     function(n, xx, para){
         # Fonction générée à l'aide des dérivées.
-        for (i in 1:length(para)) {
+        for (i in 1:nb_para) {
             assign(paste0("pa", i), para[i])
         }
         x0 <- n
@@ -129,10 +132,10 @@ generateur_evalue_deriv <- function(derivee){
     }
 }
 densite <- generateur_evalue_deriv(derivees)
-typeof(derivees)
-densite(1,c(1), para)
-densite(2,c(100, 100), para)
-densite(3,c(200, 200, 200), para)
+
+# densite(1,c(1), para)
+# densite(2,c(100, 100), para)
+# densite(3,c(200, 200, 200), para)
 # densite(4,c(500, 500, 500, 500), para)
 # densite(5,c(900, 900, 900, 900, 900), para)
 
@@ -162,21 +165,22 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- c("q"=mean(DATA_train[,1] / 5),
+val_depart <- c("q"=mean(DATA_train[,1]) / nb_xi,
                 "beta"=1/mean(DATA_train[,-1]),
-                "alpha0"=0.5,
-                "alpha1"=0.5)
-
+                "alpha0"=0.4,
+                "alpha1"=0.4)
 
 temps_solv <- system.time(
-    mle <- constrOptim(val_depart, 
-                       fct_Score,
-                       grad = NULL, 
-                       ui = diag(4),
-                       ci = c(0, 0, 0, 0),
-                       outer.eps = 1e-5 )
+    mle <- constrOptim(val_depart, fct_Score, grad = NULL, 
+                       ui = diag(nb_para),
+                       ci = rep(0, nb_para),
+                       outer.eps = 1e-2 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
-(temps_tot <- rbind("temps de dérivation"=temps_deriv, "temps d'estimation"=temps_solv[[3]]))
-xtable(resultats)
+
+(resultats <- rbind("Valeurs de départ"=round(val_depart,4),
+                    "Estimateurs" = round(mle$par, 4),
+                    "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("Temps de dérivation"=temps_deriv,
+                    "Temps d'estimation"=temps_solv[[3]]))
+xtable(resultats, digits = 4)
 xtable(temps_tot)

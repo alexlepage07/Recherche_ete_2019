@@ -130,9 +130,11 @@
 	\strut % Page blanche
 	\newpage
 	
-	\tableofcontents	
+	\tableofcontents
+	\newpage
 	\renewcommand{\listfigurename}{Liste des illustrations}
 	\listoffigures
+	\newpage
 	\listoftables
 	\newpage
 	
@@ -333,30 +335,32 @@
 		
 		Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeurs de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $q \approx E[N]/n$, $\beta \approx 1/E[X]$. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\
 		
-		Pour ce scénario, on a comme valeur de départ $q \approx 0.400\,280, \beta \approx 0.009\,975$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs  présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
+		Pour ce scénario, on a comme valeur de départ $q \approx 0.4003, \beta \approx 0.0100$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
 		
 		% latex table generated in R 3.6.0 by xtable 1.8-4 package
 		% Mon Jun 10 14:54:45 2019
 		\begin{table}[H]
 			\centering
-			\begin{tabular}{rrrr}
+			\begin{tabular}{lrrr}
 				\hline
-				& q & beta & alpha \\ 
+				& $q$ & $\beta$ & $\alpha$ \\ 
 				\hline
-				Estimateurs & 0.4024 & 0.0099 & 5.9539 \\ 
+				Valeurs de départ & 0.4003 & 0.0100 & 1.000 \\ 
+				Estimateurs & 0.4024 & 0.0099 & 5.9543 \\ 
 				Vrais paramètres & 0.4000 & 0.0100 & 6.0000 \\ 
 				\hline
 			\end{tabular}
 			%
-			\begin{tabular}{rr}
+			\begin{tabular}{lr}
 				\hline
 				&  \\ 
 				\hline
-				temps de dérivation & 4.22 \\ 
-				temps d'estimation & 180.23 \\ 
+				Temps de dérivation & 4.22 \\ 
+				Temps d'estimation & 180.23 \\ 
+				\\
 				\hline
 			\end{tabular}
-			\caption[Estimations avec une copule de Clayton et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
+			\caption[Résultats du scénario \ref{scenario_Clayton_Binom}]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
 			\label{tbl_Clayton_Binom}
 		\end{table}
 		
@@ -430,24 +434,26 @@
 		% Thu Jun 06 16:25:40 2019
 		\begin{table}[H]
 			\centering
-			\begin{tabular}{rrrr}
+			\begin{tabular}{lrrr}
 				\hline
-				& lambda & beta & alpha \\ 
+				& $\lambda$ & $\beta$ & $\alpha$ \\ 
 				\hline
+				Valeurs de départ & 0.9989 & 0.0099 & 1.0000 \\
 				Estimateurs & 1.0006 & 0.0099 & 5.9160 \\ 
 				Vrais paramètres & 1.0000 & 0.0100 & 6.0000 \\ 
 				\hline
 			\end{tabular}
 	%	
-		\begin{tabular}{rr}
+		\begin{tabular}{lr}
 			\hline
 			&  \\ 
 			\hline
-			temps de dérivation & 13.29 \\ 
-			temps d'estimation & 86.24 \\ 
+			Temps de dérivation & 13.29 \\ 
+			Temps d'estimation & 86.24 \\ 
+			\\
 			\hline
 		\end{tabular}
-			\caption[Estimations avec une copule de Clayton et $N\sim Poisson$]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
+			\caption[Résultats du scénario \ref{scenario_Clayton_Pois}]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
 		\end{table}
 	
 		Dans cet exemple, l'estimation n'est pas plus longue puisque le paramètre de la poisson n'est pas très grand. Cependant, si on l'augmente un tant soit peu, on obtient des quantiles élevés qui font en sorte que le temps de dérivation augmente de façon exponentielle.\\
@@ -465,29 +471,543 @@
 		Ce que l'on peut observer avec ces deux résultats, c'est, d'une part, qu'avec 10\,000 simulations, on obtient des résultats très adéquats. D'autre part, on peut observer que le temps de calcul augmente significativement si $N$ peut prendre des valeurs supérieures à 7 et si le nombre de paramètres à estimer est grand. Le temps de calcul est donc un enjeu important.
 
 	\subsection{Copule archimédienne hiérarchique}
-		Désormais, prenons la copule qui nous intéresse vraiment: la copule archimédienne hiérarchique. Avec $\theta_0 \sim logarithmique\left(\gamma = 1-\exp(-\alpha_0)\right)$, $B \sim Gamma(1/\alpha_1, 1)$, $N \sim Binom(5,q)$ et $X_i \sim X \sim Exp(\beta)$ on obtient les résultats présentés dans le tableau \ref{tbl_archi_hierar}.
+		Désormais, prenons la copule qui nous intéresse vraiment: la copule archimédienne hiérarchique. Dans la présente section un scénario est fait pour chacune des six familles de copule archimédienne hiérarchique.\\
+		
+% Scénario 3 : Logarithmique-logarithmique
+		\begin{Scenario}\label{scenario_log_log}
+			\textbf{Logarithmique-Logarithmique}
+		\end{Scenario}
+	
+		Soit $\Theta_0 \sim Logarithmique(\gamma_0)$ avec $\mathscr{L}_{\Theta_0} = \frac{\ln(1-\gamma_0 e^{-t})}{\ln(1-\gamma_0)}$ et $\mathscr{L}^{-1}_{\Theta_0} = -\ln \left( \frac{1-(1-\gamma_0)^u}{\gamma_0} \right)$.
+		%
+		Soit $B_i \sim B \sim Logarithmique(\gamma_1)$ avec $\mathscr{L}_{B} = \frac{\ln(1-\gamma_1 e^{-t})}{\ln(1-\gamma_1)}$ et $\mathscr{L}^{-1}_{B} = -\ln \left( \frac{1-(1-\gamma_1)^u}{\gamma_1} \right)$. Soient $\alpha_{0} = -ln(1-\gamma_0)$ et $\alpha_{1} = -ln(1-\gamma_1)$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 0.8$, $N\sim Bin(n=5, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_log_log} ainsi que les illustrations \ref{graph_densite_log_log} et \ref{graph_scatterplot_log_log}.
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Wed Jun 12 11:29:43 2019
 		\begin{table}[H]
 			\centering
-			\begin{tabular}{rrrrr}
+			\begin{tabular}{lll}
 				\hline
-				& $\alpha_{0}$ & $\alpha_{1}$ & $\beta$ & $q$ \\ 
+				      $N$ &       $X_1$ &       $X_2$  \\ 
 				\hline
-				Estimateurs & 0.50 & 5.17 & 0.01 & 0.40 \\ 
-				Vrais Paramètres & 0.50 & 5.00 & 0.01 & 0.40 \\ 
-				\hline
-				Temps de calcul & 821.4 sec. \\
+				 Min.   :0.000   & Min.   :   0.0005   & Min.   :   0.0003    \\ 
+				 1st Qu.:1.000   & 1st Qu.:  28.8718   & 1st Qu.:  28.7527      \\ 
+				 Median :2.000   & Median :  70.2264   & Median :  69.5752     \\ 
+				 Mean   :1.993   & Mean   :  99.0743   & Mean   : 101.3211      \\ 
+				 3rd Qu.:3.000   & 3rd Qu.: 137.8503   & 3rd Qu.: 140.6853     \\ 
+				 Max.   :5.000   & Max.   :1159.3514   & Max.   :1276.8609     \\ 
 				\hline
 			\end{tabular}
-			\caption[Estimations avec une copule archimédienne hiérarchique et $N\sim Binomiale$]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique, $N \sim Binomiale(5, q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
-			\label{tbl_archi_hierar}
+		%
+			\begin{tabular}{lll}
+				\hline
+				       $X_3$ &      $X_4$&       $X_5$ \\ 
+				\hline
+				 Min.   :  0.0039   & Min.   :  0.0003   & Min.   :  0.0055   \\ 
+				 1st Qu.: 27.8579   & 1st Qu.: 29.2991   & 1st Qu.: 28.8589   \\ 
+				 Median : 69.3043   & Median : 69.3083   & Median : 69.9943   \\ 
+				 Mean   : 99.3564   & Mean   : 99.3880   & Mean   :100.8576   \\ 
+				 3rd Qu.:138.5018   & 3rd Qu.:136.2992   & 3rd Qu.:140.1445   \\ 
+				 Max.   :867.0918   & Max.   :852.5330   & Max.   :997.9467   \\ 
+				\hline
+			\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_log_log}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.}
+		\label{tbl_sommaire_log_log}
 		\end{table}
 	
-		Dans le tableau \ref{tbl_archi_hierar}, on note que le temps de calcul est significativement supérieur à celui présenté dans le tableau \ref{tbl_Clayton_Binom}. Ce phénomène est explicable du fait qu'il y a plus de paramètres à estimer et que la copule contient plusieurs fonctions imbriquées qui nécessitent plus d'étapes dans le processus de dérivation en chaîne.
+		\begin{figure}[H]
+			\begin{subfigure}[l]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/log_log_N.png}
+				\caption{Fréquence}
+			\end{subfigure}
+			%
+			\begin{subfigure}[r]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/log_log_X.png}
+				\caption{Sévérité}
+			\end{subfigure}
+			\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_log_log}.}
+			\label{graph_densite_log_log}
+		\end{figure}
+	
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=10cm]{Graph/scatterplot_log_log.png}
+			\caption[Nuages de points du scénario \ref{scenario_log_log}]
+			{Nuages de points avec copule archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.:
+				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+			\label{graph_scatterplot_log_log}
+		\end{figure}
+		
+		Pour l'estimation des paramètres initiaux, avec la méthode du maximum de vraisemblance, on a $q \approx E[N]/n = 0.39860000$ et $\beta \approx 1/E[X] = 0.01006994$. Cependant, pour les paramètres de dépendance, il n'est pas aisé de trouver des valeurs de départ adéquates. Pour le moment, de façon arbitraire, posons $\alpha_{0}=\alpha_{1}=0.4$. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_resultats_log_log}
+		
+		% latex table generated in R 3.6.0 by xtable 1.8-4 package
+		% Wed Jun 12 11:40:24 2019
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lrrrr}
+				\hline
+				& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+				\hline
+				Valeurs de départ & 0.3986 & 0.0100 & 0.4000 & 0.4000 \\ 
+				Estimateurs & 0.3986 & 0.0100 & 0.4499 & 0.7700 \\ 
+				Vrais paramètres & 0.4000 & 0.0100 & 0.5000 & 0.8000 \\ 
+				\hline
+			\end{tabular}
+		%
+			\begin{tabular}{lr}
+				\hline
+				&  \\ 
+				\hline
+				Temps de dérivation & 2199.69 \\ 
+				Temps d'estimation & 254.75 \\ 
+				\\
+				\hline
+			\end{tabular}
+		\caption[Résultats du scénario \ref{scenario_log_log}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$, à la suite de 10\,000 simulations.}
+		\label{tbl_resultats_log_log}
+		\end{table}
+	
+		À la lecture du tableau \ref{tbl_resultats_log_log}, on voit que les estimateurs de $\alpha_0$ et $\alpha_1$ sont moins près des vrais valeurs que pour les autres. Cela est explicable du fait que, pour ces paramètres, les valeurs de départ ne sont pas optimales ce qui augmente les probabilités que la fonction \texttt{R} \texttt{constrOptim} ne trouve pas le minimum absolu de la fonction de score, mais plutôt qu'elle trouve un minimum local.
+		
+% Scénario 4 : Logarithmique-gamma
+		\begin{Scenario}\label{scenario_log_gamma}
+			\textbf{Logarithmique-Gamma}
+		\end{Scenario}
+	
+		Soit $\Theta_0 \sim Logarithmique(\gamma)$ avec $\mathscr{L}_{\Theta_0} = \frac{\ln(1-\gamma e^{-t})}{\ln(1-\gamma)}$ et $\mathscr{L}^{-1}_{\Theta_0} = -\ln \left( \frac{1-(1-\gamma)^u}{\gamma} \right)$. Soit $\alpha_{0} = -ln(1-\gamma)$.
+		%
+		Soit $B_i \sim B \sim gamma(1/\alpha_1,1)$ avec $\mathscr{L}_{B} = (1+t)^{-1/\alpha_1}$ et $\mathscr{L}^{-1}_{B} = u^{-\alpha_1} - 1$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 5$, $N\sim Bin(n=5, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_log_gamma} ainsi que les illustrations \ref{graph_densite_log_gamma} et \ref{graph_scatterplot_log_gamma}.
+		
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lll}
+				\hline
+				       $N$ &       $X_1$ &       $X_2$        \\ 
+				\hline
+				 Min.   :0.000   & Min.   :  0.00   & Min.   :  0.019     \\ 
+				 1st Qu.:1.000   & 1st Qu.: 20.89   & 1st Qu.: 30.541    \\ 
+				 Median :2.000   & Median : 61.52   & Median : 73.503    \\ 
+				 Mean   :1.994   & Mean   : 94.23   & Mean   :104.820    \\ 
+				 3rd Qu.:3.000   & 3rd Qu.:133.54   & 3rd Qu.:146.328    \\ 
+				 Max.   :5.000   & Max.   :879.01   & Max.   :981.951     \\ 
+				\hline
+			\end{tabular}
+		%
+			\begin{tabular}{lll}
+				\hline
+				          $X_3$ &       $X_4$ &       $X_5$ \\ 
+				\hline
+				 Min.   :  0.026   & Min.   :  0.115   & Min.   :   1.29   \\ 
+				 1st Qu.: 32.799   & 1st Qu.: 39.666   & 1st Qu.:  38.75   \\ 
+				 Median : 79.811   & Median : 92.745   & Median : 104.52   \\ 
+				 Mean   :109.526   & Mean   :120.190   & Mean   : 142.65   \\ 
+				 3rd Qu.:152.459   & 3rd Qu.:168.563   & 3rd Qu.: 206.24   \\ 
+				 Max.   :793.279   & Max.   :813.129   & Max.   :1017.52   \\ 
+				\hline
+			\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_log_gamma}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique logarithmique-gamma($\alpha_0=0.5, \alpha_1 = 5$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.}
+		\label{tbl_sommaire_log_gamma}
+		\end{table}
+		
+		\begin{figure}[H]
+			\begin{subfigure}[l]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/log_gamma_N.png}
+				\caption{Fréquence}
+			\end{subfigure}
+			%
+			\begin{subfigure}[r]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/log_gamma_X.png}
+				\caption{Sévérité}
+			\end{subfigure}
+			\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_log_gamma}.}
+			\label{graph_densite_log_gamma}
+		\end{figure}
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=10cm]{Graph/scatterplot_log_gamma.png}
+			\caption[Nuages de points du scénario \ref{scenario_log_gamma}]
+			{Nuages de points avec copule archimédienne hiérarchique logarithmique-gamma($\alpha_0=0.5, \alpha_1 = 5$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.:
+				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+			\label{graph_scatterplot_log_gamma}
+		\end{figure}
+
+		Les valeurs de départ de l'optimisation numérique ainsi que les résultats de l'estimation sont présentés dans le tableau \ref{tbl_resultats_log_gamma}.
+	
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lrrrr}
+				\hline
+				& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+				\hline
+				Valeurs de départ & 0.3987 & 0.0095 & 0.5000 & 5.0000 \\ 
+				Estimateurs & 0.3990 & 0.0099 & 0.5023 & 5.0610 \\ 
+				Vrais paramètres & 0.4000 & 0.0100 & 0.5000 & 5.0000 \\  
+				\hline
+			\end{tabular}
+			%
+			\begin{tabular}{lr}
+				\hline
+				&  \\ 
+				\hline
+				Temps de dérivation & 52.76 \\ 
+				Temps d'estimation & 1069.52 \\ 
+				\\
+				\hline
+			\end{tabular}
+			\caption[Résultats du scénario \ref{scenario_log_gamma}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique logarithmique-gamma($\alpha_0=0.5, \alpha_1=5$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots,5$, à la suite de 10\,000 simulations.}
+			\label{tbl_resultats_log_gamma}
+		\end{table}
+	
+	
+% Scénario 5: Logarithmique-geo
+	\begin{Scenario}\label{scenario_log_geo}
+		\textbf{Logarithmique-Géométrique}
+	\end{Scenario}
+	
+	Soit $\Theta_0 \sim Logarithmique(\gamma)$ avec $\mathscr{L}_{\Theta_0} = \frac{\ln(1-\gamma e^{-t})}{\ln(1-\gamma)}$ et $\mathscr{L}^{-1}_{\Theta_0} = -\ln \left( \frac{1-(1-\gamma)^u}{\gamma} \right)$. Soit $\alpha_{0} = -ln(1-\gamma)$.
+	%
+	Soit $B_i \sim B \sim Geo(1-\alpha_1)$ avec $E[B] = \frac{1}{1-\alpha_1},\ \mathscr{L}_{B} = \frac{1-\alpha_1}{e^t-\alpha_1}$ et $\mathscr{L}^{-1}_{B} = \ln\left(\frac{1 - \alpha_1}{u}+\alpha_1\right)$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 0.3$, $N\sim Bin(n=5, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_log_geo} ainsi que les illustrations \ref{graph_densite_log_geo} et \ref{graph_scatterplot_log_geo}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lll}
+			\hline
+			$N$ &       $X_1$ &       $X_2$        \\ 
+			\hline
+			  Min.   :0.000   & Min.   :  0.0152   & Min.   :  0.0023      \\ 
+			  1st Qu.:1.000   & 1st Qu.: 28.3205   & 1st Qu.: 27.6623      \\ 
+			  Median :2.000   & Median : 68.6348   & Median : 68.6183       \\ 
+			  Mean   :1.994   & Mean   : 98.9724   & Mean   : 98.2568      \\ 
+			  3rd Qu.:3.000   & 3rd Qu.:138.8460   & 3rd Qu.:136.5162       \\ 
+			  Max.   :5.000   & Max.   :959.2391   & Max.   :857.1796      \\
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{lll}
+			\hline
+			$X_3$ &       $X_4$ &       $X_5$ \\ 
+			\hline
+			  Min.   :   0.0015   & Min.   :  0.0052   & Min.   :  0.0033   \\ 
+			  1st Qu.:  28.5541   & 1st Qu.: 29.3939   & 1st Qu.: 28.1749   \\ 
+			  Median :  68.5017   & Median : 71.0794   & Median : 68.6236   \\ 
+			  Mean   : 100.1266   & Mean   :100.1761   & Mean   : 97.9566   \\ 
+			  3rd Qu.: 138.9653   & 3rd Qu.:138.0791   & 3rd Qu.:136.7516   \\ 
+			  Max.   :1195.4707   & Max.   :754.0023   & Max.   :924.5513   \\ 
+			\hline
+		\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_log_geo}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique logarithmique-géométrique($\alpha_0=0.5, \alpha_1 = 0.3$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.}
+		\label{tbl_sommaire_log_geo}
+	\end{table}
+	
+	\begin{figure}[H]
+		\begin{subfigure}[l]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/log_geo_N.png}
+			\caption{Fréquence}
+		\end{subfigure}
+		%
+		\begin{subfigure}[r]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/log_geo_X.png}
+			\caption{Sévérité}
+		\end{subfigure}
+		\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_log_geo}.}
+		\label{graph_densite_log_geo}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=10cm]{Graph/scatterplot_log_geo.png}
+		\caption[Nuages de points du scénario \ref{scenario_log_geo}]
+		{Nuages de points avec copule archimédienne hiérarchique logarithmique-géométrique($\alpha_0=0.5, \alpha_1 = 0.3$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.:
+			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+		\label{graph_scatterplot_log_geo}
+	\end{figure}
+	
+	Les valeurs de départ de l'optimisation numérique ainsi que les résultats de l'estimation sont présentés dans le tableau \ref{tbl_resultats_log_geo}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lrrrr}
+			\hline
+			& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+			\hline
+			Valeurs de départ & 0.3987 & 0.0097 & 0.5000 & 0.5000 \\ 
+			Estimateurs & 0.3999 & 0.0100 & 0.5028 & 0.5059 \\ 
+			Vrais paramètres & 0.4000 & 0.0100 & 0.5000 & 0.3000 \\
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{lr}
+			\hline
+			&  \\ 
+			\hline
+			Temps de dérivation & 109.45 \\ 
+			Temps d'estimation & 1001.81 \\ 
+			\\
+			\hline
+		\end{tabular}
+		\caption[Résultats du scénario \ref{scenario_log_geo}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique logarithmique-géométrique($\alpha_0=0.5, \alpha_1 = 0.3$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots,5$, à la suite de 10\,000 simulations.}
+		\label{tbl_resultats_log_geo}
+	\end{table}
+
+
+
+% Scénario 6: geo-logarithmic
+	\begin{Scenario}\label{scenario_geo_log}
+		\textbf{Géométrique-Logarithmique}
+	\end{Scenario}
+	
+	Soit $\Theta_0 \sim Geo(1-\alpha_0)$ avec $E[M] = \frac{1}{1-\alpha_0},\ \mathscr{L}_{\Theta_0} = \frac{1-\alpha_0}{e^t-\alpha_0}$ et $\mathscr{L}^{-1}_{\Theta_0} = \ln\left(\frac{1 - \alpha_0}{u}+\alpha_0\right)$.
+	%
+	Soit $B_i \sim B \sim Logarithmique(\gamma)$ avec $\mathscr{L}_{B} = \frac{\ln(1-\gamma e^{-t})}{\ln(1-\gamma)}$ et $\mathscr{L}^{-1}_{B} = -\ln \left( \frac{1-(1-\gamma)^u}{\gamma} \right)$. Soit $\alpha_{1} = -ln(1-\gamma)$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 0.8$, $N\sim Bin(n=4, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_geo_log} ainsi que les illustrations \ref{graph_densite_geo_log} et \ref{graph_scatterplot_geo_log}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lllll}
+			\hline
+			       $N$ &       $X_1$ &       $X_2$ &       $X_3$ &       $X_4$ \\ 
+			\hline
+			 Min.   :0.000   & Min.   :  0.0023   & Min.   :  0.0073   & Min.   :  0.0121   & Min.   :  0.0065   \\ 
+			 1st Qu.:1.000   & 1st Qu.: 28.0900   & 1st Qu.: 27.9637   & 1st Qu.: 28.2663   & 1st Qu.: 29.1747   \\ 
+			 Median :2.000   & Median : 67.8528   & Median : 69.5458   & Median : 67.9348   & Median : 69.4055   \\ 
+			 Mean   :1.595   & Mean   : 98.5520   & Mean   : 99.2869   & Mean   : 99.0303   & Mean   :100.4566   \\ 
+			 3rd Qu.:2.000   & 3rd Qu.:137.5109   & 3rd Qu.:137.5743   & 3rd Qu.:136.4480   & 3rd Qu.:139.4227   \\ 
+			 Max.   :4.000   & Max.   :837.1782   & Max.   :964.5771   & Max.   :977.3574   & Max.   :854.9710   \\ 
+			\hline
+		\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_geo_log}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_4\}$ en supposant que $F_{N,X_1,\dots, X_4}$ est définie avec une copule de archimédienne hiérarchique géométrique-logarithmique($\alpha_0=0.5, \alpha_1 = 0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.}
+		\label{tbl_sommaire_geo_log}
+	\end{table}
+	
+	\begin{figure}[H]
+		\begin{subfigure}[l]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/geo_log_N.png}
+			\caption{Fréquence}
+		\end{subfigure}
+		%
+		\begin{subfigure}[r]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/geo_log_X.png}
+			\caption{Sévérité}
+		\end{subfigure}
+		\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_geo_log}.}
+		\label{graph_densite_geo_log}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=10cm]{Graph/scatterplot_geo_log.png}
+		\caption[Nuages de points du scénario \ref{scenario_geo_log}]
+		{Nuages de points avec copule archimédienne hiérarchique géométrique-logarithmique($\alpha_0=0.5, \alpha_1 = 0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.:
+			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+		\label{graph_scatterplot_geo_log}
+	\end{figure}
+
+	Les valeurs de départ de l'optimisation numérique ainsi que les résultats de l'estimation sont présentés dans le tableau \ref{tbl_resultats_geo_log}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lrrrr}
+			\hline
+			& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+			\hline
+			Valeurs de départ & 0.3987 & 0.0101 & 0.5000 & 0.5000 \\ 
+			Estimateurs & 0.3990 & 0.0101 & 0.4971 & 0.8712 \\ 
+			Vrais paramètres & 0.4000 & 0.0100 & 0.5000 & 0.8000 \\
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{lr}
+			\hline
+			&  \\ 
+			\hline
+			Temps de dérivation & 57.38 \\ 
+			Temps d'estimation & 149.72 \\
+			\\
+			\hline
+		\end{tabular}
+		\caption[Résultats du scénario \ref{scenario_geo_log}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique géométrique-logarithmique($\alpha_0=0.5, \alpha_1 = 0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots,4$, à la suite de 10\,000 simulations.}
+		\label{tbl_resultats_geo_log}
+	\end{table}
+
+
+
+% Scénario 7 : geo-gamma
+	\begin{Scenario}\label{scenario_geo_gamma}
+		\textbf{Géométrique-Gamma}
+	\end{Scenario}
+	
+	Soit $\Theta_0 \sim Geo(1-\alpha_0)$ avec $E[M] = \frac{1}{1-\alpha_0},\ \mathscr{L}_{\Theta_0} = \frac{1-\alpha_0}{e^t-\alpha_0}$ et $\mathscr{L}^{-1}_{\Theta_0} = \ln\left(\frac{1 - \alpha_0}{u}+\alpha_0\right)$.
+	%
+	Soit $B_i \sim B \sim gamma(1/\alpha_1,1)$ avec $\mathscr{L}_{B} = (1+t)^{-1/\alpha_1}$ et $\mathscr{L}^{-1}_{B} = u^{-\alpha_1} - 1$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 0.8$, $N\sim Bin(n=5, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_geo_gamma} ainsi que les illustrations \ref{graph_densite_geo_gamma} et \ref{graph_scatterplot_geo_gamma}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lll}
+			\hline
+			$N$ &       $X_1$ &       $X_2$        \\ 
+			\hline
+			  Min.   :0.000   & Min.   :  0.0006   & Min.   :  0.0005    \\ 
+			  1st Qu.:1.000   & 1st Qu.: 29.2505   & 1st Qu.: 29.1884    \\ 
+			  Median :2.000   & Median : 69.6601   & Median : 70.7418       \\ 
+			  Mean   :2.002   & Mean   :100.0527   & Mean   :100.3462       \\ 
+			  3rd Qu.:3.000   & 3rd Qu.:138.5964   & 3rd Qu.:138.9114      \\ 
+			  Max.   :5.000   & Max.   :908.6793   & Max.   :924.0011   \\ 
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{lll}
+			\hline
+			$X_3$ &       $X_4$ &       $X_5$ \\ 
+			\hline
+			  Min.   :   0.0005   & Min.   :  0.0005   & Min.   :  0.0008   \\ 
+			  1st Qu.:  29.2432   & 1st Qu.: 29.1898   & 1st Qu.: 29.4361   \\ 
+			  Median :  69.1627   & Median : 70.8558   & Median : 69.3439   \\ 
+			  Mean   : 100.4765   & Mean   :101.3061   & Mean   :101.1562   \\ 
+			  3rd Qu.: 139.4879   & 3rd Qu.:139.4048   & 3rd Qu.:139.4248   \\ 
+			  Max.   :1208.1788   & Max.   :916.6048   & Max.   :846.3202   \\   
+			\hline
+		\end{tabular}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_geo_gamma}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique géométrique-gamma($\alpha_0=0.5, \alpha_1 = 0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.}
+		\label{tbl_sommaire_geo_gamma}
+	\end{table}
+	
+	\begin{figure}[H]
+		\begin{subfigure}[l]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/geo_gamma_N.png}
+			\caption{Fréquence}
+		\end{subfigure}
+		%
+		\begin{subfigure}[r]{0.5\textwidth}
+			\includegraphics[width=\textwidth]{Graph/geo_gamma_X.png}
+			\caption{Sévérité}
+		\end{subfigure}
+		\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_geo_gamma}.}
+		\label{graph_densite_geo_gamma}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=10cm]{Graph/scatterplot_geo_gamma.png}
+		\caption[Nuages de points du scénario \ref{scenario_geo_gamma}]
+		{Nuages de points avec copule archimédienne hiérarchique géométrique-gamma($\alpha_0=0.5, \alpha_1 = 0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.:
+			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+		\label{graph_scatterplot_geo_gamma}
+	\end{figure}
+
+	Les valeurs de départ de l'optimisation numérique ainsi que les résultats de l'estimation sont présentés dans le tableau \ref{tbl_resultats_geo_gamma}.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lrrrr}
+			\hline
+			& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+			\hline
+			Valeurs de départ & 0.4005 & 0.0095 & 0.5000 & 4.0000 \\ 
+			Estimateurs & 0.4019 & 0.0157 & 0.2503 & 6.1103 \\ 
+			Vrais paramètres & 0.4000 & 0.0100 & 0.3000 & 5.0000 \\
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{lr}
+			\hline
+			&  \\ 
+			\hline
+			Temps de dérivation & 57.68 \\ 
+			Temps d'estimation & 1846.39 \\ 
+			\\
+			\hline
+		\end{tabular}
+		\caption[Résultats du scénario \ref{scenario_geo_gamma}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique géométrique-gamma($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots,5$, à la suite de 10\,000 simulations.}
+		\label{tbl_resultats_geo_gamma}
+	\end{table}
+
+
+
+% Scénario 8 : geo-geo
+		\begin{Scenario}\label{scenario_geo_geo}
+			\textbf{Géométrique-Géométrique}
+		\end{Scenario}
+		
+		Soit $\Theta_0 \sim Geo(1-\alpha_0)$ avec $E[M] = \frac{1}{1-\alpha_0},\ \mathscr{L}_{\Theta_0} = \frac{1-\alpha_0}{e^t-\alpha_0}$ et $\mathscr{L}^{-1}_{\Theta_0} = \ln\left(\frac{1 - \alpha_0}{u}+\alpha_0\right)$.
+		%
+			Soit $B_i \sim B \sim Geo(1-\alpha_1)$ avec $E[B] = \frac{1}{1-\alpha_1},\ \mathscr{L}_{B} = \frac{1-\alpha_1}{e^t-\alpha_1}$ et $\mathscr{L}^{-1}_{B} = \ln\left(\frac{1 - \alpha_1}{u}+\alpha_1\right)$. Avec $\alpha_0 = 0.5$, $\alpha_1 = 0.3$, $N\sim Bin(n=4, q=2/5)$ et $X_i \sim X \sim Exp(\beta = 1/100)$, on obtient le sommaire des simulations présenté dans le tableau \ref{tbl_sommaire_geo_geo} ainsi que les illustrations \ref{graph_densite_geo_geo} et \ref{graph_scatterplot_geo_geo}.
+		
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lllll}
+				\hline
+				$N$ &       $X_1$ &       $X_2$    &  $X_3$ &       $X_4$  \\ 
+				\hline
+				  Min.   :0.000   & Min.   :   0.0087   & Min.   :  0.0062  & Min.   :   0.0068   & Min.   :   0.0003    \\ 
+				  1st Qu.:1.000   & 1st Qu.:  29.1523   & 1st Qu.: 28.7089  & 1st Qu.:  28.6573   & 1st Qu.:  27.7252     \\ 
+				  Median :2.000   & Median :  70.0952   & Median : 68.7772  & Median :  70.0095   & Median :  67.3220  \\ 
+				  Mean   :1.602   & Mean   : 100.5380   & Mean   :100.13362 & Mean   :  99.6027   & Mean   :  99.9894     \\ 
+				  3rd Qu.:2.000   & 3rd Qu.: 140.2621   & 3rd Qu.:140.8914  & 3rd Qu.: 139.3071   & 3rd Qu.: 139.6741    \\ 
+				  Max.   :4.000   & Max.   :1471.4156   & Max.   :936.3070  & Max.   :1080.3850   & Max.   :1012.0754 \\ 
+				\hline
+			\end{tabular}
+			\caption[Sommaire des données simulées pour le scénario \ref{scenario_geo_geo}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_4\}$ en supposant que $F_{N,X_1,\dots, X_4}$ est définie avec une copule de archimédienne hiérarchique géométrique-géométrique($\alpha_0=0.5, \alpha_1 = 0.3$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.}
+			\label{tbl_sommaire_geo_geo}
+		\end{table}
+		
+		\begin{figure}[H]
+			\begin{subfigure}[l]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/geo_geo_N.png}
+				\caption{Fréquence}
+			\end{subfigure}
+			%
+			\begin{subfigure}[r]{0.5\textwidth}
+				\includegraphics[width=\textwidth]{Graph/geo_geo_X.png}
+				\caption{Sévérité}
+			\end{subfigure}
+			\caption{Comparaisons de la distribution marginale des données simulées avec les distributions théoriques pour le scénario \ref{scenario_geo_geo}.}
+			\label{graph_densite_geo_geo}
+		\end{figure}
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[height=10cm]{Graph/scatterplot_geo_geo.png}
+			\caption[Nuages de points du scénario \ref{scenario_geo_geo}]
+			{Nuages de points avec copule archimédienne hiérarchique géométrique-géométrique($\alpha_0=0.5, \alpha_1 = 0.3$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.:
+				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
+			\label{graph_scatterplot_geo_geo}
+		\end{figure}
+	
+		Les valeurs de départ de l'optimisation numérique ainsi que les résultats de l'estimation sont présentés dans le tableau \ref{tbl_resultats_geo_geo}.
+		
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{lrrrr}
+				\hline
+				& $q$ & $\beta$ & $\alpha_0$ & $\alpha_1$ \\ 
+				\hline
+				Valeurs de départ & 0.4005 & 0.0091 & 0.5000 & 0.5000 \\ 
+				Estimateurs & 0.4008 & 0.0099 & 0.5677 & 0.4564 \\ 
+				Vrais paramètres & 0.4000 & 0.0100 & 0.5000 & 0.3000 \\ 
+				\hline
+			\end{tabular}
+			%
+			\begin{tabular}{lr}
+				\hline
+				&  \\ 
+				\hline
+				Temps de dérivation & 15.87 \\ 
+				Temps d'estimation & 305.33 \\ 
+				\\
+				\hline
+			\end{tabular}
+			\caption[Résultats du scénario \ref{scenario_geo_geo}]{Résultats de l'estimation des paramètres avec une copule archimédienne hiérarchique géométrique-géométrique($\alpha_0=0.5, \alpha_1=0.3$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots,4$, à la suite de 10\,000 simulations.}
+			\label{tbl_resultats_geo_geo}
+		\end{table}
+	
+	
 		
 	\section{Conclusion}
 		Pour conclure, le modèle collectif du risque présenté dans \cite{Itre5} présente un défi dans l'estimation des paramètres par la méthode du maximum de vraisemblance tel que présentée dans la section \ref{sect_Maxlikelyhood} puisque la dérivation en chaîne sur un grand nombre de variables pose un problème de temps de calcul.\\
 		
-		À cet effet, une solution envisageable pourrait être d'utiliser la vraisemblance par décomposition hiérarchique proposé dans \cite{LikelyhoodEstimation} afin de trouver le paramètre de dépendance entre $N$ et $X_1$, puis de se limiter à un nombre restreint de $X_i$ (disons 5) afin d'estimer le paramètre de dépendance entre les $X_i$. Cependant, avec cette méthode le fait de travailler avec des variables continues et discrètes peut causer un problème. Pour ce qui est de trouver les paramètres des lois de $N$ et $X$, la méthode du maximum de vraisemblance classique (de façon univariée) pourrait être envisagée.
+		À cet effet, une solution envisageable pourrait être d'utiliser la vraisemblance par décomposition hiérarchique proposé dans \cite{LikelyhoodEstimation} afin de trouver le paramètre de dépendance entre $N$ et $X_1$, puis de se limiter à un nombre restreint de $X_i$ (disons 5) afin d'estimer le paramètre de dépendance entre les $X_i$. Cependant, avec cette méthode, le fait de travailler avec des variables continues et discrètes cause un problème.
+		
+		De plus, la difficulté à trouver une valeur de départ adéquate pour $\alpha_{0}$ et $\alpha_{1}$ fait en sorte que les estimateurs de ces paramètres manquent de précision.
 	 
 		
 	\clearpage

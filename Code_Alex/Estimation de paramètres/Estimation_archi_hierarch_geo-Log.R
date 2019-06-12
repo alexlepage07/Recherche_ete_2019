@@ -9,13 +9,13 @@ library(xtable)
 # ================================== Simulations des données d'entraînement ================
 source("../Code_simul_copule.R")
 n <- 4
-q <- 1/2
+q <- 2/5
 beta <- 1/100
 alpha0 <- 0.5
 alpha1 <- 0.8
 nsim <- 1e+4
 
-DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), 5, "gamma", 1/alpha1)
+DATA_train <- actrisk.rcompcop(nsim,"geo", 1-alpha0, n, "log", 1-exp(-alpha1))
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
@@ -53,7 +53,7 @@ pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch="."
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
 
-F_N <- function(x0, pa1) pbinom(x0, 5, pa1)
+F_N <- function(x0, pa1) pbinom(x0, n, pa1)
 F_X <- "1 - exp(-x_i * pa2)"
 
 LST.M <- "(1 - pa3)/(exp(T) - pa3)"
@@ -106,7 +106,7 @@ for (n in 1:(nb_xi)){
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
-plot(temps_deriv[1:5], type="l",
+plot(temps_deriv[1:nb_xi], type="l",
      xlab="nb de dérivées partielles",
      ylab="temps de dérivation")
 
@@ -162,7 +162,7 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- c("q"=mean(DATA_train[,1] / 5),
+val_depart <- c("q"=mean(DATA_train[,1]) / nb_xi,
                 "beta"=1/mean(DATA_train[,-1]),
                 "alpha0"=0.5,
                 "alpha1"=0.5)
@@ -174,9 +174,9 @@ temps_solv <- system.time(
                        grad = NULL, 
                        ui = diag(4),
                        ci = c(0, 0, 0, 0),
-                       outer.eps = 1e-5 )
+                       outer.eps = 1e-2 )
 )
 (resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
 (temps_tot <- rbind("temps de dérivation"=temps_deriv, "temps d'estimation"=temps_solv[[3]]))
-xtable(resultats)
+xtable(resultats, digits=4)
 xtable(temps_tot)

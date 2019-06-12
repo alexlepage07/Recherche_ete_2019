@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2017.3.16)  11 JUN 2019 18:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2017.3.16)  12 JUN 2019 17:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1531,203 +1531,380 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 \tf@toc=\write5
 \openout5 = `notes.toc'.
 
- (./notes.lof)
+ [1] (./notes.lof)
 \tf@lof=\write6
 \openout6 = `notes.lof'.
 
 
-(./notes.lot)
+[2] (./notes.lot)
 \tf@lot=\write7
 \openout7 = `notes.lot'.
 
- [1]
-Underfull \hbox (badness 10000) in paragraph at lines 143--144
+ [3]
+Underfull \hbox (badness 10000) in paragraph at lines 145--146
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--152
+Underfull \hbox (badness 10000) in paragraph at lines 153--154
 
  []
 
-LaTeX Font Info:    Try loading font information for U+dsrom on input line 156.
+LaTeX Font Info:    Try loading font information for U+dsrom on input line 158.
 
 (c:/texlive/2016/texmf-dist/tex/latex/doublestroke/udsrom.fd
 File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
 )
-Underfull \hbox (badness 10000) in paragraph at lines 157--159
+Underfull \hbox (badness 10000) in paragraph at lines 159--161
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 170--171
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 179--180
-
- []
-
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 181.
-
-(c:/texlive/2016/texmf-dist/tex/latex/base/t1cmtt.fd
-File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
 Underfull \hbox (badness 10000) in paragraph at lines 181--182
 
  []
 
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 183.
+
+(c:/texlive/2016/texmf-dist/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+
+ []
+
 [1]
-Underfull \hbox (badness 10000) in paragraph at lines 194--195
+Underfull \hbox (badness 10000) in paragraph at lines 196--197
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 211--212
+Underfull \hbox (badness 10000) in paragraph at lines 213--214
 
  []
 
-<Hierarchie.png, id=48, 402.82669pt x 316.73112pt>
+<Hierarchie.png, id=54, 402.82669pt x 316.73112pt>
 File: Hierarchie.png Graphic file (type png)
  <use Hierarchie.png>
-Package pdftex.def Info: Hierarchie.png used on input line 217.
+Package pdftex.def Info: Hierarchie.png used on input line 219.
 (pdftex.def)             Requested size: 180.93842pt x 142.26378pt.
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 222--223
+Underfull \hbox (badness 10000) in paragraph at lines 224--225
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 235--237
+Underfull \hbox (badness 10000) in paragraph at lines 237--239
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 241--242
+Underfull \hbox (badness 10000) in paragraph at lines 243--244
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 243--245
+Underfull \hbox (badness 10000) in paragraph at lines 245--247
 
  []
 
 
-Overfull \hbox (6.6086pt too wide) in paragraph at lines 246--247
+Overfull \hbox (6.6086pt too wide) in paragraph at lines 248--249
 []\T1/cmr/m/n/10 Pour les co-pules ar-chi-mé-diennes hié-rar-chique, le mo-dule
  \T1/cmtt/m/n/10 nCopula[] \T1/cmr/m/n/10 offre une fonc-tion nom-mée \T1/cmtt/
 m/n/10 rCompCop
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 254--256
+Underfull \hbox (badness 10000) in paragraph at lines 256--258
 
  []
 
 [3 <./Hierarchie.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 272--274
+Underfull \hbox (badness 10000) in paragraph at lines 274--276
 
  []
 
-<Graph/Clayton_Binom_N.png, id=60, 590.205pt x 378.66469pt>
+<Graph/Clayton_Binom_N.png, id=67, 590.205pt x 378.66469pt>
 File: Graph/Clayton_Binom_N.png Graphic file (type png)
 
 <use Graph/Clayton_Binom_N.png>
-Package pdftex.def Info: Graph/Clayton_Binom_N.png used on input line 311.
+Package pdftex.def Info: Graph/Clayton_Binom_N.png used on input line 313.
 (pdftex.def)             Requested size: 225.84375pt x 144.89366pt.
 
-<Graph/Clayton_Binom_X.png, id=61, 590.205pt x 378.66469pt>
+<Graph/Clayton_Binom_X.png, id=68, 590.205pt x 378.66469pt>
 File: Graph/Clayton_Binom_X.png Graphic file (type png)
 
 <use Graph/Clayton_Binom_X.png>
-Package pdftex.def Info: Graph/Clayton_Binom_X.png used on input line 316.
+Package pdftex.def Info: Graph/Clayton_Binom_X.png used on input line 318.
 (pdftex.def)             Requested size: 225.84375pt x 144.89366pt.
 
-Overfull \hbox (2.22166pt too wide) in paragraph at lines 310--319
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 312--321
 []$[]$ $[]$ 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 323--324
+Underfull \hbox (badness 10000) in paragraph at lines 325--326
 
  []
 
-<Graph/scatterplot_Binom.png, id=62, 441.14813pt x 304.88907pt>
+<Graph/scatterplot_Binom.png, id=69, 441.14813pt x 304.88907pt>
 File: Graph/scatterplot_Binom.png Graphic file (type png)
 
 <use Graph/scatterplot_Binom.png>
-Package pdftex.def Info: Graph/scatterplot_Binom.png used on input line 327.
+Package pdftex.def Info: Graph/scatterplot_Binom.png used on input line 329.
 (pdftex.def)             Requested size: 411.70403pt x 284.52756pt.
  [4 <./Graph/Clayton_Binom_N.png> <./Graph/Clayton_Binom_X.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 334--335
+Underfull \hbox (badness 10000) in paragraph at lines 336--337
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 368--369
+Underfull \hbox (badness 10000) in paragraph at lines 372--373
 
  []
 
 [5 <./Graph/scatterplot_Binom.png>]
-<Graph/Clayton_Poiss_1_N.png, id=74, 590.205pt x 378.66469pt>
+<Graph/Clayton_Poiss_1_N.png, id=80, 590.205pt x 378.66469pt>
 File: Graph/Clayton_Poiss_1_N.png Graphic file (type png)
 
 <use Graph/Clayton_Poiss_1_N.png>
-Package pdftex.def Info: Graph/Clayton_Poiss_1_N.png used on input line 406.
+Package pdftex.def Info: Graph/Clayton_Poiss_1_N.png used on input line 410.
 (pdftex.def)             Requested size: 225.84375pt x 144.89366pt.
 
-<Graph/Clayton_Poiss_1_X.png, id=75, 590.205pt x 378.66469pt>
+<Graph/Clayton_Poiss_1_X.png, id=81, 590.205pt x 378.66469pt>
 File: Graph/Clayton_Poiss_1_X.png Graphic file (type png)
 
 <use Graph/Clayton_Poiss_1_X.png>
-Package pdftex.def Info: Graph/Clayton_Poiss_1_X.png used on input line 411.
+Package pdftex.def Info: Graph/Clayton_Poiss_1_X.png used on input line 415.
 (pdftex.def)             Requested size: 225.84375pt x 144.89366pt.
 
-Overfull \hbox (2.22166pt too wide) in paragraph at lines 405--414
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 409--418
 []$[]$ $[]$ 
  []
 
-<Graph/scatterplot_Poisson_1.png, id=76, 441.14813pt x 304.88907pt>
+<Graph/scatterplot_Poisson_1.png, id=82, 441.14813pt x 304.88907pt>
 File: Graph/scatterplot_Poisson_1.png Graphic file (type png)
 
 <use Graph/scatterplot_Poisson_1.png>
-Package pdftex.def Info: Graph/scatterplot_Poisson_1.png used on input line 419
+Package pdftex.def Info: Graph/scatterplot_Poisson_1.png used on input line 423
 .
 (pdftex.def)             Requested size: 411.70403pt x 284.52756pt.
  [6 <./Graph/Clayton_Poiss_1_N.png> <./Graph/Clayton_Poiss_1_X.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 425--426
+Underfull \hbox (badness 10000) in paragraph at lines 429--430
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 453--454
+Underfull \hbox (badness 10000) in paragraph at lines 459--460
 
  []
 
-<Graph/graph_temps_deriv.png, id=82, 316.18124pt x 351.56343pt>
+<Graph/graph_temps_deriv.png, id=88, 316.18124pt x 351.56343pt>
 File: Graph/graph_temps_deriv.png Graphic file (type png)
 
 <use Graph/graph_temps_deriv.png>
-Package pdftex.def Info: Graph/graph_temps_deriv.png used on input line 459.
+Package pdftex.def Info: Graph/graph_temps_deriv.png used on input line 465.
 (pdftex.def)             Requested size: 204.70967pt x 227.62204pt.
  [7 <./Graph/scatterplot_Poisson_1.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 488--489
+Underfull \hbox (badness 10000) in paragraph at lines 474--475
 
  []
 
-[8 <./Graph/graph_temps_deriv.png>] [9] (./notes.bbl) [10
+[8 <./Graph/graph_temps_deriv.png>]
+<Graph/log_log_N.png, id=99, 383.18156pt x 294.34969pt>
+File: Graph/log_log_N.png Graphic file (type png)
+
+<use Graph/log_log_N.png>
+Package pdftex.def Info: Graph/log_log_N.png used on input line 520.
+(pdftex.def)             Requested size: 225.84375pt x 173.48964pt.
+
+<Graph/log_log_X.png, id=100, 383.18156pt x 294.34969pt>
+File: Graph/log_log_X.png Graphic file (type png)
+
+<use Graph/log_log_X.png>
+Package pdftex.def Info: Graph/log_log_X.png used on input line 525.
+(pdftex.def)             Requested size: 225.84375pt x 173.48964pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 519--528
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_log_log.png, id=101, 383.18156pt x 294.34969pt>
+File: Graph/scatterplot_log_log.png Graphic file (type png)
+
+<use Graph/scatterplot_log_log.png>
+Package pdftex.def Info: Graph/scatterplot_log_log.png used on input line 534.
+(pdftex.def)             Requested size: 370.39935pt x 284.52756pt.
+
+Underfull \hbox (badness 6110) in paragraph at lines 537--537
+[]\T1/cmr/m/n/10 Illustration 8 ^^U |Nuages de points avec co-pule ar-chi-mé-di
+enne hié-rar-chique logarithmique-
+ []
+
+[9 <./Graph/log_log_N.png> <./Graph/log_log_X.png>] [10 <./Graph/scatterplot_lo
+g_log.png>] <Graph/log_gamma_N.png, id=111, 490.08093pt x 410.2828pt>
+File: Graph/log_gamma_N.png Graphic file (type png)
+
+<use Graph/log_gamma_N.png>
+Package pdftex.def Info: Graph/log_gamma_N.png used on input line 614.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+<Graph/log_gamma_X.png, id=112, 490.08093pt x 410.2828pt>
+File: Graph/log_gamma_X.png Graphic file (type png)
+
+<use Graph/log_gamma_X.png>
+Package pdftex.def Info: Graph/log_gamma_X.png used on input line 619.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 613--622
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_log_gamma.png, id=113, 490.08093pt x 410.2828pt>
+File: Graph/scatterplot_log_gamma.png Graphic file (type png)
+
+<use Graph/scatterplot_log_gamma.png>
+Package pdftex.def Info: Graph/scatterplot_log_gamma.png used on input line 628
+.
+(pdftex.def)             Requested size: 339.8612pt x 284.52756pt.
+ [11 <./Graph/log_gamma_N.png> <./Graph/log_gamma_X.png>] [12 <./Graph/scatterp
+lot_log_gamma.png>]
+<Graph/log_geo_N.png, id=123, 490.08093pt x 410.2828pt>
+File: Graph/log_geo_N.png Graphic file (type png)
+
+<use Graph/log_geo_N.png>
+Package pdftex.def Info: Graph/log_geo_N.png used on input line 705.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+<Graph/log_geo_X.png, id=124, 490.08093pt x 410.2828pt>
+File: Graph/log_geo_X.png Graphic file (type png)
+
+<use Graph/log_geo_X.png>
+Package pdftex.def Info: Graph/log_geo_X.png used on input line 710.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 704--713
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_log_geo.png, id=125, 509.65407pt x 410.2828pt>
+File: Graph/scatterplot_log_geo.png Graphic file (type png)
+
+<use Graph/scatterplot_log_geo.png>
+Package pdftex.def Info: Graph/scatterplot_log_geo.png used on input line 719.
+(pdftex.def)             Requested size: 353.43477pt x 284.52756pt.
+
+Underfull \hbox (badness 4805) in paragraph at lines 722--722
+[]\T1/cmr/m/n/10 Illustration 12 ^^U |Nuages de points avec co-pule ar-chi-mé-d
+ienne hié-rar-chique logarithmique-
+ []
+
+[13 <./Graph/log_geo_N.png> <./Graph/log_geo_X.png>] [14 <./Graph/scatterplot_l
+og_geo.png>] <Graph/geo_log_N.png, id=136, 383.18156pt x 295.85532pt>
+File: Graph/geo_log_N.png Graphic file (type png)
+
+<use Graph/geo_log_N.png>
+Package pdftex.def Info: Graph/geo_log_N.png used on input line 784.
+(pdftex.def)             Requested size: 225.84375pt x 174.37706pt.
+
+<Graph/geo_log_X.png, id=137, 383.18156pt x 295.85532pt>
+File: Graph/geo_log_X.png Graphic file (type png)
+
+<use Graph/geo_log_X.png>
+Package pdftex.def Info: Graph/geo_log_X.png used on input line 789.
+(pdftex.def)             Requested size: 225.84375pt x 174.37706pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 783--792
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_geo_log.png, id=138, 383.18156pt x 295.85532pt>
+File: Graph/scatterplot_geo_log.png Graphic file (type png)
+
+<use Graph/scatterplot_geo_log.png>
+Package pdftex.def Info: Graph/scatterplot_geo_log.png used on input line 798.
+(pdftex.def)             Requested size: 368.5225pt x 284.52756pt.
+
+Underfull \hbox (badness 6741) in paragraph at lines 801--801
+[]\T1/cmr/m/n/10 Illustration 14 ^^U |Nuages de points avec co-pule ar-chi-mé-d
+ienne hié-rar-chique géométrique-
+ []
+
+[15 <./Graph/geo_log_N.png> <./Graph/geo_log_X.png>] [16 <./Graph/scatterplot_g
+eo_log.png>] <Graph/geo_gamma_N.png, id=148, 509.65407pt x 410.2828pt>
+File: Graph/geo_gamma_N.png Graphic file (type png)
+
+<use Graph/geo_gamma_N.png>
+Package pdftex.def Info: Graph/geo_gamma_N.png used on input line 876.
+(pdftex.def)             Requested size: 225.84375pt x 181.80836pt.
+
+<Graph/geo_gamma_X.png, id=149, 509.65407pt x 410.2828pt>
+File: Graph/geo_gamma_X.png Graphic file (type png)
+
+<use Graph/geo_gamma_X.png>
+Package pdftex.def Info: Graph/geo_gamma_X.png used on input line 881.
+(pdftex.def)             Requested size: 225.84375pt x 181.80836pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 875--884
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_geo_gamma.png, id=150, 509.65407pt x 410.2828pt>
+File: Graph/scatterplot_geo_gamma.png Graphic file (type png)
+
+<use Graph/scatterplot_geo_gamma.png>
+Package pdftex.def Info: Graph/scatterplot_geo_gamma.png used on input line 890
+.
+(pdftex.def)             Requested size: 353.43477pt x 284.52756pt.
+ [17 <./Graph/geo_gamma_N.png> <./Graph/geo_gamma_X.png>] [18 <./Graph/scatterp
+lot_geo_gamma.png>]
+<Graph/geo_geo_N.png, id=160, 490.08093pt x 410.2828pt>
+File: Graph/geo_geo_N.png Graphic file (type png)
+
+<use Graph/geo_geo_N.png>
+Package pdftex.def Info: Graph/geo_geo_N.png used on input line 955.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+<Graph/geo_geo_X.png, id=161, 490.08093pt x 410.2828pt>
+File: Graph/geo_geo_X.png Graphic file (type png)
+
+<use Graph/geo_geo_X.png>
+Package pdftex.def Info: Graph/geo_geo_X.png used on input line 960.
+(pdftex.def)             Requested size: 225.84375pt x 189.07043pt.
+
+Overfull \hbox (2.22166pt too wide) in paragraph at lines 954--963
+[]$[]$ $[]$ 
+ []
+
+<Graph/scatterplot_geo_geo.png, id=162, 509.65407pt x 410.2828pt>
+File: Graph/scatterplot_geo_geo.png Graphic file (type png)
+
+<use Graph/scatterplot_geo_geo.png>
+Package pdftex.def Info: Graph/scatterplot_geo_geo.png used on input line 969.
+(pdftex.def)             Requested size: 353.43477pt x 284.52756pt.
+ [19 <./Graph/geo_geo_N.png> <./Graph/geo_geo_X.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 1006--1007
+
+ []
+
+[20 <./Graph/scatterplot_geo_geo.png>] [21] (./notes.bbl) [22
 
 ] (./notes.aux) ) 
 Here is how much of TeX's memory you used:
- 32001 strings out of 493013
- 712592 string characters out of 6136993
- 1070853 words of memory out of 5000000
- 34883 multiletter control sequences out of 15000+600000
+ 32120 strings out of 493013
+ 715576 string characters out of 6136993
+ 1072853 words of memory out of 5000000
+ 34984 multiletter control sequences out of 15000+600000
  18254 words of font info for 49 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,11n,96p,739b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 62i,10n,96p,739b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
 {c:/texlive/2016/texmf-dist/fonts/enc/dvips/cm-super/cm-super-
 t1.enc}<c:/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><c
 :/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive
@@ -1736,25 +1913,26 @@ f-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2016/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmr5.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmr7.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
-10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:
-/texlive/2016/texmf-dist/fonts/type1/public/doublestroke/dsrom10.pfb><c:/texliv
-e/2016/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/20
-16/texmf-dist/fonts/type1/public/rsfs/rsfs10.pfb><c:/texlive/2016/texmf-dist/fo
-nts/type1/public/cm-super/sfbi1000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/
-public/cm-super/sfbx1000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-
-super/sfbx1200.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx
-1440.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfcc1000.pfb><
-c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfcc1440.pfb><c:/texlive
-/2016/texmf-dist/fonts/type1/public/cm-super/sfcc1728.pfb><c:/texlive/2016/texm
-f-dist/fonts/type1/public/cm-super/sfrm0700.pfb><c:/texlive/2016/texmf-dist/fon
-ts/type1/public/cm-super/sfrm0800.pfb><c:/texlive/2016/texmf-dist/fonts/type1/p
-ublic/cm-super/sfrm0900.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-s
-uper/sfrm1000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfti1
-000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on notes.pdf (13 pages, 435663 bytes).
+10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><c:
+/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2
+016/texmf-dist/fonts/type1/public/doublestroke/dsrom10.pfb><c:/texlive/2016/tex
+mf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/texlive/2016/texmf-d
+ist/fonts/type1/public/rsfs/rsfs10.pfb><c:/texlive/2016/texmf-dist/fonts/type1/
+public/cm-super/sfbi1000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-
+super/sfbx1000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx
+1200.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb><
+c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfcc1000.pfb><c:/texlive
+/2016/texmf-dist/fonts/type1/public/cm-super/sfcc1440.pfb><c:/texlive/2016/texm
+f-dist/fonts/type1/public/cm-super/sfcc1728.pfb><c:/texlive/2016/texmf-dist/fon
+ts/type1/public/cm-super/sfrm0700.pfb><c:/texlive/2016/texmf-dist/fonts/type1/p
+ublic/cm-super/sfrm0800.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-s
+uper/sfrm0900.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfrm1
+000.pfb><c:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb><c
+:/texlive/2016/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on notes.pdf (27 pages, 575936 bytes).
 PDF statistics:
- 178 PDF objects out of 1000 (max. 8388607)
- 118 compressed objects within 2 object streams
+ 262 PDF objects out of 1000 (max. 8388607)
+ 151 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 58 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 148 words of extra memory for PDF output out of 10000 (max. 10000000)
 
