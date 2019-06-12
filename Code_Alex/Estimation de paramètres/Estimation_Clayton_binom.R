@@ -10,7 +10,7 @@ library(psych)
 # ================================== Simulations des données d'entraînement ================
 n <- 5
 q <- 2/5
-alpha <- 6
+alpha <- 1.5
 beta <- 1/100
 nsim <- 1e+4
 xtable(data.frame(n, q, alpha, beta))
@@ -47,7 +47,7 @@ pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch="."
 
 
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(q=2/5, beta=1/100, alpha=6)
+para <- c("q"=q, "beta"=beta, "alpha"=alpha)
 
 
 F_N <- function(x0, pa1) pbinom(x0, n, pa1)
@@ -86,7 +86,7 @@ temps_deriv <- system.time(
     # Calcul des dérivées
     derivees <- lapply(1:5, function(n)
         parse(text = chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
-)
+)[[3]]
 
 generateur_evalue_deriv <- function(derivee){
     # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable.
@@ -138,13 +138,16 @@ temps_solv <- system.time(
                        grad = NULL, 
                        ui = diag(3),
                        ci = c(0, 0, 0),
-                       outer.eps = 1e-5 )
+                       outer.eps = 1e-2 )
 )
 
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
-(temps_tot <- rbind("temps de dérivation"=temps_deriv[[3]], "temps d'estimation"=temps_solv[[3]]))
-xtable(resultats)
+(resultats <- rbind("Valeurs de départ"=round(val_depart,4),
+                    "Estimateurs" = round(mle$par, 4),
+                    "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("Temps de dérivation"=temps_deriv,
+                    "Temps d'estimation"=temps_solv[[3]]))
+xtable(resultats, digits = 4)
 xtable(temps_tot)
 
-load("Clayton_Binomial.RData")
+# load("Clayton_Binomial.RData")
 

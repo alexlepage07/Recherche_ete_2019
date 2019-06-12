@@ -221,7 +221,7 @@
 			\caption{Arbre hiérarchique à un niveau.} \label{graph_hierarchie}
 		\end{figure}
 	
-		Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}_+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut appartenir à $R_+$ comme à $N_+$. \\
+		Ici, $\Theta_0$ représente une variable aléatoire définie sur $\mathbb{N}_+$ qui sert à créer un lien de dépendance entre la variable $N$ et les $\{X_i, i=1,\dots , k\}$. Ensuite, on a $\theta_1 = \sum_{i=1}^{\theta_0} B_i$ qui sert à créer un lien de dépendance entre les $X_i$. Les $B_i$ sont i.i.d. et indépendants de $\theta_0$. $B_i$ peut appartenir à $\mathbb{R}_+$ comme à $\mathbb{N}_+$. \\
 		
 		Sous cette représentation, on obtient une copule archimédienne hiérarchique s'exprimant comme
 		
@@ -264,7 +264,7 @@
 		 		\hline
 		 		$n$ & $q$ & $\alpha$ & $\beta$ \\ 
 		 		\hline
-		 		5.00 & 0.40 & 6.00 & 0.01 \\ 
+		 		5.00 & 0.40 & 1.50 & 0.01 \\ 
 		 		\hline
 		 	\end{tabular}
 	 	\caption{Paramètres initiaux pour la copule de Clayton avec $N \sim Bin(n, q),\ X_i \sim X \sim Exp(\beta)$.}
@@ -282,12 +282,12 @@
 				\hline
 				       $N$ &       $X_1$ &       $X_2$ &             \\ 
 				\hline
-				Min.   :0.000   & Min.   :  0.0046   & Min.   :   0.0035      \\ 
-				1st Qu.:1.000   & 1st Qu.: 28.5104   & 1st Qu.:  28.2379      \\ 
-				Median :2.000   & Median : 68.3689   & Median :  68.8120      \\ 
-				Mean   :2.001   & Mean   :100.8227   & Mean   : 100.1348      \\ 
-				3rd Qu.:3.000   & 3rd Qu.:139.9337   & 3rd Qu.: 136.6506      \\ 
-				Max.   :5.000   & Max.   :997.1353   & Max.   :1186.4911      \\ 
+				 Min.   :0.000   & Min.   :  0.0049   & Min.   :   0.0066      \\ 
+				 1st Qu.:1.000   & 1st Qu.: 28.8101   & 1st Qu.:  29.1251      \\ 
+				 Median :2.000   & Median : 70.8847   & Median :  71.0354      \\ 
+				 Mean   :1.991   & Mean   :101.0603   & Mean   : 101.3232      \\ 
+				 3rd Qu.:3.000   & 3rd Qu.:140.7053   & 3rd Qu.: 139.3937      \\ 
+				 Max.   :5.000   & Max.   :864.5799   & Max.   :1071.7262      \\ 
 				\hline
 			\end{tabular}
 			%
@@ -295,15 +295,15 @@
 				\hline
 				       $X_3$ &       $X_4$ &       $X_5$ \\ 
 				\hline
-				 Min.   :  0.0032   & Min.   :   0.0035   & Min.   :  0.0028   \\ 
-				 1st Qu.: 28.5687   & 1st Qu.:  28.2418   & 1st Qu.: 28.7874   \\ 
-				 Median : 68.7141   & Median :  68.1072   & Median : 68.0692   \\ 
-				 Mean   : 99.0552   & Mean   : 100.5849   & Mean   :100.6532   \\ 
-				 3rd Qu.:136.9080   & 3rd Qu.: 138.4138   & 3rd Qu.:139.0188   \\ 
-				 Max.   :857.5771   & Max.   :1026.7730   & Max.   :952.8392   \\ 
+			 	 Min.   :  0.0068   & Min.   :   0.0057   & Min.   :  0.007   \\ 
+				 1st Qu.: 28.6798   & 1st Qu.:  29.1230   & 1st Qu.: 29.076   \\ 
+				 Median : 69.3332   & Median :  70.2568   & Median : 69.112   \\ 
+				 Mean   : 99.4368   & Mean   : 101.6533   & Mean   : 99.038   \\ 
+				 3rd Qu.:137.4674   & 3rd Qu.: 141.3571   & 3rd Qu.:135.610   \\ 
+				 Max.   :988.0162   & Max.   :1001.1827   & Max.   :840.130   \\ 
 				\hline
 			\end{tabular}
-		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Binom}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Binom}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=1.5$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}
 		\label{tbl_sommaire_Clayton_Binom}
 		\end{table}
 	
@@ -328,14 +328,14 @@
 			\centering
 			\includegraphics[height=10cm]{Graph/scatterplot_Binom.png}
 			\caption[Nuages de points du scénario \ref{scenario_Clayton_Binom}]
-			{Nuages de points avec copule de Clayton ($\alpha = 6$), $N\sim Binom(5,2/5)$ et $X_i \sim X\sim Exp(1/100)$:
+			{Nuages de points avec copule de Clayton ($\alpha = 1.5$), $N\sim Binom(5,2/5)$ et $X_i \sim X\sim Exp(1/100)$:
 				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
 			\label{graph_scatterplot_Binom}
 		\end{figure}
 		
-		Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeurs de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $q \approx E[N]/n$, $\beta \approx 1/E[X]$. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\
+		Avec les données simulées, on désire maintenant estimer les paramètres. On pose donc les valeurs de départ pour l'optimisation à l'estimateur du maximum de vraisemblance des distributions marginales des variables aléatoires. On a donc que $\tilde{q} = \bar{N}/n$, $\tilde{\beta} = 1/\bar{X}$, tel que $\bar{N}$ et $\bar{X}$ sont les moyennes empiriques de $N$ et $X$ respectivement. Pour ce qui est du $\alpha$ de la Clayton, il faut regarder les nuages de points de  l'illustration \ref{graph_scatterplot_Binom}. Plus le nuage est dense, plus le paramètre est grand. En revanche, si le nuage est large, plus $\alpha$ est près de 0.\\
 		
-		Pour ce scénario, on a comme valeur de départ $q \approx 0.4003, \beta \approx 0.0100$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
+		Pour ce scénario, on a comme valeur de départ $\tilde{q} = 0.398\,720, \tilde{\beta} = 0.010\,031$. Pour $\alpha$, posons la valeur initiale à 1. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_Clayton_Binom}. On y voit que les résultats de l'estimation sont relativement très précises. De plus, pour une fréquence maximale de 5, les temps de dérivation et d'estimation sont très rapides.
 		
 		% latex table generated in R 3.6.0 by xtable 1.8-4 package
 		% Mon Jun 10 14:54:45 2019
@@ -345,9 +345,9 @@
 				\hline
 				& $q$ & $\beta$ & $\alpha$ \\ 
 				\hline
-				Valeurs de départ & 0.4003 & 0.0100 & 1.000 \\ 
-				Estimateurs & 0.4024 & 0.0099 & 5.9543 \\ 
-				Vrais paramètres & 0.4000 & 0.0100 & 6.0000 \\ 
+				Valeurs de départ & 0.3987 & 0.0100 & 1.0000 \\ 
+				Estimateurs & 0.3997 & 0.0100 & 1.5051 \\ 
+				Vrais paramètres & 0.4000 & 0.0100 & 1.5000 \\   
 				\hline
 			\end{tabular}
 			%
@@ -355,12 +355,12 @@
 				\hline
 				&  \\ 
 				\hline
-				Temps de dérivation & 4.22 \\ 
-				Temps d'estimation & 180.23 \\ 
+				Temps de dérivation & 4.22  \\ 
+				Temps d'estimation & 63.17  \\  
 				\\
 				\hline
 			\end{tabular}
-			\caption[Résultats du scénario \ref{scenario_Clayton_Binom}]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
+			\caption[Résultats du scénario \ref{scenario_Clayton_Binom}]{Résultats de l'estimation des paramètres avec une copule de Clayton($\alpha$), $N\sim Binom(n,q)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.} 
 			\label{tbl_Clayton_Binom}
 		\end{table}
 		
@@ -369,7 +369,7 @@
 			\textbf{Poisson}:
 		\end{Scenario}
 	
-		À la suite des résultats concluants du premier exemple, un modèle avec une loi de fréquence ayant un support infini peut ajouter un défi en terme de temps de calcul. Pour ce scénario, posons que $N \sim Pois(\lambda=1)$ et $X_i \sim X \sim Exp(\beta=1/100)$ et que le paramètre de dépendance de la Copule de Clayton est $\alpha = 6$. \\
+		À la suite des résultats concluants du premier exemple, un modèle avec une loi de fréquence ayant un support infini peut ajouter un défi en terme de temps de calcul. Pour ce scénario, posons que $N \sim Pois(\lambda=1)$ et $X_i \sim X \sim Exp(\beta=1/100)$ et que le paramètre de dépendance de la Copule de Clayton est $\alpha = 1.5$. \\
 		
 		Comme pour le scénario \ref{scenario_Clayton_Binom}, un sommaire des données simulées est présenté dans le tableau \ref{tbl_sommaire_Clayton_Pois_1}, l'illustrations \ref{graph_scatterplot_Poiss_1} compare la distribution marginale des données empiriques avec celle des lois théorique et l'illustration \ref{graph_scatterplot_Poiss_1} présente les nuages de points afin de voir les corrélations.
 		
@@ -381,28 +381,28 @@
 				\hline
 				       $N$ &      $X_1$ &      $X_2$ &       $X_3$ &       $X_4$ \\
 				\hline
-				 Min.   :0.0000   & Min.   :   0.0093   & Min.   :  0.012   & Min.   :  0.0129   & Min.   :   0.0172 \\
-				 1st Qu.:0.0000   & 1st Qu.:  29.7317   & 1st Qu.: 29.593   & 1st Qu.: 29.4194   & 1st Qu.:  29.5410 \\
-				 Median :1.0000   & Median :  70.2592   & Median : 70.060   & Median : 70.3962   & Median :  70.1612 \\
-				 Mean   :0.9989   & Mean   : 101.2211   & Mean   :101.325   & Mean   :100.4977   & Mean   : 101.1802 \\
-				 3rd Qu.:2.0000   & 3rd Qu.: 140.8462   & 3rd Qu.:141.488   & 3rd Qu.:136.6166   & 3rd Qu.: 139.6666 \\
-				 Max.   :6.0000   & Max.   :1003.4804   & Max.   :884.530   & Max.   :875.3387   & Max.   :1071.0681 \\
-				\hline
+				  Min.   :0.0000   & Min.   :  0.006   & Min.   :   0.0076   & Min.   :   0.004   & Min.   :  0.0047      \\ 
+				  1st Qu.:0.0000   & 1st Qu.: 29.296   & 1st Qu.:  28.6055   & 1st Qu.:  29.217   & 1st Qu.: 28.8844      \\ 
+				  Median :1.0000   & Median : 68.978   & Median :  70.1421   & Median :  70.539   & Median : 69.1708      \\ 
+				  Mean   :0.9987   & Mean   : 99.922   & Mean   : 100.1551   & Mean   :  99.760   & Mean   : 98.9900      \\ 
+				  3rd Qu.:2.0000   & 3rd Qu.:138.052   & 3rd Qu.: 136.9883   & 3rd Qu.: 137.060   & 3rd Qu.:136.3721      \\ 
+				  Max.   :6.0000   & Max.   :914.272   & Max.   :1041.9811   & Max.   :1050.119   & Max.   :953.2574      \\ 
+				 \hline
 			\end{tabular}
 	
 			\begin{tabular}{llll}
 				\hline
 				$X_5$ &      $X_6$ &       $X_7$ &       $X_8$ \\ 
 				\hline
-				Min.   :   0.0121   & Min.   :  0.0118   & Min.   :  0.01   & Min.   :   0.0105   \\ 
-				1st Qu.:  29.3078   & 1st Qu.: 29.7289   & 1st Qu.: 29.23   & 1st Qu.:  29.6958   \\ 
-				Median :  70.1336   & Median : 70.0210   & Median : 70.47   & Median :  70.2837   \\ 
-				Mean   : 100.2858   & Mean   :100.6869   & Mean   :100.69   & Mean   : 100.3833   \\ 
-				3rd Qu.: 137.5781   & 3rd Qu.:138.3483   & 3rd Qu.:136.65   & 3rd Qu.: 138.1448   \\ 
-				Max.   :1089.6821   & Max.   :952.6193   & Max.   :810.01   & Max.   :1029.2935   \\ 
+				 Min.   :   0.0068   & Min.   :  0.008   & Min.   :  0.0072   & Min.   :  0.0093   \\ 
+				 1st Qu.:  29.5422   & 1st Qu.: 28.664   & 1st Qu.: 29.3327   & 1st Qu.: 28.8089   \\ 
+				 Median :  70.7936   & Median : 71.331   & Median : 69.5485   & Median : 69.3149   \\ 
+				 Mean   : 100.4916   & Mean   :102.201   & Mean   :101.1266   & Mean   : 99.5730   \\ 
+				 3rd Qu.: 139.2436   & 3rd Qu.:141.000   & 3rd Qu.:139.8154   & 3rd Qu.:137.2429   \\ 
+				 Max.   :1078.6322   & Max.   :894.636   & Max.   :961.4753   & Max.   :824.4899   \\ 
 				\hline
 		\end{tabular}
-		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Pois}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de Clayton($\alpha=6$), $N \sim Pois(1)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 5$.}\label{tbl_sommaire_Clayton_Pois_1}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_Clayton_Pois}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_8\}$ en supposant que $F_{N,X_1,\dots, X_8}$ est définie avec une copule de Clayton($\alpha=1.5$), $N \sim Pois(1)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots 8$.}\label{tbl_sommaire_Clayton_Pois_1}
 		\end{table}
 		
 		\begin{figure}[H]
@@ -421,14 +421,14 @@
 		\begin{figure}[H]
 			\centering
 			\includegraphics[height=10cm]{Graph/scatterplot_Poisson_1.png}
-			\caption[Nuages de points du scénario \ref{scenario_Clayton_Pois}]{Nuages de points avec copule de Clayton ($\alpha = 6$), $N\sim Pois(1)$ et $X_i \sim X\sim Exp(1/100)$:
+			\caption[Nuages de points du scénario \ref{scenario_Clayton_Pois}]{Nuages de points avec copule de Clayton ($\alpha = 1.5$), $N\sim Pois(1)$ et $X_i \sim X\sim Exp(1/100)$:
 			En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont  continues. Cela implique que la première ligne n'est pas valide.} 
 			\label{graph_scatterplot_Poiss_1}
 		\end{figure}
 	
 		Comme pour le scénario \ref{scenario_Clayton_Binom}, le tableau \ref{tbl_sommaire_Clayton_Pois_1} et les illustrations \ref{graph_scatterplot_Poiss_1} démontrent que les résultats de la simulation sont adéquats.\\
 		
-		Pour ce qui est de l'estimation des paramètres, commençons par définir les paramètres initiaux. On pose donc $\lambda = E[N] = 0.998\,900, \beta = 0.009\,922$ et comme pour l'exemple précédent, prenons 1 comme valeur de départ pour $\alpha$. Les estimations obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
+		Pour ce qui est de l'estimation des paramètres, commençons par définir les paramètres initiaux. On pose donc $\tilde{\lambda} = \bar{N} = 0.998\,700, \tilde{\beta} = 1/\bar{X}= 0.009\,972$ et comme pour l'exemple précédent, prenons 1 comme valeur de départ pour $\alpha$. Les estimations obtenus sont présentés dans le tableau \ref{tbl_Clayton_Poisson}.
 		
 		% latex table generated in R 3.6.0 by xtable 1.8-4 package
 		% Thu Jun 06 16:25:40 2019
@@ -438,9 +438,9 @@
 				\hline
 				& $\lambda$ & $\beta$ & $\alpha$ \\ 
 				\hline
-				Valeurs de départ & 0.9989 & 0.0099 & 1.0000 \\
-				Estimateurs & 1.0006 & 0.0099 & 5.9160 \\ 
-				Vrais paramètres & 1.0000 & 0.0100 & 6.0000 \\ 
+				Valeurs de départ & 0.9987 & 0.0100 & 1.0000 \\ 
+				Estimateurs & 1.0040 & 0.0101 & 1.5415 \\ 
+				Vrais paramètres & 1.0000 & 0.0100 & 1.5000 \\
 				\hline
 			\end{tabular}
 	%	
@@ -448,12 +448,12 @@
 			\hline
 			&  \\ 
 			\hline
-			Temps de dérivation & 13.29 \\ 
-			Temps d'estimation & 86.24 \\ 
+			Temps de dérivation & 12.60 \\ 
+			Temps d'estimation & 75.27 \\ 
 			\\
 			\hline
 		\end{tabular}
-			\caption[Résultats du scénario \ref{scenario_Clayton_Pois}]{Résultats de l'estimation des paramètres avec une copule de Clayton, $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
+			\caption[Résultats du scénario \ref{scenario_Clayton_Pois}]{Résultats de l'estimation des paramètres avec une copule de Clayton($\alpha$), $N\sim Pois(\lambda)$ et $X \sim Exp(\beta)$ suite à 10\,000 simulations.}\label{tbl_Clayton_Poisson}
 		\end{table}
 	
 		Dans cet exemple, l'estimation n'est pas plus longue puisque le paramètre de la poisson n'est pas très grand. Cependant, si on l'augmente un tant soit peu, on obtient des quantiles élevés qui font en sorte que le temps de dérivation augmente de façon exponentielle.\\
@@ -511,7 +511,7 @@
 				 Max.   :867.0918   & Max.   :852.5330   & Max.   :997.9467   \\ 
 				\hline
 			\end{tabular}
-		\caption[Sommaire des données simulées pour le scénario \ref{scenario_log_log}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.}
+		\caption[Sommaire des données simulées pour le scénario \ref{scenario_log_log}]{Sommaire de $10\,000$ simulations de $\{N, X_1, \dots, X_5\}$ en supposant que $F_{N,X_1,\dots, X_5}$ est définie avec une copule de archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.}
 		\label{tbl_sommaire_log_log}
 		\end{table}
 	
@@ -533,12 +533,12 @@
 			\centering
 			\includegraphics[height=10cm]{Graph/scatterplot_log_log.png}
 			\caption[Nuages de points du scénario \ref{scenario_log_log}]
-			{Nuages de points avec copule archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(4, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 4$.:
+			{Nuages de points avec copule archimédienne hiérarchique logarithmique-logarithmique($\alpha_0=0.5, \alpha_1=0.8$), $N \sim Bin(5, 2/5)$ et $X_i \sim X \sim Exp(1/100)$, pour $i=1,\dots, 5$.:
 				En bas de la diagonale se trouve les nuages de points illustrant la corrélation des différentes variables. En haut, on indique les coefficients de corrélation de Spearman. À noter que ce graphique est produit avec la fonction \texttt{R} \texttt{pairs.panels} du module \texttt{psych}. Dans cette dernière, le calcul des coefficients de corrélation sont calculés selon l'hypothèse que les variables sont continues. Cela implique que la première ligne n'est pas valide.}
 			\label{graph_scatterplot_log_log}
 		\end{figure}
 		
-		Pour l'estimation des paramètres initiaux, avec la méthode du maximum de vraisemblance, on a $q \approx E[N]/n = 0.39860000$ et $\beta \approx 1/E[X] = 0.01006994$. Cependant, pour les paramètres de dépendance, il n'est pas aisé de trouver des valeurs de départ adéquates. Pour le moment, de façon arbitraire, posons $\alpha_{0}=\alpha_{1}=0.4$. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_resultats_log_log}
+		Pour l'estimation des paramètres initiaux, avec la méthode du maximum de vraisemblance, on a $\tilde{q} = \bar{N}/n = 0.398\,600$ et $\tilde{\beta} = 1/\bar{X} = 0.010\,070$. Cependant, pour les paramètres de dépendance, il n'est pas aisé de trouver des valeurs de départ adéquates. Pour le moment, de façon arbitraire, posons $\alpha_{0}=\alpha_{1}=0.4$. On obtient donc les estimateurs présentés dans le tableau \ref{tbl_resultats_log_log}
 		
 		% latex table generated in R 3.6.0 by xtable 1.8-4 package
 		% Wed Jun 12 11:40:24 2019

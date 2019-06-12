@@ -10,7 +10,7 @@ library(psych)
 # ================================== Simulations des données d'entraînement ================
 lambda <- 1
 beta <- 1/100
-alpha <- 6
+alpha <- 1.5
 nsim <- 1e+4
 nb_xi <- ceiling(qpois(99.9999/100, lambda))
 
@@ -47,7 +47,7 @@ pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch="."
 
 
 # ================================== Estimation des paramètres d'entraînement ======================
-para <- c(lambda=1, beta=1/100, alpha=6)
+para <- c("lambda"=lambda, "beta"=beta, "alpha"=alpha)
 
 
 F_N <- function(x0, pa1) ppois(x0, pa1)
@@ -81,16 +81,17 @@ chain_derivative <- function(str_copule, nb_xi){
     return(derivees)
 }
 
+derivees <- list()
 temps_deriv <- numeric(nb_xi)
 for (n in 1:(nb_xi)){
     # Calcul des dérivées
     temps_deriv[n] <- system.time(
-    derivees <- parse(text = 
-            chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n))
+        derivees <- append(derivees, parse(text = 
+                                               chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
-plot(temps_deriv[1:8], ylim=c(0,500), type="l",
+plot(temps_deriv[1:nb_xi], ylim=c(0,500), type="l",
      xlab="nb de dérivées partielles",
      ylab="temps de dérivation")
 
@@ -144,12 +145,15 @@ temps_solv <- system.time(
                        grad = NULL, 
                        ui = diag(3),
                        ci = c(0, 0, 0),
-                       outer.eps = 1e-5 )
+                       outer.eps = 1e-2 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
-(temps_tot <- rbind("temps de dérivation"=temps_deriv[[3]], "temps d'estimation"=temps_solv[[3]]))
-xtable(resultats)
+(resultats <- rbind("Valeurs de départ"=round(val_depart,4),
+                    "Estimateurs" = round(mle$par, 4),
+                    "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("Temps de dérivation"=temps_deriv,
+                    "Temps d'estimation"=temps_solv[[3]]))
+xtable(resultats, digits = 4)
 xtable(temps_tot)
 
-load("Estimation_Clayton_poisson_2.RData")
+# load("Estimation_Clayton_poisson_2.RData")
 
