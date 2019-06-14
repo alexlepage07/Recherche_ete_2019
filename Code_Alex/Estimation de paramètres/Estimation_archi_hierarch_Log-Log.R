@@ -1,4 +1,8 @@
-# On commence par tester avec une gentille petite copule de Clayton
+# Estimation de paramètres du modèle collectif du risque avec structure de dépendance
+# sur des données simulées.
+#
+# Le modèle est construit avec une copule archimédienne hiérachique dont la v.a. mère
+# suit une loi logarithmique de même que la v.a. enfant.
 library(copula)
 library(nCopula)
 library(Deriv)
@@ -9,15 +13,19 @@ library(psych)
 
 
 # ================================== Simulations des données d'entraînement ================
-source("../Code_simul_copule.R")
-n <- 5
+# Paramètres de simulation
+n <- 4
 q <- 2/5
 beta <- 1/100
-alpha0 <- 0.5
-alpha1 <- 0.8
+alpha0 <- 5
+alpha1 <- 7
 nsim <- 1e+4
 
-DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), n, "log", 1-exp(-alpha1))
+# Simulation:
+#
+# source("../Code_simul_copule.R")
+# DATA_train <- actrisk.rcompcop(nsim,"log", 1-exp(-alpha0), n, "log", 1-exp(-alpha1))
+DATA_train <- rCompCop(nsim, LOG(1-exp(-alpha0), 1, list(LOG(1-exp(-alpha1), 1:n, NULL))))
 DATA_train <- cbind(qbinom(DATA_train[,1], n, q),
                     qexp(DATA_train[,-1], beta)
                     )
@@ -50,9 +58,12 @@ ggplot() +
 
 
 # Scatterplot
-pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
+stats_ordre <- sapply(1:ncol(DATA_train), function(j)
+    rank(DATA_train[,j], ties.method = "first") / (nsim + 1))
+colnames(stats_ordre) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+pairs.panels(stats_ordre, density = F, ellipses = F, method = "kendall", pch=".")
 
-# ================================== Estimation des paramètres d'entraînement ======================
+# ================================== Estimation des paramètres ============================
 para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
 nb_para <- length(para)
 
@@ -75,7 +86,7 @@ str_copule_int <- str_replace(LST.Log_B.inv, "U",
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
-    # Génère la chaîne de caractères qui permettra d'effectuer les dérivées.
+    # Fonction qui génère la chaîne de caractères qui permettra d'effectuer les dérivées.
     str_tot <- str_copule_ext
     str_int <- "0"
 
@@ -89,7 +100,7 @@ func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
 }
 
 chain_derivative <- function(str_copule, nb_xi){
-    # Fonction qui effectue les dérivations en chaîne sur le texte généré précédemment
+    # Fonction qui effectue les dérivations en chaîne sur le texte donné en argument
     X_i <- sapply(1:nb_xi, function(i) paste0("x",i))
     derivees <- str_copule
     
@@ -109,6 +120,8 @@ for (n in 1:(nb_xi)){
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
+
+# Graphique du temps de dérivation
 plot(temps_deriv[1:nb_xi], type="l",
      xlab="nb de dérivées partielles",
      ylab="temps de dérivation")
@@ -117,7 +130,7 @@ temps_deriv <- sum(temps_deriv)
 
 
 generateur_evalue_deriv <- function(derivee){
-    # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable.
+    # Générateur permettant d'utiliser la dérivée à titre de fonction évaluable
     # à partir de la liste de dérivées saisie en argument.
     function(n, xx, para){
         # Fonction générée à l'aide des dérivées.
@@ -133,11 +146,6 @@ generateur_evalue_deriv <- function(derivee){
 }
 densite <- generateur_evalue_deriv(derivees)
 
-# densite(1,c(1), para)
-# densite(2,c(100, 100), para)
-# densite(3,c(200, 200, 200), para)
-# densite(4,c(500, 500, 500, 500), para)
-# densite(5,c(900, 900, 900, 900, 900), para)
 
 dCopule <- function(n, xx=NULL, para){
     # Fonction de densité de la copule
@@ -147,12 +155,7 @@ dCopule <- function(n, xx=NULL, para){
         d <- densite(n, xx, para) - densite(n-1, xx, para)
     return(unname(d))
 }
-# dCopule(0,NULL, para)
-# dCopule(1,c(1), para)
-# dCopule(2,c(100, 100), para)
-# dCopule(3,c(200, 200, 200), para)
-# dCopule(4,c(500, 500, 500, 500), para)
-# dCopule(5,c(900, 900, 900, 900, 900), para)
+
 
 fct_Score <- function(para, Data = DATA_train){
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
@@ -165,22 +168,25 @@ fct_Score <- function(para, Data = DATA_train){
     return(neg_log_vrais)
 }
 
-val_depart <- c("q"=mean(DATA_train[,1]) / nb_xi,
-                "beta"=1/mean(DATA_train[,-1]),
-                "alpha0"=0.4,
-                "alpha1"=0.4)
+val_depart <- c("q" = mean(DATA_train[,1]) / nb_xi,
+                "beta" = 1/mean(DATA_train[,-1]),
+                "alpha0" = 1,
+                "alpha1" = 1)
 
 temps_solv <- system.time(
+    # Estimation des paramètres
     mle <- constrOptim(val_depart, fct_Score, grad = NULL, 
                        ui = diag(nb_para),
                        ci = rep(0, nb_para),
                        outer.eps = 1e-2 )
 )
 
+# Tableaux permettant de présenter les résultats
 (resultats <- rbind("Valeurs de départ"=round(val_depart,4),
                     "Estimateurs" = round(mle$par, 4),
                     "Vrais paramètres" = round(para,4)))
 (temps_tot <- rbind("Temps de dérivation"=temps_deriv,
                     "Temps d'estimation"=temps_solv[[3]]))
+# Conversion en LaTeX
 xtable(resultats, digits = 4)
 xtable(temps_tot)

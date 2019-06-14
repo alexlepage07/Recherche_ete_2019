@@ -11,8 +11,8 @@ source("../Code_simul_copule.R")
 n <- 4
 q <- 2/5
 beta <- 1/100
-alpha0 <- 0.5
-alpha1 <- 0.8
+alpha0 <- 0.8
+alpha1 <- 7
 nsim <- 1e+4
 
 DATA_train <- actrisk.rcompcop(nsim,"geo", 1-alpha0, n, "log", 1-exp(-alpha1))
@@ -48,7 +48,10 @@ ggplot() +
 
 
 # Scatterplot
-pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
+stats_ordre <- sapply(1:ncol(DATA_train), function(j)
+    rank(DATA_train[,j], ties.method = "first") / (nsim + 1))
+colnames(stats_ordre) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+pairs.panels(stats_ordre, density = F, ellipses = F, method = "kendall", pch=".")
 
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c("q"=q, "beta"=beta, "alpha0"=alpha0, "alpha1"=alpha1)
@@ -165,7 +168,7 @@ fct_Score <- function(para, Data = DATA_train){
 val_depart <- c("q"=mean(DATA_train[,1]) / nb_xi,
                 "beta"=1/mean(DATA_train[,-1]),
                 "alpha0"=0.5,
-                "alpha1"=0.5)
+                "alpha1"=5)
 
 
 temps_solv <- system.time(
@@ -176,7 +179,12 @@ temps_solv <- system.time(
                        ci = c(0, 0, 0, 0),
                        outer.eps = 1e-2 )
 )
-(resultats <- rbind("Estimateurs" = round(mle$par, 4), "Vrais paramètres" = round(para,4)))
-(temps_tot <- rbind("temps de dérivation"=temps_deriv, "temps d'estimation"=temps_solv[[3]]))
-xtable(resultats, digits=4)
+# Tableaux permettant de présenter les résultats
+(resultats <- rbind("Valeurs de départ"=round(val_depart,4),
+                    "Estimateurs" = round(mle$par, 4),
+                    "Vrais paramètres" = round(para,4)))
+(temps_tot <- rbind("Temps de dérivation"=temps_deriv,
+                    "Temps d'estimation"=temps_solv[[3]]))
+# Conversion en LaTeX
+xtable(resultats, digits = 4)
 xtable(temps_tot)

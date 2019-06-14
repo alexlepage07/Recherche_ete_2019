@@ -43,8 +43,11 @@ ggplot() +
     xlab("x") + ylab("Densité") +
     theme(legend.title = element_blank())
 
-pairs.panels(DATA_train, density = F, ellipses = F, method = "spearman", pch=".")
-
+# Scatterplot
+stats_ordre <- sapply(1:ncol(DATA_train), function(j)
+    rank(DATA_train[,j], ties.method = "first") / (nsim + 1))
+colnames(stats_ordre) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+pairs.panels(stats_ordre, density = F, ellipses = F, method = "kendall", pch=".")
 
 # ================================== Estimation des paramètres d'entraînement ======================
 para <- c("lambda"=lambda, "beta"=beta, "alpha"=alpha)
