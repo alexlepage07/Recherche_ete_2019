@@ -1,0 +1,269 @@
+\documentclass{article}
+\usepackage[top=0.75in, bottom=0.75in, left=1.25in, right=1in]{geometry} %formatage%
+\usepackage{amsmath} %pour utiliser des maths de base%
+\usepackage{amssymb} %pour faire \mathcal{}=>des lettres ''cursives''%
+\usepackage{amsthm} % La petite boîte de fin de preuve
+\usepackage{graphicx} %pour importer des images...http://www.tex.ac.uk/cgi-bin/texfaq2html?label=figurehere%
+\usepackage{titlesec} %automatique, pour faire des sous-titres moins laids%
+%\usepackage{cancel}
+\usepackage[procnames]{listings}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}        %http://tex.stackexchange.com/questions/11897/draw-a-diagonal-arrow-across-an-expression-in-a-formula-to-show-that-it-vanishes%
+\usepackage[frenchb]{babel}
+\usepackage{xcolor}
+\usepackage[squaren]{SIunits}
+\usepackage{subcaption} % Avoir plusieurs sous-figures (graphiques) dans une figures et pouvoire les étiqueter
+\usepackage{color}
+\usepackage{lipsum}
+\usepackage{caption}
+\usepackage{wasysym}
+\usepackage{braket}
+\usepackage{mathtools}
+\usepackage{mathrsfs} % Faire le symbole de la transformée de Laplace
+\usepackage{bbm}
+\usepackage{array}
+\usepackage{diagbox}        
+\usepackage{dsfont} % Faire des belles indicatrices                         %diagonale dans les tableaux
+\usepackage{float}%placer les tableaux et images où tu veux
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
+\usepackage{comment}
+\usepackage{pst-node}
+\usepackage{fancyvrb} % Les varbatims gardent l'indentation
+\usepackage{enumitem}
+\usepackage{breakcites} % Faire en sorte que les citations ne sortent pas dans la marge
+\usepackage{graphicx} % Insérer des graphiques
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm, compat=1.9}
+\usetikzlibrary{patterns,decorations.pathreplacing}
+
+\newcommand{\tikzmark}[2]{%
+	\tikz[remember picture,baseline=(#1.base)]
+	\node[circle,red,draw,text=black,anchor=center,inner sep=1pt] (#1) {#2};}
+\newcommand{\tikzmarkk}[2]{%
+	\tikz[remember picture,baseline=(#1.base)]
+	\node (#1) {#2};}
+
+
+%\setcounter{secnumdepth}{0} % sections are level 1
+
+\newtheorem{lemme}{Lemme}
+\newtheorem{preuve}{Preuve}
+\newtheorem{code}{Code}
+\newtheorem{exemple}{Exemple}
+
+\begin{document}
+	\renewcommand{\tablename}{Tableau}
+	
+	\begin{titlepage}
+		\centering % Centre everything on the title page
+		
+		\scshape % Use small caps for all text on the title page
+		
+		\vspace*{7\baselineskip} % White space at the top of the page
+		
+		%------------------------------------------------
+		%	Title
+		%------------------------------------------------
+		
+		\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt} % Thick horizontal rule
+		\rule{\textwidth}{0.4pt} % Thin horizontal rule
+		
+		\vspace{0.75\baselineskip} % Whitespace above the title
+		{\LARGE Calcul du tau de Kendall avec une variable aléatoire discrète et une continue. \\} % Title
+		\vspace{0.75\baselineskip} % Whitespace below the title
+		
+		\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt} % Thin horizontal rule
+		\rule{\textwidth}{1.6pt} % Thick horizontal rule
+		
+		\vspace{3\baselineskip} % Whitespace after the title block
+		
+		%------------------------------------------------
+		%	Subtitle
+		%------------------------------------------------
+		{\scshape\Large Sous la supervision de \\Étienne Marceau\\} % Editor list
+		
+		\vspace*{3\baselineskip}
+		
+		Rapport des travaux réalisés  \\% Subtitle or further description
+		
+		\vspace*{3\baselineskip} % Whitespace under the subtitle
+		
+		%------------------------------------------------
+		%	Editor(s)
+		%------------------------------------------------
+		
+		Préparé par
+		
+		\vspace{0.5\baselineskip} % Whitespace before the editors
+		
+		{\scshape\Large Alexandre Lepage, \\
+			Diamilatou N'diaye, \\} % Editor list
+		
+		\vspace*{5\baselineskip}
+		
+		le 18 juin 2019
+		
+		\vspace{0.5\baselineskip} % Whitespace below the editor list
+		
+		\vfill % Whitespace between editor names and publisher logo
+		
+		%------------------------------------------------
+		%	Publisher
+		%------------------------------------------------
+		
+		\includegraphics[height=1.2cm]{UL_P.pdf}\\
+		
+		Faculté des sciences et de génie\\
+		École d'actuariat\\
+		Université Laval\\     
+	\end{titlepage}
+	\newpage
+	
+	\section{Motivation}
+	Dans la littérature, on explique comment calculer les tau de Kendall avec des variables aléatoire continues (\cite{Everything}) et avec des variables aléatoires discrètes (\cite{Nikoloulopoulos_Kendall_discret}). Mais qu'en est-il si on a une variable aléatoire discrète et que l'autre est continue. Le lemme \ref{lemme} définit la façon de calculer ce cas particulier.\\
+	
+	\section{Calcul du tau de Kendall avec une v.a. discrète et une v.a. continue.}
+	Soit C, une copule quelconque, et les variables aléatoires $N$ et $X$ définies sur $\mathbb{N}$ et $\mathbb{R}_+$ respectivement.
+	Avec le théorème de Sklar, on a que $F_{N,X}(n,x) = C(F_N(n), F_X(x)))$ et la fonction de densité bivariée conjointe est donnée par 
+	\begin{equation*}
+		f_{N,X}(n,x) =  \frac{\partial}{\partial x} C(F_N(n), F_X(x))) - \frac{\partial}{\partial x} C(F_N(n-1), F_X(x))).
+	\end{equation*}
+	
+	Soient les couples de variables aléatoires $\{(X_1,Y_1),\dots, (X_k,Y_k) \}$.
+	Un couple de v.a. est dit concordant si $(X_i - X_j) (Y_i - Y_j) > 0$ et discordant si $(X_i - X_j) (Y_i - Y_j) < 0$, pour $i \neq j$.
+	Dans \cite{Nikoloulopoulos_Kendall_discret}, on pose qu'en cas de possibilité d'égalité entre des observations d'une même variable aléatoire, la formule générale du tau de Kendall est
+	\begin{align}
+		\tau (N,X)
+		&= \mathbb{P}(Concordance) - \mathbb{P}(Discordance) \nonumber \\
+		&= \mathbb{P}(Concordance) - \left[1 - \mathbb{P}(Concordance) - \mathbb{P}(\textit{É}galit\text{é}) \right] \nonumber \\
+		&= 2\,\mathbb{P}(Concordance) + \mathbb{P}(\textit{É}galit\text{é}) - 1. \label{eq_Definition_tau_discret}
+	\end{align}
+	
+	\begin{lemme}\label{lemme}
+		Soient les couples de variables aléatoires $\{(N_1,X_1), \dots, (N_k,X_k) \}$ définis sur $\mathbb{N}^k \times \mathbb{R}_+^k$.
+		La formule pour calculer le tau de Kendall avec une variable aléatoire discrète et une autre qui est continue est présentée en \eqref{eq_tau}.
+		\begin{equation}\label{eq_tau}
+			\tau (N,X) = 4 \sum_{n=0}^{\infty} \int_{0}^{\infty} F_{N,X}(n-1, x) f_{N,X}(n, x) \text{d}x + \sum_{n=0}^{\infty} \left(\mathbb{P}(N=n)\right)^2 - 1.
+		\end{equation}
+	\end{lemme}
+
+	\begin{proof}
+		De \eqref{eq_Definition_tau_discret}, on a
+		\begin{equation}\label{eq_forme_generale}
+			\tau (N,X) = 4 \, \mathbb{P}(N_i < N_j, X_i < X_j) + \mathbb{P}(N_i = N_j \cup X_i = X_j) - 1 ,\ i \neq j.
+		\end{equation}
+		%
+		Or
+		\begin{align}
+			\mathbb{P}(N_i < N_j, X_i < X_j) 
+			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i < n, X_i < x \cap N_j = n, X_j = x)\text{d}x \nonumber \\
+			&\overset{\mathrm{ind.}}{=} \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i < n, X_i < x) \, \mathbb{P}(N_j = n, X_j = x) \text{d}x \nonumber \\
+			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i \leq n-1, X_i < x) \, f_{N,X}(n,x) \text{d}x \nonumber \\
+			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} F_{N,X}(n-1, x) f_{N,X}(n, x) \text{d}x.
+			\label{eq_cdf_conjointe}
+		\end{align} 
+		%
+		Par la suite, puisque X est une v.a. continue, $$\mathbb{P}(N_i = N_j \cup X_i = X_j) = \mathbb{P}(N_i = N_j).$$
+		On obtient alors
+		\begin{align}
+			\mathbb{P}(N_i = N_j \cup X_i = X_j) 
+			&= \sum_{n=0}^{\infty} \mathbb{P}(N_i = n \cap N_j = n) \nonumber \\
+			&\overset{\mathrm{ind.}}{=} \sum_{n=0}^{\infty} \mathbb{P}(N_i = n) \, \mathbb{P}(N_j = n) \nonumber \\
+			&\overset{\mathrm{i.d.}}{=} \sum_{n=0}^{\infty} \left(\mathbb{P}(N=n)\right)^2.
+			\label{eq_pmf_N}
+		\end{align}
+		%
+		En insérant \eqref{eq_cdf_conjointe} et \eqref{eq_pmf_N} dans \eqref{eq_forme_generale}, on obtient
+		$$\tau (N,X) = 4 \sum_{n=0}^{\infty} \int_{0}^{\infty} F_{N,X}(n-1, x) f_{N,X}(n, x) \text{d}x + \sum_{n=0}^{\infty} \left(\mathbb{P}(N=n)\right)^2 - 1.$$ 
+	\end{proof}
+
+	\section{Calcul du tau de Kendall empiriquement.}
+
+	Pour ce qui est du calcul empirique de deux variables aléatoires continues, \cite{Everything} propose \eqref{eq_tau_empirique}.
+	\begin{align}
+		\tau_n(X,Y)
+		&= \frac{P_n - Q_n}{ {n\choose 2} } \nonumber \\
+		&=\frac{P_n - ({n\choose 2}-P_n)}{ {n\choose 2} } \nonumber \\
+		&=\frac{2 \, P_n - {n\choose 2}}{ {n\choose 2} } \nonumber \\
+		&= \frac{4 \, P_n}{n(n-1)} - 1, \label{eq_tau_empirique}
+	\end{align}
+	où $P_n$ et $Q_n$ représentent les nombres de couples concordants et discordants respectivement et $n$ est le nombre d'observations.
+	
+	\begin{lemme}\label{lemme_empirique}
+		Dans le cas où on a au moins une variable aléatoire discrète, dans la séquence de couples $\{(N_1, X_1), \dots, (N_k, X_k) \}$, \eqref{eq_tau_empirique} devient 
+		\begin{equation}
+			\tau_n(N,X) = \frac{4 \, P_n + 2 \, E_n}{n(n-1)} - 1, \label{eq_tau_discret_empirique}
+		\end{equation}
+		où $E_n$ est le nombre d'observations avec au moins une égalité.
+	\end{lemme}
+	\begin{proof}
+		De façon similaire à \eqref{eq_tau_empirique}, dans le cas où on a au moins une variable aléatoire discrète, on a
+		\begin{align}
+		\tau_n(N,X) 
+		&= \frac{P_n - Q_n}{ {n\choose 2} } \nonumber \\
+		&= \frac{P_n - ({n\choose 2} - P_n - E_n)}{ {n\choose 2} } \nonumber \\
+		&= \frac{2 \, P_n + E_n - {n\choose 2}}{ {n\choose 2} } \nonumber \\
+		&= \frac{2 \, P_n + E_n }{ {n\choose 2} } - 1 \nonumber \\
+		&= \frac{4 \, P_n + 2 \, E_n}{n(n-1)} - 1.
+		\end{align}
+	\end{proof}
+
+	\subsection{Calcul numérique}
+	Du point de vue computationnel, \eqref{eq_tau_discret_empirique} peut peut être écrit en \texttt{R} comme dans le code \ref{code_Kendall} 
+	\begin{code}\label{code_Kendall}
+		\begin{verbatim}
+		
+		
+		tau_kendall <- function(X,Y){
+		    n <- length(X)
+		    concord <- outer(1:n,1:n, function(i,j) sign((X[i] - X[j]) * (Y[i] - Y[j])))
+		    E_n <- (length(concord[concord == 0]) - n) / 2
+		    P_n <- sum(concord[concord > 0]) / 2
+		    tau <- (4 * P_n + 2 * E_n) / (n * (n - 1)) - 1
+		    return(tau)
+		}
+		\end{verbatim}
+	\end{code}
+
+	Il se trouve que la fonction \texttt{R} \texttt{cor} donne des résultats similaires, mais pas exactement les mêmes comme on peut le voir dans l'exemple \ref{exemple_code1}.
+	
+	\begin{exemple}\label{exemple_code1}
+		Soient 20 réalisations du couple $(X_i, Y_i)$ simulées à l'aide de la copule FGM dont le paramètre de dépendance est de 0.5.
+		On a que $X_i \sim X \sim Y_i \sim Y \sim Poisson(10)$.
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{rrrrrrrrrrrrrrrrrrrrr}
+				\hline
+				& 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20 \\ 
+				\hline
+				X & 9 & 7 & 7 & 14 & 9 & 10 & 11 & 11 & 8 & 10 & 6 & 16 & 10 & 12 & 7 & 9 & 12 & 7 & 6 & 13 \\ 
+				Y & 17 & 10 & 6 & 7 & 9 & 7 & 8 & 11 & 4 & 10 & 12 & 14 & 10 & 10 & 9 & 12 & 4 & 7 & 10 & 7 \\ 
+				\hline
+			\end{tabular}
+		\caption{Réalisations du couple $(X,Y)$, où $X \sim Y \sim Poisson(10)$. }
+		\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lr}
+			\hline
+			Fonction empirique & -0.0579 \\ 
+			Fonction cor de R & -0.0636 \\ 
+			Tau théorique (continue) & 0.1111 \\ 
+			\hline
+		\end{tabular}
+	\caption{Comparaison des résultats obtenus avec de la fonction présentée dans le code \ref{code_Kendall}, la fonction \texttt{R cor} et le $\tau$ théorique qui est obtenu dans le cas continu.}
+	\label{tbl_Resultats_Code1}
+	\end{table}
+	\end{exemple}	
+
+	Dans le tableau \ref{tbl_Resultats_Code1}, on voit d'abord la nette différence entre le tau de Kendall théorique (continu) et celui calculé avec le code \ref{code_Kendall} ou avec la fonction \texttt{R cor}. Cela s'explique par le grand nombre d'égalités dans les données simulées, du fait que les deux variables sont discrètes et que le paramètre des lois de Poisson est relativement faible pour le nombre de simulations. Par la suite, on voit qu'il existe une différence entre le résultat du code \ref{code_Kendall} et de la fonction \texttt{cor}.\\
+ 
+	
+	\newpage
+	\bibliography{BibRRT_Kendall.bib}
+	\bibliographystyle{apalike}
+	 
+	 
+\end{document}
