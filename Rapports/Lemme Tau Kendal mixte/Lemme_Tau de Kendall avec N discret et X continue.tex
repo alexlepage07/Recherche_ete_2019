@@ -157,7 +157,7 @@
 		Or
 		\begin{align}
 			\mathbb{P}(N_i < N_j, X_i < X_j) 
-			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i < n, X_i < x \cap N_j = n, X_j = x)\text{d}x \nonumber \\
+			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}((N_i < n, X_i < x) \cap (N_j = n, X_j = x))\text{d}x \nonumber \\
 			&\overset{\mathrm{ind.}}{=} \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i < n, X_i < x) \, \mathbb{P}(N_j = n, X_j = x) \text{d}x \nonumber \\
 			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} \mathbb{P}(N_i \leq n-1, X_i < x) \, f_{N,X}(n,x) \text{d}x \nonumber \\
 			&= \sum_{n=0}^{\infty} \int_{x=0}^{\infty} F_{N,X}(n-1, x) f_{N,X}(n, x) \text{d}x.
@@ -210,7 +210,7 @@
 	\end{proof}
 
 	\subsection{Calcul numérique}
-	Du point de vue computationnel, \eqref{eq_tau_discret_empirique} peut peut être écrit en \texttt{R} comme dans le code \ref{code_Kendall} 
+	Du point de vue computationnel, \eqref{eq_tau_discret_empirique} peut peut être écrit en \texttt{R} comme dans le code \ref{code_Kendall}.
 	\begin{code}\label{code_Kendall}
 		\begin{verbatim}
 		
@@ -241,7 +241,7 @@
 				Y & 17 & 10 & 6 & 7 & 9 & 7 & 8 & 11 & 4 & 10 & 12 & 14 & 10 & 10 & 9 & 12 & 4 & 7 & 10 & 7 \\ 
 				\hline
 			\end{tabular}
-		\caption{Réalisations du couple $(X,Y)$, où $X \sim Y \sim Poisson(10)$. }
+		\caption{Réalisations du couple $(X_i,Y_i)$, où $X_i \sim X \sim Y_i \sim Y \sim Poisson(10)$. }
 		\end{table}
 	
 	\begin{table}[H]
@@ -250,15 +250,15 @@
 			\hline
 			Fonction empirique & -0.0579 \\ 
 			Fonction cor de R & -0.0636 \\ 
-			Tau théorique (continue) & 0.1111 \\ 
+			Tau théorique (continu) & 0.1111 \\ 
 			\hline
 		\end{tabular}
-	\caption{Comparaison des résultats obtenus avec de la fonction présentée dans le code \ref{code_Kendall}, la fonction \texttt{R cor} et le $\tau$ théorique qui est obtenu dans le cas continu.}
+	\caption{Comparaison des résultats obtenus avec la fonction présentée dans le code \ref{code_Kendall}, la fonction \texttt{R cor} et le $\tau$ théorique qui est obtenu dans le cas continu.}
 	\label{tbl_Resultats_Code1}
 	\end{table}
 	\end{exemple}	
 
-	Dans le tableau \ref{tbl_Resultats_Code1}, on voit d'abord la nette différence entre le tau de Kendall théorique (continu) et celui calculé avec le code \ref{code_Kendall} ou avec la fonction \texttt{R cor}. Cela s'explique par le grand nombre d'égalités dans les données simulées, du fait que les deux variables sont discrètes et que le paramètre des lois de Poisson est relativement faible pour le nombre de simulations. Par la suite, on voit qu'il existe une différence entre le résultat du code \ref{code_Kendall} et de la fonction \texttt{cor}.\\
+	Dans le tableau \ref{tbl_Resultats_Code1}, on voit d'abord la nette différence entre le tau de Kendall théorique (continu) et celui calculé avec le code \ref{code_Kendall} ou avec la fonction \texttt{R cor}. Cela s'explique par le grand nombre d'égalités dans les données simulées, du fait que les deux variables sont discrètes et que le paramètre des lois de Poisson est relativement faible pour le nombre de simulations. Par ailleurs, dans \cite{Nikoloulopoulos_Kendall_discret}, il est démontré que la paramétrisation des lois discrètes a une répercussion importante sur les mesures de dépendance entre les variables aléatoires.\\
  
 	
 	\newpage
