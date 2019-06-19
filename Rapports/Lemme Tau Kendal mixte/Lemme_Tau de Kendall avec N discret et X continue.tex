@@ -49,11 +49,13 @@
 
 \newtheorem{lemme}{Lemme}
 \newtheorem{preuve}{Preuve}
-\newtheorem{code}{Code}
+\newtheorem{code}{Code informatique}
 \newtheorem{exemple}{Exemple}
+\newtheorem{scenario}{Scénario}
 
 \begin{document}
 	\renewcommand{\tablename}{Tableau}
+	\renewcommand{\figurename}{Illustration}
 	
 	\begin{titlepage}
 		\centering % Centre everything on the title page
@@ -85,7 +87,7 @@
 		
 		\vspace*{3\baselineskip}
 		
-		Rapport des travaux réalisés  \\% Subtitle or further description
+		  % Subtitle or further description
 		
 		\vspace*{3\baselineskip} % Whitespace under the subtitle
 		
@@ -118,10 +120,28 @@
 		École d'actuariat\\
 		Université Laval\\     
 	\end{titlepage}
+
+	\pagenumbering{Roman} % Pagination en chiffres romains
+	\setcounter{page}{0}
+	
+	\newpage
+	\strut % Page blanche
 	\newpage
 	
+	\tableofcontents
+	\newpage
+	\renewcommand{\listfigurename}{Liste des illustrations}
+	\listoffigures
+	\newpage
+	\listoftables
+	\newpage
+	
+	\pagenumbering{arabic} % Pagination en chiffres normaux
+	\setcounter{page}{1}
+	
+	
 	\section{Motivation}
-	Dans la littérature, on explique comment calculer les tau de Kendall avec des variables aléatoire continues (\cite{Everything}) et avec des variables aléatoires discrètes (\cite{Nikoloulopoulos_Kendall_discret}). Mais qu'en est-il si on a une variable aléatoire discrète et que l'autre est continue. Le lemme \ref{lemme} définit la façon de calculer ce cas particulier.\\
+	Dans la littérature, on explique comment calculer les tau de Kendall avec des variables aléatoires continues (\cite{Everything}) et avec des variables aléatoires discrètes (\cite{Nikoloulopoulos_Kendall_discret}). Mais qu'en est-il si on a une variable aléatoire discrète et que l'autre est continue. Le lemme \ref{lemme} définit la façon de calculer ce cas particulier.\\
 	
 	\section{Calcul du tau de Kendall avec une v.a. discrète et une v.a. continue.}
 	Soit C, une copule quelconque, et les variables aléatoires $N$ et $X$ définies sur $\mathbb{N}$ et $\mathbb{R}_+$ respectivement.
@@ -149,7 +169,15 @@
 	\end{lemme}
 
 	\begin{proof}
-		De \eqref{eq_Definition_tau_discret}, on a
+		Soit le couple $(N_i, X_i)$ et $(N_j, X_j)$ avec $i=1,\dots,k$, $j=1,\dots,k$ et $i\neq j$. On a que $i$ et $j$ sont interchangeables. Il s'ensuit que
+		\begin{align}
+			\mathbb{P}(Concordance) 
+			&= \mathbb{P}(N_i < N_j, X_i < X_j) + \mathbb{P}(N_j < N_i, X_j < X_i) \nonumber \\
+			&= 2 \, \mathbb{P}(N_i < N_j, X_i < X_j)
+			\label{eq_interchangeabilite}
+		\end{align}
+		
+		De \eqref{eq_Definition_tau_discret} et \eqref{eq_interchangeabilite}, on a
 		\begin{equation}\label{eq_forme_generale}
 			\tau (N,X) = 4 \, \mathbb{P}(N_i < N_j, X_i < X_j) + \mathbb{P}(N_i = N_j \cup X_i = X_j) - 1 ,\ i \neq j.
 		\end{equation}
@@ -188,10 +216,12 @@
 		&=\frac{2 \, P_n - {n\choose 2}}{ {n\choose 2} } \nonumber \\
 		&= \frac{4 \, P_n}{n(n-1)} - 1, \label{eq_tau_empirique}
 	\end{align}
-	où $P_n$ et $Q_n$ représentent les nombres de couples concordants et discordants respectivement et $n$ est le nombre d'observations.
+	où $P_n$ et $Q_n$ représentent les nombres de couples concordants et discordants respectivement et $n$ est le nombre d'observations.\\
+	
+	Dans le cas où on a au moins une variable aléatoire discrète, l'équation permettant de calculer empiriquement le tau de Kendall est présentée dans le lemme \ref{lemme_empirique}.
 	
 	\begin{lemme}\label{lemme_empirique}
-		Dans le cas où on a au moins une variable aléatoire discrète, dans la séquence de couples $\{(N_1, X_1), \dots, (N_k, X_k) \}$, \eqref{eq_tau_empirique} devient 
+		 Soit la séquence de couples $\{(N_1, X_1), \dots, (N_k, X_k) \}$, où $N_i$ est une v.a. discrète et $X_i$ est une v.a. discrète ou continue, pour $i=1,\dots,k$. Alors \eqref{eq_tau_empirique} devient 
 		\begin{equation}
 			\tau_n(N,X) = \frac{4 \, P_n + 2 \, E_n}{n(n-1)} - 1, \label{eq_tau_discret_empirique}
 		\end{equation}
@@ -210,17 +240,19 @@
 	\end{proof}
 
 	\subsection{Calcul numérique}
-	Du point de vue computationnel, \eqref{eq_tau_discret_empirique} peut peut être écrit en \texttt{R} comme dans le code \ref{code_Kendall}.
-	\begin{code}\label{code_Kendall}
+	Du point de vue computationnel, \eqref{eq_tau_discret_empirique} peut peut être écrit en \texttt{R} comme dans le code informatique \ref{code_Kendall_empirique}.
+	\begin{code}\label{code_Kendall_empirique}
 		\begin{verbatim}
 		
 		
-		tau_kendall <- function(X,Y){
+		tau_kendall_empirique <- function(X,Y){
+		    # Fonction qui calcule le tau de Kendall empirique lorsqu'au moins une des 
+		    # deux v.a. est discète.
 		    n <- length(X)
 		    concord <- outer(1:n,1:n, function(i,j) sign((X[i] - X[j]) * (Y[i] - Y[j])))
-		    E_n <- (length(concord[concord == 0]) - n) / 2
-		    P_n <- sum(concord[concord > 0]) / 2
-		    tau <- (4 * P_n + 2 * E_n) / (n * (n - 1)) - 1
+		    E_n <- (length(concord[concord == 0]) - n)
+		    P_n <- sum(concord[concord > 0])
+		    tau <- (2 * P_n + E_n) / (n * (n - 1)) - 1
 		    return(tau)
 		}
 		\end{verbatim}
@@ -253,14 +285,333 @@
 			Tau théorique (continu) & 0.1111 \\ 
 			\hline
 		\end{tabular}
-	\caption{Comparaison des résultats obtenus avec la fonction présentée dans le code \ref{code_Kendall}, la fonction \texttt{R cor} et le $\tau$ théorique qui est obtenu dans le cas continu.}
+	\caption{Comparaison des résultats obtenus avec la fonction présentée dans le code informatique \ref{code_Kendall_empirique}, la fonction \texttt{R cor} et le $\tau$ théorique qui est obtenu dans le cas continu.}
 	\label{tbl_Resultats_Code1}
 	\end{table}
 	\end{exemple}	
 
-	Dans le tableau \ref{tbl_Resultats_Code1}, on voit d'abord la nette différence entre le tau de Kendall théorique (continu) et celui calculé avec le code \ref{code_Kendall} ou avec la fonction \texttt{R cor}. Cela s'explique par le grand nombre d'égalités dans les données simulées, du fait que les deux variables sont discrètes et que le paramètre des lois de Poisson est relativement faible pour le nombre de simulations. Par ailleurs, dans \cite{Nikoloulopoulos_Kendall_discret}, il est démontré que la paramétrisation des lois discrètes a une répercussion importante sur les mesures de dépendance entre les variables aléatoires.\\
+	Dans le tableau \ref{tbl_Resultats_Code1}, on voit d'abord qu'il y a une légère différence entre le tau calculé avec le code informatique \ref{code_Kendall_empirique} et la fonction \texttt{R cor}. Cependant, la raison de cet écart est inconnue pour le moment. Ensuite, on observe qu'il y a une nette différence entre le tau de Kendall théorique (continu) et celui calculé avec le code informatique \ref{code_Kendall_empirique} ou avec la fonction \texttt{R cor}. Cela s'explique par le grand nombre d'égalités dans les données simulées, du fait que les deux variables sont discrètes et que le paramètre des lois de Poisson est relativement faible pour le nombre de simulations. Par ailleurs, dans \cite{Nikoloulopoulos_Kendall_discret}, il est démontré que la paramétrisation des lois discrètes a une répercussion importante sur les mesures de dépendance entre les variables aléatoires.\\
+ 	
+ 	
+ 	\section{Enjeux des variables aléatoires discrètes par rapport aux mesures de dépendance.}
+  
+	 Contrairement aux variables aléatoires continues, lorsque l'on a des variables aléatoires discrètes, le choix et la paramétrisation des lois marginales influent sur le tau de Kendall. Les graphiques suivants ont pour but d'illustrer cela. L'illustration \ref{graph_clayton} représente le tau de Kendall selon le paramètre de la copule de Clayton et le paramètre de la variable aléatoire discrète.  Ainsi lorsque $N\sim Pois(2)$ le tau de Kendall n'atteint pas les bornes $[-1,1]$ en raison de valeurs égales produites. Lorsque le paramètre $\lambda$ est augmenté à 20 le tau de Kendall prends des valeurs plus élevées, les égalités posant problème sont moins fréquentes étant donnée l'augmentation du paramètre. \\
+	 
+	 \begin{figure}[H]
+	 	\centering
+	 	\includegraphics[height=6cm]{Graph/clayton.png}
+	 	\caption[Copule de Clayton]{Graphique du tau de Kendall empirique selon la valeur du paramètre d'une copule de Clayton, pour un couple de variables aléatoires mixtes ou $N\sim Pois(\lambda)$, $\lambda = 2,20$ et $X \sim Exp(1/100)$. Le tau de Kendall empirique est calculé sur des échantillons de taille 10 000.} 
+	 	\label{graph_clayton}
+	 \end{figure}
  
+ 	Le même phénomène est illustré dans l'illustration \ref{graph_frank}. Une copule de Frank y est choisie afin d'observer le comportement du tau de Kendall dans le cas d'une dépendance négative. Comme précédemment plus le paramètre de la variable discrète augmente plus le tau de Kendall a une amplitude élevé. Alors, lorsque la variable aléatoire discrète possède un grand nombre de valeurs possibles son impact sur la valeur du tau de Kendall diminue.
+	 
+	 \begin{figure}[H]
+	 	\centering
+	 	\includegraphics[height=6cm]{Graph/frank.png}
+	 	\caption[Copule de Frank]{Graphique du tau de Kendall empirique selon la valeur du paramètre d'une copule de Frank, pour un couple de variables aléatoires mixtes ou $N\sim Pois(\lambda)$, $\lambda = 2,20$ et $X \sim Exp(1/100)$. Le tau de Kendall empirique est calculé sur des échantillons de taille 10 000.} 
+	 	\label{graph_frank}
+	 \end{figure}
+	 
+	 \subsection{Convergence asymptotique}
+	 
+	 L'illustration \ref{graph_asymptotique} représente le tau de Kendall théorique, lorsque les deux lois sont continues, et le tau de Kendall empirique, lorsqu'une des deux lois est discrète, selon le paramètre d'une copule de Clayton. Le tau de Kendall est calculé par \eqref{eq_tau_discret_empirique} avec des échantillons de taille 10\,000, pour un couple de variables aléatoires mixtes ou $N\sim Pois(50)$ et $X \sim Exp(1/100)$. Ainsi asymptotiquement le tau de Kendall empirique converge vers le tau de Kendall théorique lorsque le paramètre de la variable aléatoire discrète est assez grand.
+	 
+	 \begin{figure}[H]
+	 	\centering
+	 	\includegraphics[height=6cm]{Graph/asymptotique.png}
+	 	\caption[Comportement asymptotique]{Graphique du tau de Kendall théorique et empirique selon la valeur du paramètre d'une copule de Clayton. Le tau de kendall empirique est calculé pour un couple de variables aléatoires mixtes ou $N\sim Pois(50)$ et $X \sim Exp(1/100)$. Le tau de kendall théorique est obtenu par la formule $\alpha/(\alpha+2)$.} 
+	 	\label{graph_asymptotique}
+	 \end{figure}
+ 
+ \newpage
+ 	\section{Calculs numériques}
+ 	
+ 	Lorsqu'on désire trouver le paramètre de dépendance par la méthode des moments (via le tau de Kendall ou le rho de Spearman), il faut d'abord être en mesure de calculer la valeur théorique des mesures de dépendance. À cet effet, le code informatique \ref{code_Kendall_theorique} permet de calculer le tau de Kendall théorique.
+ 	\begin{code}\label{code_Kendall_theorique}
+ 		\begin{verbatim}
+ 		
+ 		
+		library(copula)
+		library(rlist)
+ 		
+ 		
+		tau_kendall_theorique <- function(F_N, F_X, para, Copule, alpha, n_max, x_max){
+		
+		    # Fonction qui permet de calculer le tau de kendall avec une  
+		    # variable aléatoire discrète et une autre qui est continue.
+		
+		    F_N. <- function(n) {
+		        # Paramétriser la fonction de répartition de N.
+		        do.call(F_N, list.flatten(list(q = n, para$N)))
+		    }
+		    F_X. <- function(x) {
+		        # Paramétriser la fonction de répartition de X.
+		        do.call(F_X, list.flatten(list(q = x, para$X)))
+		    }
+		
+		    f_N <- function(n) F_N.(n) - F_N.(n-1)
+		
+		    F_NX <- function(n, x) {
+		        # Fonction de répartition conjointe de N et X.
+		        f <- function(U) pCopula(U, Copule(alpha, use.indepC = "FALSE"))
+		        return(f(c(F_N.(n), F_X.(x))))
+		    }
+		
+		    f_NX <- function(n, x) {
+		        # Fonction de densité conjointe de N et X.
+		        eps <- .Machine$double.eps^0.25
+		        f <- function(n,x) (F_NX(n, x + eps) - F_NX(n, x)) / eps
+		        return(f(n, x) - f(n - 1, x))
+		    }
+		
+		    return(
+		        sum(sapply(0:n_max, function(n)
+		            4 * integrate(
+		                Vectorize(function(x)
+		                    F_NX(n - 1, x) * f_NX(n, x)),
+		                0, x_max,
+		                subdivisions = 100L,
+		                rel.tol = .Machine$double.eps ^ 0.25
+		                )$value +
+		                    f_N(n) ^ 2)) - 1
+		    )
+		}
+ 		\end{verbatim}
+ 	\end{code}
+ 	\clearpage
+ 	
+ 	Les arguments pris par cette fonction sont
+ 	\begin{itemize}
+ 		\item \texttt{F\_N}: La fonction de répartition de la variable discrète (ex: \texttt{ppois}, \texttt{pbinom}, etc.);
+ 		\item \texttt{F\_X}: La fonction de répartition de la variable continue (ex: \texttt{pexp}, \texttt{pgamma}, etc.);
+ 		\item \texttt{para}: La liste des arguments qui servent à \texttt{F\_N} et \texttt{F\_X}; \\
+ 			(ex: pour $N\sim Binom(5, 0.4)$ et $X\sim Exp(1/100)$, on aurait \\ 
+ 			\texttt{para = list(N = list(size = 5, prob = 0.4), X = list(beta = 1/100))})
+		\item \texttt{Copule}: Une classe du module \texttt{Copula} (ex: \texttt{frankCopula}, \texttt{amhCopula}, etc.) 
+			\footnote{https://www.rdocumentation.org/packages/copula/versions/0.999-19/topics/archmCopula-class}
+		\item \texttt{alpha}: Paramètre de dépendance inhérent à la famille de copule utilisée;
+		\item \texttt{n\_max} et \texttt{x\_max}: Les valeurs maximales que peuvent prendre les variables aléatoires $N$ et $X$. \\
+			(ex: pour $N\sim Poisson(1)$ et $X\sim Exp(1/100)$, on aurait \\ 
+			\texttt{n\_max = qpois(0.99999, 1); x\_max = qexp(0.99999, 1/100)})\\
+ 	\end{itemize}
+ 
+ 	Maintenant que l'on peut calculer la valeur théorique du tau de Kendall pour un couple de variables aléatoires mixtes, il est possible d'inverser la fonction numériquement afin d'identifier le paramètre de dépendance d'un jeu de données à l'aide de l'estimation trouvée avec le code informatique \ref{code_Kendall_empirique}. On y parvient avec le code informatique \ref{code_inversion_tau_kendall}.
+ 	
+ 	\begin{code}\label{code_inversion_tau_kendall}
+ 		\begin{verbatim}
+ 		
+ 		
+ 		inversion_tau_kendall <- function(F_N, F_X, para, Copule, bornes, tau, n_max, x_max){
+ 		
+ 		    # Fonction qui permet de trouver le paramètre de dépendance à l'aide du 
+ 		    # tau de Kendall empirique lorsque le modèle comprend une v.a. discrète et
+ 		    # une v.a. continue.
+
+ 		    alpha <- uniroot(function(alpha)
+ 		                tau_kendall_theorique(F_N, F_X, para, 
+ 		                    Copule, alpha, n_max, x_max) - tau,
+ 		            bornes)$root)
+ 		        
+ 		    return(alpha)
+ 		}
+ 		\end{verbatim}
+ 	\end{code}
+ 	%
+	 Pour cette fonction, les paramètre sont les mêmes que dans le code informatique \ref{code_Kendall_theorique} à l'exception du paramètre \texttt{alpha} qui est remplacé par \texttt{tau}. Ce dernier représente le tau empirique que l'on désire inverser pour trouver le paramètre de dépendance de la copule. De plus, l'argument \texttt{bornes} est un vecteur représentant l'intervalle des valeurs possibles du paramètre de dépendance. Afin de réduire les temps de calcul et maximiser les chances de trouver une solution à l'optimisation numérique, le mieux est de faire une analyse graphique pour identifier l'intervalle le plus petit possible dans lequel on veut appliquer la fonction. Des exemples d'application de cette procédure sont présentés dans la sous-section \ref{subsect_exemples_inversion}
+	 
+	 \subsection{Exemples d'inversion du tau de Kendall}\label{subsect_exemples_inversion}
+	 
+	 Avec les formules proposées dans les codes informatiques \ref{code_Kendall_empirique}, \ref{code_Kendall_theorique} et \ref{code_inversion_tau_kendall}, on cherche à inverser un tau de Kendall calculé empiriquement sur une base de données afin d'identifier le paramètre qui façonne la structure de dépendance entre une variable aléatoire discrète et une qui est continue. Dans les exemples suivants, une méthodologie est proposée pour arriver à cette fin. Pour attester de la précision des codes informatiques définis dans la présente section, on utilise des données simulées dont on connaît le vrai paramètre de dépendance. \\
+	 
+	 \clearpage
+	 \begin{scenario}
+	 	\textbf{Copule de Frank}:
+	 	\label{scenario_Frank}
+	 \end{scenario}
+ 	 Posons un modèle de dépendance construit sur une copule de Frank, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires qui le composent sont $N \sim Pois(1)$ et $X\sim Exp(1/100)$. 
+ 	 On pose les paramètre en \texttt{R} comme démontré dans le code informatique \ref{code_parametres}. \\
+ 	 
+	 \begin{minipage}[H]{\linewidth}
+ 	 	\begin{code}\label{code_parametres}
+	 	 \begin{verbatim}
+	 	 
+	 	 
+		 	 alpha <- 5
+		 	 Copule <- frankCopula
+		 	 F_N <- ppois
+		 	 F_X <- pexp
+		 	 para <- list(N=list(lambda=2), X=list(rate=1/100))
+		 	 n_max <- qpois(0.99999, para$N$lambda)
+		 	 x_max <- qexp(0.99999, para$X$rate)
+	 	 \end{verbatim}
+	 	\end{code}
+ 	\end{minipage}
+
+ 	On estime un tau de Kendall empiriquement. Dans ce cas-ci, on utilise des données simulées.\\
+
+	 \begin{minipage}[H]{\linewidth}
+ 	 	 	\begin{code}\label{code_simul}
+	 		\begin{verbatim}
+	 		
+	 		
+				set.seed(20190618)
+				UU <- rCopula(1e+3, Copule(alpha))
+				X <- qpois(UU[,1], para$N$lambda)
+				Y <- qexp(UU[,2], para$X$rate)
+				tau_empirique <- tau_kendall_empirique(X, Y)
+	 		\end{verbatim}
+ 			\end{code}
+ 	\end{minipage}
+
+ 	On obtient alors $\tau_n = 0.4453614$. Avec la fonction \texttt{R} \texttt{cor}, on a $\tau_n = 0.4988588$. Les valeurs sont donc relativement proches. Maintenant, afin d'inverser cette valeur trouvée, il faut identifier l'intervalle optimal sur lequel appliquer la fonction présentée dans le code informatique \ref{code_inversion_tau_kendall}. Le code informatique \ref{code_graphique_intervalle} permet donc de générer l'illustration \ref{graph_intervalle_Frank}. \\
+ 	
+	 \begin{minipage}[H]{\linewidth}
+ 	 	 	\begin{code} \label{code_graphique_intervalle}
+	 		\begin{verbatim}
+	 		
+	 		
+	 		Tau <- sapply(c(-5:-1, 1:10), function(a)
+	 		    tau_kendall_theorique(F_N, F_X, para, Copule, a, n_max, x_max))
+	 		
+	 		plot(c(-5:-1, 1:10), Tau,
+	 		    ylab="tau de kendall",
+	 		    xlab="alpha",
+	 		    type="l"
+	 		)
+	 		axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+	 		axis(1,at=-5:10, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
+	 		abline(a=tau_empirique, b=0, col="green")
+	 		\end{verbatim}
+ 			\end{code}
+ 	\end{minipage}
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=8cm]{Graph/intevalle_frank.png}
+		\caption[Identification de l'intervalle d'optimisation numérique pour le scénario \ref{scenario_Frank}]
+		{Identification de l'intervalle d'optimisation numérique pour une copule de Frank avec $\alpha = 5$.} 
+		\label{graph_intervalle_Frank}
+	\end{figure}
+
+	Avec l'illustration \ref{graph_intervalle_Frank}, on voit qu'un intervalle optimal pourrait être $[4.5, 5.5]$. Il ne reste donc plus qu'à utiliser le code \ref{code_inversion_tau_kendall} pour obtenir les résultats présentés dans le tableau \ref{tbl_Resultats_Frank}.
 	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lr}
+			\hline
+			Vrai paramètre & 5.0000 \\ 
+			Paramètre trouvé & 5.2747 \\ 
+			Temps d'optimisation & 10.3400 \\ 
+			\hline
+		\end{tabular}
+	\caption{Résultats de l'inversion du tau de Kendall avec une copule de Frank.}
+	\label{tbl_Resultats_Frank}
+	\end{table}
+
+	Dans le tableau \ref{tbl_Resultats_Frank}, on voit que le paramètre trouvé est relativement proche de la vraie valeur de $\alpha$. L'écart vient du fait que l'estimation empirique du tau de Kendall a ajouté un biais à l'inversion.
+	Pour illustrer ce phénomène, on reproduit les résultats du tableau \ref{tbl_Resultats_Frank} en utilisant un tau théorique, calculé avec le code informatique \ref{code_Kendall_theorique}, comme valeur à inverser. 
+	On obtient alors le tableau \ref{tbl_Resultats_Frank_th} qui démontre le niveau d'exactitude des fonctions présentées dans les codes informatiques \ref{code_Kendall_theorique} et \ref{code_inversion_tau_kendall}.
+ 	
+ 	\begin{table}[H]
+ 		\centering
+ 		\begin{tabular}{lr}
+
+ 			\hline
+ 			Vrai paramètre & 5.00000000 \\ 
+ 			Paramètre trouvé & 5.00000021 \\ 
+ 			Temps d'optimisation & 10.50000000 \\ 
+ 			\hline
+ 		\end{tabular}
+ 		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Frank lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
+ 	\label{tbl_Resultats_Frank_th}
+ 	\end{table}
+ 	
+ 	\begin{scenario}
+ 		\textbf{Copule de AMH}:
+ 		\label{scenario_AMH}
+ 	\end{scenario}
+ 	 Posons un modèle de dépendance construit sur une copule de AMH, avec comme paramètre $\alpha = 0.5$, et dont les deux variables aléatoires demeurent inchangées par rapport au scénario \ref{scenario_Frank}. 
+ 	 L'attribution des paramètres se fait de façon similaire à celle présentée dans le code informatique \ref{code_parametres}. En gardant le même encrage de simulation (\textit{seed}), on obtient que $\tau_n = 0.1278298$ et la fonction \texttt{cor} donne 0.1437615. Par la suite, par analyse graphique, on voit dans l'illustration \ref{graph_intervalle_AMH} que $\alpha \in [0.45, 0.55]$. Par inversion du tau empirique, on obtient donc le tableau \ref{tbl_Resultats_AMH} qui présente les résultats de la simulation.\\
+ 	 
+ 	 \begin{figure}[H]
+ 	 	\centering
+ 	 	\includegraphics[height=8cm]{Graph/intevalle_AMH.png}
+ 	 	\caption[Identification de l'intervalle d'optimisation numérique pour le scénario \ref{scenario_AMH}]
+ 	 	{Identification de l'intervalle d'optimisation numérique pour une copule de AMH avec $\alpha = 0.5$.} 
+ 	 	\label{graph_intervalle_AMH}
+ 	 \end{figure}
+  
+  	 \begin{table}[H]
+  		\centering
+  		\begin{tabular}{lr}
+  			\hline
+  			Vrai paramètre & 0.5000 \\ 
+  			Paramètre trouvé & 0.5201 \\ 
+  			Temps d'optimisation & 6.8900 \\ 
+  			\hline 
+  		\end{tabular}
+  		\caption{Résultats de l'inversion du tau de Kendall avec une copule de AMH.}
+  		\label{tbl_Resultats_AMH}
+  	\end{table}
+  
+  	Comme pour le scénario \ref{scenario_Frank}, on observe un billet entre le paramètre trouvé et le vrai.
+  	
+  	 \begin{table}[H]
+  		\centering
+  		\begin{tabular}{lr}
+  			\hline
+			Vrai paramètre & 0.50000000 \\ 
+			Paramètre trouvé & 0.50000010 \\ 
+			Temps d'optimisation & 7.14000000 \\ 
+  			\hline
+  		\end{tabular}
+  		\caption{Résultats de l'inversion du tau de Kendall avec une copule de AMH lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
+  		\label{tbl_Resultats_AMH_th}
+  	\end{table}
+ 	 
+ 	\begin{scenario}
+ 		\textbf{Copule de Gumbel}:
+ 		\label{scenario_Gumbel}
+ 	\end{scenario}
+	Posons un modèle de dépendance construit sur une copule de Gumbel, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires demeurent inchangées par rapport aux scénarios \ref{scenario_Frank} et \ref{scenario_AMH}. Toujours avec le même encrage de simulation, on a $\tau_n = 0.7115475$ et, avec la fonction \texttt{R cor}, on obtient 0.7977153. Avec l'aide de l'illustration \ref{graph_intervalle_Gumbel}, on voit que $\alpha \in [4.5, 5.5]$. On obtient alors les résultats présentés dans le tableau \ref{tbl_Resultats_Gumbel}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=8cm]{Graph/intevalle_Gumbel.png}
+		\caption[Identification de l'intervalle d'optimisation numérique pour le scénario \ref{scenario_Gumbel}]
+		{Identification de l'intervalle d'optimisation numérique pour une copule de Gumbel avec $\alpha = 5$.} 
+		\label{graph_intervalle_Gumbel}
+	\end{figure}
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lr}
+			\hline
+			Vrai paramètre & 5.0000 \\ 
+			Paramètre trouvé & 4.7250 \\ 
+			Temps d'optimisation & 23.1600 \\ 
+			\hline 
+		\end{tabular}
+		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Gumbel.}
+		\label{tbl_Resultats_Gumbel}
+	\end{table}
+
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{lr}
+			\hline
+			Vrai paramètre & 5.00000000 \\ 
+			Paramètre trouvé & 5.00002083 \\ 
+			Temps d'optimisation & 23.61000000 \\  
+			\hline
+		\end{tabular}
+		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Gumbel lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
+		\label{tbl_Resultats_Gumbel_th}
+	\end{table}
+
+	\section{Conclusion}
+
 	\newpage
 	\bibliography{BibRRT_Kendall.bib}
 	\bibliographystyle{apalike}
