@@ -448,23 +448,37 @@
 	 	\end{code}
  	\end{minipage}
 
- 	On estime un tau de Kendall empiriquement. Dans ce cas-ci, on utilise des données simulées.\\
+ 	On estime un tau de Kendall empiriquement. Dans ce cas-ci, on simule 1\,000 réalisations du couple $(X_i, Y_i)$. Puis, pour obtenir un intervalle de confiance sur l'estimateur obtenu, on répète cette simulation 1\,000 fois. Comme il est illustré dans le code informatique \ref{code_simul}. Dans une situation où on aurait un vrai jeu de données, on pourrait avoir recours à la méthode du ré-échantillonnage (\textit{bootstrap}) afin de définir cet intervalle. \\
 
 	 \begin{minipage}[H]{\linewidth}
  	 	 	\begin{code}\label{code_simul}
 	 		\begin{verbatim}
 	 		
 	 		
+				tau_empirique <- numeric(nsim <- 1e+3)
 				set.seed(20190618)
-				UU <- rCopula(1e+3, Copule(alpha))
-				X <- qpois(UU[,1], para$N$lambda)
-				Y <- qexp(UU[,2], para$X$rate)
-				tau_empirique <- tau_kendall_empirique(X, Y)
+				for (i in 1:nsim) {
+				    UU <- rCopula(1e+3, Copule(alpha))
+				    X <- qpois(UU[,1], para$N$lambda)
+				    Y <- qexp(UU[,2], para$X$rate)
+				    tau_empirique[i] <- tau_kendall_empirique(X, Y)
+				}
+				mean_tau <- mean(tau_empirique)
 	 		\end{verbatim}
  			\end{code}
  	\end{minipage}
 
- 	On obtient alors $\tau_n = 0.4453614$. Avec la fonction \texttt{R} \texttt{cor}, on a $\tau_n = 0.4988588$. Les valeurs sont donc relativement proches. Maintenant, afin d'inverser cette valeur trouvée, il faut identifier l'intervalle optimal sur lequel appliquer la fonction présentée dans le code informatique \ref{code_inversion_tau_kendall}. Le code informatique \ref{code_graphique_intervalle} permet donc de générer l'illustration \ref{graph_intervalle_Frank}. \\
+ 	Dans le contexte du scénario \ref{scenario_Frank}, on obtient, pour un niveau de confiance de 95\%, que $\tau_n \in [0.4007240, 0.4594975]$ et la moyenne est de $0.4301108$. Avec le code informatique \ref{code_Kendall_theorique}, on trouve que $\tau = 0.4299595$; ce qui signifie que l'estimateur empirique est sans biais puisqu'il appartient à cet intervalle. À cet effet, dans l'illustration \ref{graph_Tau_n_asymptotique}, on voit que le comportement asymptotique de l'estimateur $\tau_n$ obéit à une loi normale.
+ 	
+ 		\begin{figure}[H]
+ 		\centering
+ 		\includegraphics[height=8cm]{Graph/Tau_n_asymptotique.png}
+ 		\caption{Comportement asymptotique de $\tau_n$ avec 1\,000 simulations.} 
+ 		\label{graph_Tau_n_asymptotique}
+ 	\end{figure}
+ 	
+ 	
+ 	Maintenant, afin de trouver le paramètre de dépendance du jeu de données simulé, il faut identifier l'intervalle optimal sur lequel appliquer la fonction présentée dans le code informatique \ref{code_inversion_tau_kendall}. Le code \ref{code_graphique_intervalle} permet donc de générer l'illustration \ref{graph_intervalle_Frank}. \\
  	
 	 \begin{minipage}[H]{\linewidth}
  	 	 	\begin{code} \label{code_graphique_intervalle}
@@ -501,38 +515,23 @@
 		\begin{tabular}{lr}
 			\hline
 			Vrai paramètre & 5.0000 \\ 
-			Paramètre trouvé & 5.2747 \\ 
-			Temps d'optimisation & 10.3400 \\ 
+			Paramètre trouvé & 5.0026 \\ 
+			Temps d'optimisation & 9.7800 \\ 
 			\hline
 		\end{tabular}
 	\caption{Résultats de l'inversion du tau de Kendall avec une copule de Frank.}
 	\label{tbl_Resultats_Frank}
 	\end{table}
 
-	Dans le tableau \ref{tbl_Resultats_Frank}, on voit que le paramètre trouvé est relativement proche de la vraie valeur de $\alpha$. L'écart vient du fait que l'estimation empirique du tau de Kendall a ajouté un biais à l'inversion.
-	Pour illustrer ce phénomène, on reproduit les résultats du tableau \ref{tbl_Resultats_Frank} en utilisant un tau théorique, calculé avec le code informatique \ref{code_Kendall_theorique}, comme valeur à inverser. 
-	On obtient alors le tableau \ref{tbl_Resultats_Frank_th} qui démontre le niveau d'exactitude des fonctions présentées dans les codes informatiques \ref{code_Kendall_theorique} et \ref{code_inversion_tau_kendall}.
- 	
- 	\begin{table}[H]
- 		\centering
- 		\begin{tabular}{lr}
-
- 			\hline
- 			Vrai paramètre & 5.00000000 \\ 
- 			Paramètre trouvé & 5.00000021 \\ 
- 			Temps d'optimisation & 10.50000000 \\ 
- 			\hline
- 		\end{tabular}
- 		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Frank lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
- 	\label{tbl_Resultats_Frank_th}
- 	\end{table}
+	Dans le tableau \ref{tbl_Resultats_Frank}, on voit que le paramètre trouvé est très proche de la vraie valeur de $\alpha$. 
+	
  	
  	\begin{scenario}
  		\textbf{Copule de AMH}:
  		\label{scenario_AMH}
  	\end{scenario}
  	 Posons un modèle de dépendance construit sur une copule de AMH, avec comme paramètre $\alpha = 0.5$, et dont les deux variables aléatoires demeurent inchangées par rapport au scénario \ref{scenario_Frank}. 
- 	 L'attribution des paramètres se fait de façon similaire à celle présentée dans le code informatique \ref{code_parametres}. En gardant le même encrage de simulation (\textit{seed}), on obtient que $\tau_n = 0.1278298$ et la fonction \texttt{cor} donne 0.1437615. Par la suite, par analyse graphique, on voit dans l'illustration \ref{graph_intervalle_AMH} que $\alpha \in [0.45, 0.55]$. Par inversion du tau empirique, on obtient donc le tableau \ref{tbl_Resultats_AMH} qui présente les résultats de la simulation.\\
+ 	 L'attribution des paramètres se fait de façon similaire à celle présentée dans le code informatique \ref{code_parametres}. En gardant le même encrage de simulation (\textit{seed}), on obtient que $\tau_n \in [0.08199922, 0.16145825]$ et la moyenne est de $0.1217287$, pour un $\tau$ théorique de $0.1220402$. Par la suite, par analyse graphique, on voit dans l'illustration \ref{graph_intervalle_AMH} que $\alpha \in [0.45, 0.55]$. Par inversion du tau empirique moyen, on obtient le tableau \ref{tbl_Resultats_AMH} qui présente les résultats de la simulation.\\
  	 
  	 \begin{figure}[H]
  	 	\centering
@@ -547,34 +546,22 @@
   		\begin{tabular}{lr}
   			\hline
   			Vrai paramètre & 0.5000 \\ 
-  			Paramètre trouvé & 0.5201 \\ 
-  			Temps d'optimisation & 6.8900 \\ 
+  			Paramètre trouvé & 0.4989 \\ 
+  			Temps d'optimisation & 6.6100 \\
   			\hline 
   		\end{tabular}
   		\caption{Résultats de l'inversion du tau de Kendall avec une copule de AMH.}
   		\label{tbl_Resultats_AMH}
   	\end{table}
   
-  	Comme pour le scénario \ref{scenario_Frank}, on observe un billet entre le paramètre trouvé et le vrai.
+  	Comme pour le scénario \ref{scenario_Frank}, on observe un bon niveau de précision.
   	
-  	 \begin{table}[H]
-  		\centering
-  		\begin{tabular}{lr}
-  			\hline
-			Vrai paramètre & 0.50000000 \\ 
-			Paramètre trouvé & 0.50000010 \\ 
-			Temps d'optimisation & 7.14000000 \\ 
-  			\hline
-  		\end{tabular}
-  		\caption{Résultats de l'inversion du tau de Kendall avec une copule de AMH lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
-  		\label{tbl_Resultats_AMH_th}
-  	\end{table}
  	 
  	\begin{scenario}
  		\textbf{Copule de Gumbel}:
  		\label{scenario_Gumbel}
  	\end{scenario}
-	Posons un modèle de dépendance construit sur une copule de Gumbel, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires demeurent inchangées par rapport aux scénarios \ref{scenario_Frank} et \ref{scenario_AMH}. Toujours avec le même encrage de simulation, on a $\tau_n = 0.7115475$ et, avec la fonction \texttt{R cor}, on obtient 0.7977153. Avec l'aide de l'illustration \ref{graph_intervalle_Gumbel}, on voit que $\alpha \in [4.5, 5.5]$. On obtient alors les résultats présentés dans le tableau \ref{tbl_Resultats_Gumbel}.
+	Posons un modèle de dépendance construit sur une copule de Gumbel, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires demeurent inchangées par rapport aux scénarios \ref{scenario_Frank} et \ref{scenario_AMH}. Toujours avec le même encrage de simulation, on a $\tau_n \in [0.7028951, 0.7350736]$ et une moyenne de $0.7189843$ pour un $\tau$ théorique de $0.7194499$. Avec l'aide de l'illustration \ref{graph_intervalle_Gumbel}, on voit que $\alpha \in [4.5, 5.5]$. On obtient alors les résultats présentés dans le tableau \ref{tbl_Resultats_Gumbel}.
 	
 	\begin{figure}[H]
 		\centering
@@ -589,28 +576,95 @@
 		\begin{tabular}{lr}
 			\hline
 			Vrai paramètre & 5.0000 \\ 
-			Paramètre trouvé & 4.7250 \\ 
-			Temps d'optimisation & 23.1600 \\ 
+			Paramètre trouvé & 4.9827 \\ 
+			Temps d'optimisation & 21.5200 \\ 
 			\hline 
 		\end{tabular}
 		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Gumbel.}
 		\label{tbl_Resultats_Gumbel}
 	\end{table}
 
+
+	\begin{scenario}
+		\textbf{Copule de Joe}:
+		\label{scenario_Joe}
+	\end{scenario}
+	Finalement, si on pose un modèle de dépendance construit sur une copule de Joe, avec comme paramètre $\alpha = 5$, et dont les autres hypothèses restent inchangées. On a $\tau_n \in [0.6008445, 0.6502252]$ et une moyenne de $0.6255349$ pour un $\tau$ théorique de $0.6260815$. Avec l'aide de l'illustration \ref{graph_intervalle_Joe}, on voit que $\alpha \in [4.5, 6.5]$. On obtient alors les résultats présentés dans le tableau \ref{tbl_Resultats_Joe}.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[height=8cm]{Graph/intevalle_Joe.png}
+		\caption[Identification de l'intervalle d'optimisation numérique pour le scénario \ref{scenario_Joe}]
+		{Identification de l'intervalle d'optimisation numérique pour une copule de Joe avec $\alpha = 5$.} 
+		\label{graph_intervalle_Joe}
+	\end{figure}
+	
 	\begin{table}[H]
 		\centering
 		\begin{tabular}{lr}
 			\hline
-			Vrai paramètre & 5.00000000 \\ 
-			Paramètre trouvé & 5.00002083 \\ 
-			Temps d'optimisation & 23.61000000 \\  
-			\hline
+			Vrai paramètre & 5.0000 \\ 
+			Paramètre trouvé & 4.9827 \\ 
+			Temps d'optimisation & 21.5200 \\ 
+			\hline 
 		\end{tabular}
-		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Gumbel lorsque la valeur à inverser n'est pas trouvé empiriquement, mais calculé théoriquement.}
-		\label{tbl_Resultats_Gumbel_th}
+		\caption{Résultats de l'inversion du tau de Kendall avec une copule de Joe.}
+		\label{tbl_Resultats_Joe}
 	\end{table}
 
+	
+	\section{Modèle collectif du risque}
+	
+	Dans cette section la méthode d'estimation précédente est appliquée au modèle collectif du risque avec $N \sim Binom(7,0.4) $ et $X \sim Exp(1/100)$. Les exemples suivants illustrent les cas où la loi mère est logarithmique ou géométrique et la loi enfant est gamma. Les estimations ont été réalisées avec des simulations d'échantillons de taille 10 000. Trois estimateurs de $\alpha_{0}$ sont calculés selon la méthode de calcul du tau de Kendall empirique, le premier utilise le tau de Kendall entre $N$ et $X_{1}$, le second la moyenne des taus de Kendall entre $N$ et $X_{i},i=1,2,3,4$ et le dernier la moyenne des taus de Kendall entre $N$ et tous les $X_{i}$. On ne prends pas en compte les valeurs où $N$ est nul. Pour les $X_{i}$ le tau de Kendall est calculé lorsque $X_{i}$ est défini.
+	
+	\begin{scenario}
+		\textbf{Copule hiérarchique Logarithmique-Gamma de paramètres $(\alpha_{0}=5,\alpha_{1}=4)$}:
+		\label{scenario_log-gamma}
+	\end{scenario}
+	
+	Dans ce cas la copule utilisée est la copule de Frank de paramètre $\alpha_{0}$. Le tableau \ref{MCR_Frank} illustrent le résultat de l'estimation :
+	
+	\begin{table}[ht]
+		\centering
+		\begin{tabular}{rrrrr}
+			\hline
+			& Paramètre & Estimateur 1 & Estimateur 2 & Estimateur 3 \\ 
+			\hline
+			& 5.0000 & 5.0744 & 3.7114 & 1.9643 \\
+			\hline
+		\end{tabular}
+		\caption{Tableau présentant les estimateurs de $\alpha_{0}$. L'estimateur 1 prend le tau de Kendall entre $N$ et $X_{1}$, l'estimateur 2 la moyenne des taus de Kendall entre $N$ et $X_{i},i=1,2,3,4$, l'estimateur 3 la moyenne des taus de Kendall entre $N$ et tous les $X_{i}$. }
+		\label{MCR_Frank}
+	\end{table}
+	
+	\begin{scenario}
+		\textbf{Copule hiérarchique Géométrique-Gamma de paramètres $(\alpha_{0}=0.6,\alpha_{1}=4)$}:
+		\label{scenario_geo-gamma}
+	\end{scenario}
+	
+	Dans ce cas la copule utilisée est la copule AMH de paramètre $\alpha_{0}$. Le tableau \ref{MCR_AMH} illustre le résultat de l'estimation :
+	
+	\begin{table}[ht]
+		\centering
+		\begin{tabular}{rrrrr}
+			\hline
+			& Paramètre & Estimateur 1 & Estimateur 2 & Estimateur 3 \\ 
+			\hline
+			& 0.6000 & 0.6166 & 0.4367 &  0.2963 \\
+			\hline
+		\end{tabular}
+		\caption{Tableau présentant les estimateurs de $\alpha_{0}$. L'estimateur 1 prend le tau de Kendall entre $N$ et $X_{1}$, l'estimateur 2 la moyenne des taus de Kendall entre $N$ et $X_{i},i=1,2,3,4$, l'estimateur 3 la moyenne des taus de Kendall entre $N$ et tous les $X_{i}$. }
+		\label{MCR_AMH}
+	\end{table}
+	
+	Le fait de prendre en compte les taus de Kendall entre $N$ et tous les $X_{i}$ n'améliore pas la qualité de l'estimation. La meilleure option reste de prendre le tau de Kendall entre $N$ et $X_{1}$.
+
+
 	\section{Conclusion}
+	Dans la littérature le tau de Kendall est calculé pour des variables aléatoires continues ou des variables aléatoires discrètes. Le lemme \ref{eq_tau} propose une formule qui permet de calculer le tau de Kendall dans le cas ou une des variables est discrète et l'autre est continue.
+	Dans le cas des variables aléatoires discrètes, le choix des lois a un impact sur le tau de Kendall a cause des observations qui se répètent. Ainsi plus le nombre de valeurs prises par la variable aléatoire discrète est grand plus ce phénomène s'atténue.
+	Le lemme \ref{lemme} et le lemme \ref{lemme_empirique} nous permettent de réaliser une optimisation numérique afin de déterminer le paramètre $\alpha_0$ des copules archimédiennes hiérarchiques utilisées dans le modèle collectif du risque. Pour le modèle collectif du risque prendre un grand nombre de $X_i$ pour le calcul du tau de Kendall empirique n'améliore pas l'estimation de $\alpha_0$.
+
 
 	\newpage
 	\bibliography{BibRRT_Kendall.bib}
