@@ -614,6 +614,7 @@
 
 	
 	\section{Modèle collectif du risque}
+	\subsection{Estimation de $\alpha_{0}$}
 	
 	Dans cette section la méthode d'estimation précédente est appliquée au modèle collectif du risque avec $N \sim Binom(7,0.4) $ et $X \sim Exp(1/100)$. Les exemples suivants illustrent les cas où la loi mère est logarithmique ou géométrique et la loi enfant est gamma. Les estimations ont été réalisées avec des simulations d'échantillons de taille 10 000. Trois estimateurs de $\alpha_{0}$ sont calculés selon la méthode de calcul du tau de Kendall empirique, le premier utilise le tau de Kendall entre $N$ et $X_{1}$, le second la moyenne des taus de Kendall entre $N$ et $X_{i},i=1,2,3,4$ et le dernier la moyenne des taus de Kendall entre $N$ et tous les $X_{i}$. On ne prends pas en compte les valeurs où $N$ est nul. Pour les $X_{i}$ le tau de Kendall est calculé lorsque $X_{i}$ est défini.
 	
@@ -659,11 +660,87 @@
 	
 	Le fait de prendre en compte les taus de Kendall entre $N$ et tous les $X_{i}$ n'améliore pas la qualité de l'estimation. La meilleure option reste de prendre le tau de Kendall entre $N$ et $X_{1}$.
 
+	\subsection{Estimation de $\alpha_{1}$}
+	
+	Le modèle collectif du risque est modélisé par une copule hiérarchique à deux paramètres. Le premier paramètre $\alpha_{0}$, paramètre de la loi mère modélise la dépendance entre $N$ et $X$, il a été estimé dans la section précédente. Le second paramètre $\alpha_{1}$, paramètre de la loi enfant modélise la dépendance entre les $X_{i}$. Étant donné que les $X_{i}$ sont des variables continues pour calculer le tau de Kendall empirique entre $X_{i}$ et $X_{j}$ on utilise la formule suivante :
+	
+	\begin{equation}\label{eq_tau_continu}
+	\tau (X_{i},X_{j}) = 4 \int_{0}^{1}\int_{0}^{1} C(u_{1},u_{2})c(u_{1},u_{2}) - 1.
+	\end{equation}
+	où  \[ C(u_{1},u_{2}) = \mathscr{L}_{\Theta}(\mathscr{L}_{\Theta}^{-1}(u_{1}) + \mathscr{L}_{\Theta}^{-1}(u_{2}) )  \]
+	avec    \[ \mathscr{L}_{\Theta}(t) = \mathscr{L}_{M}(-\ln(\mathscr{L}_{B}(t))) \]
+	et	\[ c(u_{1},u_{2}) =  \frac{\partial^2}{\partial u_{1}\partial u_{2}}C(u_{1},u_{2})  \]
+	
+	La relation entre les $X_{i}$ est modélisée par une copule archimédienne à deux paramètres, il faut donc pour l'estimation de $\alpha_{1}$ estimer préalablement $\alpha_{0}$. 
+	Les tableaux \ref{resultats_alpha1} et \ref{resultats_alpha1tous} présentent les résultats de l'estimation de $\alpha_{1}$, le paramètre $\alpha_{0}$ utilisé pour l'estimation et le temps d'estimation comprenant l'estimation des deux paramètres de la copule archimédienne hiérarchique. Le tau de Kendall empirique entre les variables continues et la variable discrète est calculé à partir des variables $N$ et $X_{1}$. Pour le tableau \ref{resultats_alpha1} le tau de Kendall entre les variables continues est calculé par les variables $X_{1}$ et $X_{2}$. Pour le tableau \ref{resultats_alpha1tous} le tau de Kendall empirique entre les variables continues est la moyenne des taus de Kendall entre tous les $X_{i}$.L'ajout des taus de Kendall entre toutes les variables détériore la qualité de l'estimation en raison du manque d’informations. Afin de pouvoir comparer ces deux résultats, les estimations par les deux méthodes sont effectuées à partir des mêmes échantillons.
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{rrrrr}
+			\hline
+			& Paramètre $\alpha_{0}$ & Estimateur $\alpha_{0}$ & Paramètre $\alpha_{1}$ & Estimateur $\alpha_{1}$  \\ 
+			\hline
+			Géométrique-Géométrique & 0.6000 & 0.6064 & 0.4000 & 0.4375  \\ 
+			Géométrique-Logarithmique & 0.6000 & 0.6037 & 7.0000 & 6.7736 \\ 
+			Géométrique-Gamma & 0.6000 & 0.6212 & 4.0000 & 3.8284 \\ 
+			Logarithmique-Logarithmique & 4.0000 & 3.9243 & 7.0000 & 5.8620  \\ 
+			Logarithmique-Géométrique & 5.0000 & 5.0307 & 0.6000 & 0.2811 \\ 
+			Logarithmique-Gamma & 6.0000 & 5.7881 & 4.0000 & 2.5337  \\  
+			\hline
+		\end{tabular}
+		\begin{tabular}{rr}
+			\hline
+			& Temps \\ 
+			\hline
+			Géométrique-Géométrique & 37.5900 \\ 
+			Géométrique-Logarithmique  & 38.9700 \\ 
+			Géométrique-Gamma & 36.5300 \\ 
+			Logarithmique-Logarithmique & 66.8100 \\ 
+			Logarithmique-Géométrique  & 63.2700 \\ 
+			Logarithmique-Gamma  & 73.3800 \\  
+			\hline
+		\end{tabular}
+		\caption{Tableau présentant les estimateurs de $\alpha_{1}$, les valeurs estimées de $\alpha_{0}$ utilisées ainsi que le temps de calcul. Le tau de Kendall empirique utilisé est le tau de Kendall entre $X_{1}$ et $X_{2}$. Les données utilisées sont issues de simulations d’échantillons de taille 10 000.}
+		\label{resultats_alpha1}
+	\end{table}
+	
+	
+	\begin{table}[H]
+		\centering
+		\begin{tabular}{rrrrr}
+			\hline
+			& Paramètre $\alpha_{0}$ & Estimateur $\alpha_{0}$ & Paramètre $\alpha_{1}$ & Estimateur $\alpha_{1}$  \\  
+			\hline
+			Géométrique-Géométrique & 0.6000 & 0.6064 & 0.4000 & 0.3246 \\ 
+			Géométrique-Logarithmique & 0.6000 & 0.6037 & 7.0000 & 6.1878 \\ 
+			Géométrique-Gamma & 0.6000 & 0.6212 & 4.0000 & 2.7547  \\ 
+			Logarithmique-Logarithmique & 4.0000 & 3.9243 & 7.0000 & 1.0010  \\ 
+			Logarithmique-Géométrique & 5.0000 & 5.0307 & 0.6000 & 0.0001 \\ 
+			Logarithmique-Gamma & 6.0000 & 5.7881 & 4.0000 & 0.4699 \\ 
+			\hline
+		\end{tabular}
+		%
+		\begin{tabular}{rr}
+			\hline
+			 & Temps \\  
+			\hline
+			Géométrique-Géométrique & 41.0400 \\ 
+			Géométrique-Logarithmique & 42.1500 \\ 
+			Géométrique-Gamma & 39.6800 \\ 
+			Logarithmique-Logarithmique  & 69.7800 \\ 
+			Logarithmique-Géométrique  & 66.6300 \\ 
+			Logarithmique-Gamma  & 76.6200 \\ 
+			\hline
+		\end{tabular}
+		\caption{Tableau présentant les estimateurs de $\alpha_{1}$, les valeurs estimées de $\alpha_{0}$ utilisées ainsi que le temps de calcul. Le tau de Kendall empirique utilisé la moyenne de tous les taus de Kendall. Les données utilisées sont issues de simulation d’échantillons de taille 10 000.}
+		\label{resultats_alpha1tous}
+	\end{table}
 
 	\section{Conclusion}
 	Dans la littérature le tau de Kendall est calculé pour des variables aléatoires continues ou des variables aléatoires discrètes. Le lemme \ref{eq_tau} propose une formule qui permet de calculer le tau de Kendall dans le cas ou une des variables est discrète et l'autre est continue.
 	Dans le cas des variables aléatoires discrètes, le choix des lois a un impact sur le tau de Kendall a cause des observations qui se répètent. Ainsi plus le nombre de valeurs prises par la variable aléatoire discrète est grand plus ce phénomène s'atténue.
-	Le lemme \ref{lemme} et le lemme \ref{lemme_empirique} nous permettent de réaliser une optimisation numérique afin de déterminer le paramètre $\alpha_0$ des copules archimédiennes hiérarchiques utilisées dans le modèle collectif du risque. Pour le modèle collectif du risque prendre un grand nombre de $X_i$ pour le calcul du tau de Kendall empirique n'améliore pas l'estimation de $\alpha_0$.
+	Le lemme \ref{lemme} et le lemme \ref{lemme_empirique} nous permettent de réaliser une optimisation numérique afin de déterminer le paramètre $\alpha_0$ des copules archimédiennes hiérarchiques utilisées dans le modèle collectif du risque. 
+	De la même façons la formule \ref{eq_tau_continu} nous permet d'obtenir le paramètre $\alpha_{1}$ de la copule archimédienne hiérarchique. Pour le modèle collectif du risque prendre un grand nombre de $X_i$ pour le calcul du tau de Kendall empirique n'améliore pas l'estimation des paramètres $\alpha_0$ et $\alpha_1$.
 
 
 	\newpage
