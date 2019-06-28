@@ -19,9 +19,75 @@ tau_kendall_empirique <- function(X,Y){
     return(tau)
 }
 
+# À partir d'une matrice de données représentant le modèle collectif du risque
+tau_NX <- function(DATA, nsim = 10, silent = T) {
+    # À partir d'une matrice contenant des observations issues du modèle collectif 
+    # du risque, calcule le tau de Kendall entre N et les X_i, de façon
+    # itérative, en prenant aléatoirement un X_i.
+    tau <- numeric(nsim)
+    temps <- 0
+    nb_couples <- sum(DATA[, 1] > 0)
+    for (realisation in 1:nsim) {
+        temps <- temps + system.time({
+            couples_NX <- matrix(ncol = 2, nrow = nb_couples)
+            k <- 0
+            for (i in 1:nrow(DATA)) {
+                if (DATA[i, 1] == 0)
+                    next
+                couples_NX[k <- k + 1, ] <- c(N <- DATA[i, 1],
+                                              sample(DATA[i, 2:(N + 1)], 1))
+            }
+            tau[realisation] <-
+                tau_kendall_empirique(couples_NX[, 1], couples_NX[, 2])
+        })[3]
+        
+        if (silent == F) {
+            tbl_iter <- cbind(
+                "tau" = round(tau[realisation], 6),
+                "temps ecoule" = paste(round(temps), "secondes")
+            )
+            rownames(tbl_iter) <- paste0(realisation, "/", nsim)
+            print(tbl_iter)
+        }
+    }
+    return(tau)
+} 
 
-bootstrap_tau_mixte <- function(data, nb_sous_intervalles = nrow(data) / 10,
-                          nb_samples = 100) {
+tau_XX <- function(DATA, nsim = 50, silent = T) {
+    # À partir d'une matrice contenant des observations issues du modèle collectif 
+    # du risque, calcule le tau de Kendall entre les couples (X_i, X_j), de façon
+    # itérative, en prenant les couples de façon aléatoire.
+    tau <- numeric(nsim)
+    temps <- 0
+    nb_couples <- sum(DATA[, 1] > 1)
+    for (realisation in 1:nsim) {
+        temps <- temps + system.time({
+            couples_XX <- matrix(ncol = 2, nrow = nb_couples)
+            k <- 0
+            for (i in 1:nrow(DATA)) {
+                if (DATA[i, 1] < 2)
+                    next
+                N <- DATA[i, 1]
+                couples_XX[k <- k + 1,] <- sample(DATA[i, 2:(N + 1)], 2)
+            }
+            tau[realisation] <- corKendall(couples_XX)[1, 2]
+        })[3]
+        
+        if (silent == F) {
+            tbl_iter <- cbind(
+                "tau" = round(tau[realisation], 6),
+                "temps ecoule" = paste(round(temps), "secondes"))
+            rownames(tbl_iter) <- paste0(realisation, "/", nsim)
+            print(tbl_iter)
+        }
+    }
+    return(tau)
+} 
+
+
+bootstrap_tau_mixte <- function(data, 
+                                nb_sous_intervalles = min(nrow(data) / 10, 1e+4),
+                                nb_samples = min(100, nb_sous_intervalles)) {
     # Fonction pour utiliser la méthode de ré-échantillonage (bootstrap) sur les
     # données
     tau <- numeric(nb_samples)
@@ -33,8 +99,9 @@ bootstrap_tau_mixte <- function(data, nb_sous_intervalles = nrow(data) / 10,
     return(tau)
 }
 
-bootstrap_tau_continues <- function(data, nb_sous_intervalles = nrow(data) / 10,
-                                nb_samples = 100) {
+bootstrap_tau_continues <- function(data,
+                                    nb_sous_intervalles = min(nrow(data) / 10, 1e+4),
+                                    nb_samples = min(100, nb_sous_intervalles)) {
     # Fonction pour utiliser la méthode de ré-échantillonage (bootstrap) sur les
     # données
     tau <- numeric(nb_samples)

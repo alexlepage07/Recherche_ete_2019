@@ -429,7 +429,7 @@
 	 	\textbf{Copule de Frank}:
 	 	\label{scenario_Frank}
 	 \end{scenario}
- 	 Posons un modèle de dépendance construit sur une copule de Frank, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires qui le composent sont $N \sim Pois(1)$ et $X\sim Exp(1/100)$. 
+ 	 Posons un modèle de dépendance construit sur une copule de Frank, avec comme paramètre $\alpha = 5$, et dont les deux variables aléatoires qui le composent sont $N \sim Pois(2)$ et $X\sim Exp(1/100)$. 
  	 On pose les paramètre en \texttt{R} comme démontré dans le code informatique \ref{code_parametres}. \\
  	 
 	 \begin{minipage}[H]{\linewidth}
@@ -473,7 +473,7 @@
  		\begin{figure}[H]
  		\centering
  		\includegraphics[height=8cm]{Graph/Tau_n_asymptotique.png}
- 		\caption{Comportement asymptotique de $\tau_n$ avec 1\,000 simulations.} 
+ 		\caption{Comportement asymptotique de $\tau_n$ avec $1\,000$ simulations impliquant chacune la réalisation de $1\,000$ couples ($N_i, X_i$), $i=1,\dots, 1\,000$.} 
  		\label{graph_Tau_n_asymptotique}
  	\end{figure}
  	
