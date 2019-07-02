@@ -30,11 +30,11 @@ hist(tau_empirique, freq =T, xlab = "tau_n", ylab = "Fréquence", breaks = 20, m
 (mean_tau <- mean(tau_empirique))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
-tau_kendall_theorique(F_N, F_X, para, Copule, alpha, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule, alpha, n_max)
 
 # Analyse graphique pour connaître les bornes d'optimisation
 Tau <- sapply(c(-5:-1, 1:10), function(a)
-    tau_kendall_theorique(F_N, F_X, para, Copule, a, n_max, x_max))
+    tau_kendall_theorique(F_N, para, Copule, a, n_max))
 
 plot(c(-5:-1, 1:10), Tau,
      ylab="tau de kendall",
@@ -49,12 +49,12 @@ abline(a=tau_empirique, b=0, col="green")
 bornes <- c(4.5, 5.5)
 
 # Optimisation à partir du tau empirique
-alpha_trouve <- inversion_tau_kendall(F_N, F_X,
-                             para,
-                             Copule,
-                             bornes,
-                             mean_tau,
-                             n_max, x_max)
+alpha_trouve <- inversion_tau_kendall(F_N,
+                                      para,
+                                      Copule,
+                                      bornes,
+                                      mean_tau,
+                                      n_max)
 (tbl <- rbind(
     "Vrai paramètre" = alpha,
     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -63,18 +63,18 @@ alpha_trouve <- inversion_tau_kendall(F_N, F_X,
 xtable(tbl, digits=4)
 
 # Optimisation à partir du tau théorique
-# tau_theorique <- tau_kendall_theorique(F_N, F_X,
+# tau_theorique <- tau_kendall_theorique(F_N,
 #                                        para,
 #                                        Copule,
 #                                        alpha,
-#                                        n_max, x_max)
+#                                        n_max)
 # 
-# alpha_trouve <- inversion_tau_kendall(F_N, F_X,
+# alpha_trouve <- inversion_tau_kendall(F_N,
 #                              para,
 #                              Copule,
 #                              bornes,
 #                              tau_theorique,
-#                              n_max, x_max)
+#                              n_max)
 # (tbl <- rbind(
 #     "Vrai paramètre" = alpha,
 #     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -106,11 +106,11 @@ for (i in 1:nsim) {
 (mean_tau <- mean(tau_empirique))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
-tau_kendall_theorique(F_N, F_X, para, Copule, alpha, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule, alpha, n_max)
 
 # Analyse graphique pour connaître les bornes d'optimisation
 Tau <- sapply((-9:9)/10, function(a)
-    tau_kendall_theorique(F_N, F_X, para, Copule, a, n_max, x_max))
+    tau_kendall_theorique(F_N, para, Copule, a, n_max))
 
 plot((-9:9)/10, Tau,
      ylab="tau de kendall",
@@ -125,12 +125,12 @@ abline(a=tau_empirique, b=0, col="green")
 bornes <- c(0.45, 0.55)
 
 # Optimisation à partir du tau empirique
-alpha_trouve <- inversion_tau_kendall(F_N, F_X,
-                             para,
-                             Copule,
-                             bornes,
-                             mean_tau,
-                             n_max, x_max)
+alpha_trouve <- inversion_tau_kendall(F_N,
+                                      para,
+                                      Copule,
+                                      bornes,
+                                      mean_tau,
+                                      n_max)
 (tbl <- rbind(
     "Vrai paramètre" = alpha,
     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -139,18 +139,18 @@ alpha_trouve <- inversion_tau_kendall(F_N, F_X,
 xtable(tbl, digits=4)
 
 # # Optimisation à partir du tau théorique
-# tau_theorique <- tau_kendall_theorique(F_N, F_X,
+# tau_theorique <- tau_kendall_theorique(F_N,
 #                                        para,
 #                                        Copule,
 #                                        alpha,
-#                                        n_max, x_max)
+#                                        n_max)
 # 
-# alpha_trouve <- inversion_tau_kendall(F_N, F_X,
+# alpha_trouve <- inversion_tau_kendall(F_N,
 #                              para,
 #                              Copule,
 #                              bornes,
 #                              tau_theorique,
-#                              n_max, x_max)
+#                              n_max)
 # (tbl <- rbind(
 #     "Vrai paramètre" = alpha,
 #     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -182,11 +182,11 @@ for (i in 1:nsim) {
 (mean_tau <- mean(tau_empirique))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
-tau_kendall_theorique(F_N, F_X, para, Copule, alpha, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule, alpha, n_max)
 
 # Analyse graphique pour connaître les bornes d'optimisation
 Tau <- sapply(1:10, function(a)
-    tau_kendall_theorique(F_N, F_X, para, Copule, a, n_max, x_max))
+    tau_kendall_theorique(F_N, para, Copule, a, n_max))
 
 plot(1:10, Tau,
      ylab="tau de kendall",
@@ -202,12 +202,12 @@ abline(a=tau_empirique, b=0, col="green")
 bornes <- c(4.5, 5.5)
 
 # Optimisation à partir du tau empirique
-alpha_trouve <- inversion_tau_kendall(F_N, F_X,
-                             para,
-                             Copule,
-                             bornes,
-                             mean_tau,
-                             n_max, x_max)
+alpha_trouve <- inversion_tau_kendall(F_N,
+                                      para,
+                                      Copule,
+                                      bornes,
+                                      mean_tau,
+                                      n_max)
 (tbl <- rbind(
     "Vrai paramètre" = alpha,
     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -216,18 +216,18 @@ alpha_trouve <- inversion_tau_kendall(F_N, F_X,
 xtable(tbl, digits=4)
 
 # # Optimisation à partir du tau théorique
-# tau_theorique <- tau_kendall_theorique(F_N, F_X,
+# tau_theorique <- tau_kendall_theorique(F_N,
 #                                        para,
 #                                        Copule,
 #                                        alpha,
-#                                        n_max, x_max)
+#                                        n_max)
 # 
-# alpha_trouve <- inversion_tau_kendall(F_N, F_X,
+# alpha_trouve <- inversion_tau_kendall(F_N,
 #                              para,
 #                              Copule,
 #                              bornes,
 #                              tau_theorique,
-#                              n_max, x_max)
+#                              n_max)
 # (tbl <- rbind(
 #     "Vrai paramètre" = alpha,
 #     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -260,11 +260,11 @@ for (i in 1:nsim) {
 (mean_tau <- mean(tau_empirique))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
-tau_kendall_theorique(F_N, F_X, para, Copule, alpha, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule, alpha, n_max)
 
 # Analyse graphique pour connaître les bornes d'optimisation
 Tau <- sapply(1:10, function(a)
-    tau_kendall_theorique(F_N, F_X, para, Copule, a, n_max, x_max))
+    tau_kendall_theorique(F_N, para, Copule, a, n_max))
 
 plot(1:10, Tau,
      ylab="tau de kendall",
@@ -280,12 +280,12 @@ abline(a=tau_empirique, b=0, col="green")
 bornes <- c(4.5, 6.5)
 
 # Optimisation à partir du tau empirique
-alpha_trouve <- inversion_tau_kendall(F_N, F_X,
+alpha_trouve <- inversion_tau_kendall(F_N,
                                       para,
                                       Copule,
                                       bornes,
                                       mean_tau,
-                                      n_max, x_max)
+                                      n_max)
 (tbl <- rbind(
     "Vrai paramètre" = alpha,
     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -294,18 +294,18 @@ alpha_trouve <- inversion_tau_kendall(F_N, F_X,
 xtable(tbl, digits=4)
 
 # # Optimisation à partir du tau théorique
-# tau_theorique <- tau_kendall_theorique(F_N, F_X,
+# tau_theorique <- tau_kendall_theorique(F_N,
 #                                        para,
 #                                        Copule,
 #                                        alpha,
-#                                        n_max, x_max)
+#                                        n_max)
 # 
-# alpha_trouve <- inversion_tau_kendall(F_N, F_X,
+# alpha_trouve <- inversion_tau_kendall(F_N,
 #                                       para,
 #                                       Copule,
 #                                       bornes,
 #                                       tau_theorique,
-#                                       n_max, x_max)
+#                                       n_max)
 # (tbl <- rbind(
 #     "Vrai paramètre" = alpha,
 #     "Paramètre trouvé" = alpha_trouve$alpha,
@@ -350,19 +350,19 @@ colnames(DATA_train) <- c("N", sapply(1:n_max, function(i) paste0("X", i)))
 
 
 set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
+tau_0 <- tau_NX(DATA_train, nsim=5, silent=F)
 
 var_tau <- var(tau_0)
 (mean_tau <- mean(tau_0))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
 
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
 
 
 {
 Tau_graph <- sapply(c(-5:-1, 1:10), function(a)
-    tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
+    tau_kendall_theorique(F_N, para, Copule0, a, n_max))
 
 plot(c(-5:-1, 1:10), Tau_graph,
      ylab="tau de kendall",
@@ -378,12 +378,12 @@ abline(a=mean_tau, b=0, col="green")
 bornes <- c(6, 7)
     
 temps_0 <- system.time(
-    alpha0_n <- inversion_tau_kendall(F_N, F_X,
+    alpha0_n <- inversion_tau_kendall(F_N,
                                       para,
                                       Copule0,
                                       bornes,
                                       mean_tau,
-                                      n_max, x_max)
+                                      n_max)
 )
 
 (tbl_0 <- rbind(
@@ -428,7 +428,7 @@ tau_kendall_theorique_continues(struct_copule,
     abline(a=mean_tau, b=0, col="green")
 }# Analyse graphique
 
-bornes <- c(1e-12, 0.001)
+bornes <- c(1e-16, 0.001)
 
 temps_1 <- system.time(
     alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
@@ -479,19 +479,19 @@ tbl_tot
 
 
 set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
+tau_0 <- tau_NX(DATA_train, nsim=5, silent=F)
 
 var_tau <- var(tau_0)
 (mean_tau <- mean(tau_0))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
 
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
 
 
 {
     Tau_graph <- sapply(c(-5:-1, 1:10), function(a)
-        tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
     
     plot(c(-5:-1, 1:10), Tau_graph,
          ylab="tau de kendall",
@@ -507,12 +507,12 @@ tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
     bornes <- c(6, 7)
     
     temps_0 <- system.time(
-        alpha0_n <- inversion_tau_kendall(F_N, F_X,
+        alpha0_n <- inversion_tau_kendall(F_N,
                                           para,
                                           Copule0,
                                           bornes,
                                           mean_tau,
-                                          n_max, x_max)
+                                          n_max)
     )
     
     (tbl_0 <- rbind(
@@ -557,7 +557,7 @@ tau_kendall_theorique_continues(struct_copule,
     abline(a=mean_tau, b=0, col="green")
 }# Analyse graphique
 
-bornes <- c(1e-16, 1)
+bornes <- c(1e-16, 1e-3)
 
 temps_1 <- system.time(
     alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
@@ -608,19 +608,19 @@ tbl_tot
 
 
 set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
+tau_0 <- tau_NX(DATA_train, nsim=5, silent=F)
 
 var_tau <- var(tau_0)
 (mean_tau <- mean(tau_0))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
 
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
 
 
 {
     Tau_graph <- sapply(c(-5:-1, 1:10), function(a)
-        tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
     
     plot(c(-5:-1, 1:10), Tau_graph,
          ylab="tau de kendall",
@@ -636,12 +636,12 @@ tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
     bornes <- c(6, 7)
     
     temps_0 <- system.time(
-        alpha0_n <- inversion_tau_kendall(F_N, F_X,
+        alpha0_n <- inversion_tau_kendall(F_N,
                                           para,
                                           Copule0,
                                           bornes,
                                           mean_tau,
-                                          n_max, x_max)
+                                          n_max)
     )
     
     (tbl_0 <- rbind(
@@ -678,7 +678,7 @@ tau_kendall_theorique_continues(struct_copule,
     
 }# Analyse graphique
 
-bornes <- c(1e-16, 0.00001)
+bornes <- c(1e-16, 1e-3)
 
 temps_1 <- system.time(
     alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
@@ -731,18 +731,18 @@ tbl_tot
 
 
 set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
+tau_0 <- tau_NX(DATA_train, nsim=5, silent=F)
 
 var_tau <- var(tau_0)
 (mean_tau <- mean(tau_0))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
 
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
 
 {
     Tau_graph <- sapply((-9:9)/10, function(a)
-        tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
     
     plot((-9:9)/10, Tau_graph,
          ylab="tau de kendall",
@@ -758,12 +758,12 @@ tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
     bornes <- c(0.8, 0.9)
     
     temps_0 <- system.time(
-        alpha0_n <- inversion_tau_kendall(F_N, F_X,
+        alpha0_n <- inversion_tau_kendall(F_N,
                                           para,
                                           Copule0,
                                           bornes,
                                           mean_tau,
-                                          n_max, x_max)
+                                          n_max)
     )
     (tbl_0 <- rbind(
         "Vrai paramètre" = alpha0,
@@ -799,7 +799,7 @@ tau_kendall_theorique_continues(struct_copule,
     
 }# Analyse graphique
 
-bornes <- c(4.5, 5)
+bornes <- c(4.8, 5.3)
 
 temps_1 <- system.time(
     alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
@@ -816,127 +816,7 @@ colnames(tbl_tot) <- c("alpha0", "alpha1")
 tbl_tot
 
 
-# Scénario 9 : Modèle collectif du risque - Géométrique-Géométrique ------------------
-
-{
-    alpha0 <- 0.7
-    alpha1 <- 0.8
-    Copule0 <- amhCopula
-    struct_copule <- function(alpha0, alpha1){
-        GEO(1-alpha0, NULL, list(GEO(1-alpha1, 1:2, NULL)))
-    }
-    F_N <- pbinom
-    F_X <- pexp
-    para <- list(N=list(size=7, prob=0.4), X=list(rate=1/100))
-    n_max <- qbinom(0.99999, para$N$size, para$N$prob)
-    x_max <- qexp(0.99999, para$X$rate)
-    nsim <- 1e+4
-}# Les paramètres
-
-{
-    set.seed(20190618)
-    DATA_train <- rCompCop(nsim, GEO(1-alpha0, 1, list(GEO(1-alpha1, 1:n_max, NULL))))
-    for (i in 1:nsim){
-        DATA_train[i, 1] <- N <- qbinom(DATA_train[i,1], para$N$size, para$N$prob)
-        if (N==0){ 
-            DATA_train[i,-1] <- rep(NaN, n_max)
-        }else{
-            DATA_train[i,-1] <- c(qexp(DATA_train[i, 2:(N + 1)], para$X$rate), rep(NaN, n_max - N))}
-    }
-    colnames(DATA_train) <- c("N", sapply(1:n_max, function(i) paste0("X", i)))
-    
-    # head(DATA_train) ; tail(DATA_train)
-    # summary(DATA_train)
-    
-}# Simulation d'une base de données
-
-
-set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
-
-var_tau <- var(tau_0)
-(mean_tau <- mean(tau_0))
-(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
-             mean_tau + sqrt(var_tau) * qnorm(0.975)))
-
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
-
-{
-    Tau_graph <- sapply((1:9)/10, function(a)
-        tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
-    
-    plot((1:9)/10, Tau_graph,
-         ylab="tau de kendall",
-         xlab="alpha",
-         type="l"
-    )
-    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-    axis(1, at=(1:9)/10, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
-    abline(a=mean_tau, b=0, col="green")
-}# Analyse graphique
-
-{
-    bornes <- c(0.8, 0.9)
-    
-    temps_0 <- system.time(
-        alpha0_n <- inversion_tau_kendall(F_N, F_X,
-                                          para,
-                                          Copule0,
-                                          bornes,
-                                          mean_tau,
-                                          n_max, x_max)
-    )
-    (tbl_0 <- rbind(
-        "Vrai paramètre" = alpha0,
-        "Paramètre trouvé" = alpha0_n,
-        "Temps d'optimisation" = temps_0[[3]]
-    ))
-} # Alpha0
-
-
-set.seed(20190618)
-tau_1 <- tau_XX(DATA_train, nsim=10, silent=T)
-
-(var_tau <- var(tau_1, na.rm = T))
-(mean_tau <- mean(tau_1, na.rm = T))
-(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
-             mean_tau + sqrt(var_tau) * qnorm(0.975)))
-tau_kendall_theorique_continues(struct_copule,
-                                alpha0_n, alpha1)
-
-{
-    Tau_graph <- sapply((1:9)/10, function(a)
-        tau_kendall_theorique_continues(struct_copule,
-                                        alpha0_n, alpha1=a))
-    
-    plot((1:9)/10, Tau_graph,
-         ylab="tau de kendall",
-         xlab="alpha",
-         type="l"
-    )
-    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-    axis(1, at=(1:9)/10, tck=1, lty = 2, col = "grey", labels = F) # L'axe des abscisses
-    abline(a=mean_tau, b=0, col="green")
-    
-}# Analyse graphique
-
-bornes <- c(1e-16, 1e-1)
-
-temps_1 <- system.time(
-    alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
-)
-
-(tbl_1 <- rbind(
-    "Vrai paramètre" = alpha1,
-    "Paramètre trouvé" = alpha1_n,
-    "Temps d'optimisation" = temps_1[[3]]
-))
-
-tbl_tot <- cbind(tbl_0, tbl_1)
-colnames(tbl_tot) <- c("alpha0", "alpha1")
-tbl_tot
-
-# Scénario 10 : Modèle collectif du risque - Géométrique-Logarithmique ------------
+# Scénario 9 : Modèle collectif du risque - Géométrique-Logarithmique *** --------
 
 {
     alpha0 <- 0.7
@@ -972,18 +852,18 @@ tbl_tot
 
 
 set.seed(20190618)
-tau_0 <- tau_NX(DATA_train, nsim=10, silent=F)
+tau_0 <- tau_NX(DATA_train, nsim=5, silent=F)
 
 var_tau <- var(tau_0)
 (mean_tau <- mean(tau_0))
 (IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
              mean_tau + sqrt(var_tau) * qnorm(0.975)))
 
-tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
 
 {
     Tau_graph <- sapply((1:9)/10, function(a)
-        tau_kendall_theorique(F_N, F_X, para, Copule0, a, n_max, x_max))
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
     
     plot((1:9)/10, Tau_graph,
          ylab="tau de kendall",
@@ -999,12 +879,12 @@ tau_kendall_theorique(F_N, F_X, para, Copule0, alpha0, n_max, x_max)
     bornes <- c(0.8, 0.9)
     
     temps_0 <- system.time(
-        alpha0_n <- inversion_tau_kendall(F_N, F_X,
+        alpha0_n <- inversion_tau_kendall(F_N,
                                           para,
                                           Copule0,
                                           bornes,
                                           mean_tau,
-                                          n_max, x_max)
+                                          n_max)
     )
     (tbl_0 <- rbind(
         "Vrai paramètre" = alpha0,
@@ -1041,6 +921,126 @@ tau_kendall_theorique_continues(struct_copule,
 }# Analyse graphique
 
 bornes <- c(3.5, 4)
+
+temps_1 <- system.time(
+    alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
+)
+
+(tbl_1 <- rbind(
+    "Vrai paramètre" = alpha1,
+    "Paramètre trouvé" = alpha1_n,
+    "Temps d'optimisation" = temps_1[[3]]
+))
+
+tbl_tot <- cbind(tbl_0, tbl_1)
+colnames(tbl_tot) <- c("alpha0", "alpha1")
+tbl_tot
+
+# Scénario 10 : Modèle collectif du risque - Géométrique-Géométrique ------------------
+
+{
+    alpha0 <- 0.7
+    alpha1 <- 0.8
+    Copule0 <- amhCopula
+    struct_copule <- function(alpha0, alpha1){
+        GEO(1-alpha0, NULL, list(GEO(1-alpha1, 1:2, NULL)))
+    }
+    F_N <- pbinom
+    F_X <- pexp
+    para <- list(N=list(size=7, prob=0.4), X=list(rate=1/100))
+    n_max <- qbinom(0.99999, para$N$size, para$N$prob)
+    x_max <- qexp(0.99999, para$X$rate)
+    nsim <- 1e+4
+}# Les paramètres
+
+{
+    set.seed(20190618)
+    DATA_train <- rCompCop(nsim, GEO(1-alpha0, 1, list(GEO(1-alpha1, 1:n_max, NULL))))
+    for (i in 1:nsim){
+        DATA_train[i, 1] <- N <- qbinom(DATA_train[i,1], para$N$size, para$N$prob)
+        if (N==0){ 
+            DATA_train[i,-1] <- rep(NaN, n_max)
+        }else{
+            DATA_train[i,-1] <- c(qexp(DATA_train[i, 2:(N + 1)], para$X$rate), rep(NaN, n_max - N))}
+    }
+    colnames(DATA_train) <- c("N", sapply(1:n_max, function(i) paste0("X", i)))
+    
+    # head(DATA_train) ; tail(DATA_train)
+    # summary(DATA_train)
+    
+}# Simulation d'une base de données
+
+
+set.seed(20190618)
+tau_0 <- tau_NX(DATA_train, nsim=1, silent=F)
+
+var_tau <- var(tau_0)
+(mean_tau <- mean(tau_0))
+(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
+             mean_tau + sqrt(var_tau) * qnorm(0.975)))
+
+tau_kendall_theorique(F_N, para, Copule0, alpha0, n_max)
+
+{
+    Tau_graph <- sapply((1:9)/10, function(a)
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
+    
+    plot((1:9)/10, Tau_graph,
+         ylab="tau de kendall",
+         xlab="alpha",
+         type="l"
+    )
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=(1:9)/10, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
+    abline(a=mean_tau, b=0, col="green")
+}# Analyse graphique
+
+{
+    bornes <- c(0.8, 0.9)
+    
+    temps_0 <- system.time(
+        alpha0_n <- inversion_tau_kendall(F_N,
+                                          para,
+                                          Copule0,
+                                          bornes,
+                                          mean_tau,
+                                          n_max)
+    )
+    (tbl_0 <- rbind(
+        "Vrai paramètre" = alpha0,
+        "Paramètre trouvé" = alpha0_n,
+        "Temps d'optimisation" = temps_0[[3]]
+    ))
+} # Alpha0
+
+
+set.seed(20190618)
+tau_1 <- tau_XX(DATA_train, nsim=10, silent=T)
+
+(var_tau <- var(tau_1, na.rm = T))
+(mean_tau <- mean(tau_1, na.rm = T))
+(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
+             mean_tau + sqrt(var_tau) * qnorm(0.975)))
+tau_kendall_theorique_continues(struct_copule,
+                                alpha0_n, alpha1)
+
+{
+    Tau_graph <- sapply(domaine <- (1:9)/10, function(a)
+        tau_kendall_theorique_continues(struct_copule,
+                                        alpha0_n, alpha1=a))
+    
+    plot(domaine, Tau_graph,
+         ylab="tau de kendall",
+         xlab="alpha",
+         type="l"
+    )
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=domaine, tck=1, lty = 2, col = "grey", labels = F) # L'axe des abscisses
+    abline(a=mean_tau, b=0, col="green")
+    
+}# Analyse graphique
+
+bornes <- c(3e-1, 4e-1)
 
 temps_1 <- system.time(
     alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)

@@ -9,24 +9,27 @@ library(ggplot2)
 library(ReIns)
 library(actuar)
 
+source("Mesure_dependance va mixtes.R")
+
 
 data("freMTPLfreq")
 data("freMTPLsev")
 freq  <- freMTPLfreq$ClaimNb
 loss <- freMTPLsev$ClaimAmount
 
+n_obs <- length(freq)
+max_freq <- max(freq)
+
 
 #=============== Trouver la loi marginale de la v.a. de fréquence (N). =============
-# Analyse des données
+# Analyse des données --------------------------------------------------------------
 table(freq)
-n_obs <- length(freq)
 summary(freq)
-max_freq <- max(freq)
 plot(ecdf(freq), xlim=c(0,5), main="")
 barplot(table(freq))
 
-
-# Cas 1 : Loi de poisson
+# ----------------------------------------------------------------------------------
+# Cas 1 : Loi de poisson -----------------------------------------------------------
 par <- mean(mean(freq), var(freq))
 par_mle <- optimize(function(par) -sum(log(dpois(freq, par))), lower = 0.001, upper = 1)$minimum
 rbind(par, par_mle)
@@ -50,25 +53,26 @@ chi2 <- rbind(
                   pchisq(Q, length(unique(freq)) - 2, lower.tail = F)
               ))
 
-# Loi de poisson inflationnée à zéro
+# Cas 2 : Loi de poisson inflationnée à zéro -----------------------------------------------
 par <- numeric(2)
 par[1] <- mean(mean(freq), var(freq))
 par[2] <- (1 - mean(freq==0)) / (1 - exp(-par[1]))
 
 
-dpois.zero.inf <- function(n, lambda, prob){
-    res <- numeric(length(n))
-    for (i in 1:length(n)){
-        if (n[i] == 0)
+dpois.zero.inf <- function(x, lambda, prob){
+    res <- numeric(length(x))
+    for (i in 1:length(x)){
+        if (x[i] == 0)
             res[i] <- (1 - prob) + prob * exp(-lambda)
         else
-            res[i] <- prob * dpois(n[i], lambda)
+            res[i] <- prob * dpois(x[i], lambda)
         }
     return(res)
 }
 
-ppois.zero.inf <- function(x, lambda, prob){
-    sum(dpois.zero.inf(0:x, lambda, prob))
+ppois.zero.inf <- function(q, lambda, prob) {
+    sapply(q, function(n)
+        sum(dpois.zero.inf(0:n, lambda, prob)))
 }
 
 qpois.zero.inf <- function(p, lambda, prob) {
@@ -85,23 +89,44 @@ qpois.zero.inf <- function(p, lambda, prob) {
 }
 
 
-mle <- optim(par, function(par) -sum(log(dpois.zero.inf(freq, par[1], par[2]))))
-tbl_parametres <- rbind("moments"=par, "mle"=mle$par)
+mle_pois.zero.inf <-
+    optim(par, function(par)
+        - sum(log(dpois.zero.inf(freq, par[1], par[2]))))
+
+tbl_parametres <- rbind("moments" = par, "mle" = mle_pois.zero.inf$par)
 colnames(tbl_parametres) <- c("lambda", "pi")
 tbl_parametres
 
-datas <- data.frame(c(freq, qpois.zero.inf((0:99.99)/100, mle$par[1], mle$par[2])),
-                    Source <- c(rep("Empirique", length(freq)),rep("Théorique", 100)))
+datas <-
+    data.frame(c(
+        freq,
+        qpois.zero.inf((0:99.99) / 100,
+                       mle_pois.zero.inf$par[1],
+                       mle_pois.zero.inf$par[2]
+        )
+    ),
+    Source <-
+        c(rep("Empirique", length(freq)), rep("Théorique", 100)))
 
-ggplot(datas,  aes(datas[, 1], fill = Source)) + 
-    geom_histogram(alpha = 0.3, aes(y = ..density..), position = 'identity', binwidth = 1)+
+ggplot(datas,  aes(datas[, 1], fill = Source)) +
+    geom_histogram(
+        alpha = 0.3,
+        aes(y = ..density..),
+        position = 'identity',
+        binwidth = 1
+    ) +
     xlab("n") + ylab("Probabilité") +
     theme(legend.title = element_blank())
 
 
 Q <- 0
-for (n in unique(freq)){
-    Q <- Q + (sum(freq == n) - n_obs * dpois.zero.inf(n, mle$par[1], mle$par[2])) ^ 2 / sum(freq == n)
+for (n in unique(freq)) {
+    Q <-
+        Q + (
+            sum(freq == n) - n_obs * dpois.zero.inf(n, mle_pois.zero.inf$par[1],
+                                                    mle_pois.zero.inf$par[2])
+        ) ^ 2 /
+        sum(freq == n)
 }
 chi2 <- rbind(chi2,
     "Poisson inflationné à zéro" = c(
@@ -110,15 +135,15 @@ chi2 <- rbind(chi2,
         pchisq(Q, length(unique(freq)) - 3, lower.tail = F)
     ))
 
-# Cas 2 : Loi binomiale négative
+# Cas 3 : Loi binomiale négative ---------------------------------------------------
 par <- numeric(2)
 par[1] <- mean(freq) / var(freq)
 par[2] <- mean(freq)
 
-mle <- constrOptim(par,
+mle_nbinom <- constrOptim(par,
                    function(par) -sum(log(dnbinom(freq, par[1], mu=par[2]))),
                    grad = NULL, ui=diag(2), ci = c(0,0))
-par <- mle$par
+par <- mle_nbinom$par
 
 datas <- data.frame(c(freq, qnbinom((0:100)/100, par[1], mu=par[2])),
                     Source <- c(rep("Empirique", length(freq)),rep("Théorique", 101)))
@@ -141,7 +166,7 @@ chi2 <- rbind(chi2,
                                        pchisq(Q, length(unique(freq)) - 3, lower.tail = F))
               )
 
-# Cas 3 : Loi binomiale
+# Cas 4 : Loi binomiale ------------------------------------------------------------
 par <- numeric(2)
 par[1] <- max_freq
 par[2] <- mean(freq) / par[1]
@@ -170,16 +195,13 @@ chi2 <- rbind(chi2,
 colnames(chi2) <- c("Statistique", "valeur critique" , "P-value")
 chi2
 
-# Malgré un test du chi-2 qui avantagerais la loi binomialle, le modèle de Poisson 
-# est un choix plus judicieux puisque la loi binomiale possède un domaine finit
-# qui ne s'apprète pas bien à notre contexte de nombre de sinistres automobiles.
 
 #-----------------------------------------------------------------------------------
 #=============== Trouver la loi marginale de la v.a. de sévérité (X). ==============
 summary(loss)
 loss <- sort(loss)
 n_obs <- length(loss)
-
+loss[200:300]
 plot(ecdf(loss))
 plot(ecdf(loss[1:(0.99 * n_obs)]))
 plot(ecdf(loss[1:(0.9 * n_obs)]))
@@ -204,7 +226,7 @@ loss[pt_rupture]
 summary(loss[1:pt_rupture])
 
 # Comparaison de la distribution des 97% premières données avec celle d'une v.a. suivant
-# une loi Gamma. ----
+# Loi Gamma. ----
 par <- numeric(2)
 par[1] <- mean(loss[1:pt_rupture]) / var(loss[1:pt_rupture])
 par[2] <- par[1] * mean(loss[1:pt_rupture])
@@ -229,7 +251,7 @@ axis(1, tck = 1, lty = 2, col = "grey")
 axis(2, tck = 1, lty = 2, col = "grey")
 
 
-# une loi Exponentielle ----
+# Loi Exponentielle ----
 par <- 1 / mean(loss[1:pt_rupture])
 pexp(2, par, lower.tail = F)
 
@@ -259,7 +281,7 @@ qchisq(0.95, 1) ; pchisq(TLR, 1, lower.tail = F)
 # Comme l'écart entre les vraisemblances est trop fort, on rejette 
 
 
-# une loi lognormale ----
+# Loi lognormale ----
 pt_rupture <- 0.97*n_obs
 
 par <- numeric(2)
@@ -287,7 +309,7 @@ axis(1, tck = 1, lty = 2, col = "grey")
 axis(2, tck = 1, lty = 2, col = "grey")
 
 
-# une loi Pareto (Lomax) ----
+# Loi Pareto (Lomax) ----
 unloadNamespace("ReIns") # La pareto de Reins n'a pas la même forme que celle de actuar.
 library(actuar)
 
@@ -318,7 +340,7 @@ axis(1, tck = 1, lty = 2, col = "grey")
 axis(2, tck = 1, lty = 2, col = "grey")
 
 
-# une loi Pareto simple ----
+# Loi Pareto simple ----
 library(ReIns)
 
 pt_rupture <- 0.97 * n_obs
@@ -349,74 +371,74 @@ axis(2, tck = 1, lty = 2, col = "grey")
 #-------------------------------------- Splicing -----------------------------------
 # Gamma - Pareto simple ----
 pt_rupture <- 0.97 * n_obs
-w <- pt_rupture / n_obs
 
-par <- length(loss[pt_rupture:n_obs]) / sum(log(loss[pt_rupture:n_obs]))
+par <- numeric(4)
+par[1] <- pt_rupture
+par[2:3] <- mle_gamma$par
+par[4] <- length(loss[pt_rupture:n_obs]) / sum(log(loss[pt_rupture:n_obs]))
+
+w <- function(theta)theta / n_obs
 
 
 fct_vrais <- function(xx, par) {
     k <- 0
     d <- numeric(length(xx))
     for (x in xx) {
-        if (x <= pt_rupture)
+        if (x <= par[1])
             d[k <- k + 1] <-
-                w * (dgamma(x, mle_gamma$par[2], mle_gamma$par[1]) /
+                w(par[1]) * (dgamma(x, par[3], par[2]) /
                      (
-                         pgamma(pt_rupture, mle_gamma$par[2], mle_gamma$par[1]) -
-                             pgamma(2, mle_gamma$par[2], mle_gamma$par[1])
+                         pgamma(par[1], par[3], par[2]) -
+                             pgamma(2, par[3], par[2])
                      ))
         else
             d[k <- k + 1] <-
-                (1- w) * (dpareto1(x, par, pt_rupture) / 
-                              ppareto1(pt_rupture, par, pt_rupture, lower.tail = F))
+                (1 - w(par[1])) * (dpareto1(x, par[4], par[1]))
     }
     return(d)
 }
 
 
-mle_gam.pareto1 <- optimize(function(par_) - sum(log(fct_vrais(loss, par_))),
-                                interval = c(0.001, 2))
-(mle_gam.pareto1$par <- mle_gam.pareto1$minimum)
+mle_gam.pareto1 <- constrOptim(par, function(par_) - sum(log(fct_vrais(loss, par_))),
+                                grad=NULL, ui=diag(4), ci=rep(0,4))
+mle_gam.pareto1$par
 
 
 F_splice <- function(xx, par) {
     k <- 0
-    P <- numeric(length(xx))
+    d <- numeric(length(xx))
     for (x in xx) {
-        if (x <= pt_rupture)
-            P[k <- k + 1] <-
-                w * (pgamma(x, mle_gamma$par[2], mle_gamma$par[1]) /
-                         (
-                             pgamma(pt_rupture, mle_gamma$par[2], mle_gamma$par[1]) -
-                                 pgamma(2, mle_gamma$par[2], mle_gamma$par[1])
-                         ))
+        if (x <= par[1])
+            d[k <- k + 1] <-
+                w(par[1]) * (pgamma(x, par[3], par[2]) /
+                                 (
+                                     pgamma(par[1], par[3], par[2]) -
+                                         pgamma(2, par[3], par[2])
+                                 ))
         else
-            P[k <- k + 1] <- w + (1 - w) *
-                (
-                    ppareto1(x, par, pt_rupture) /
-                        ppareto1(pt_rupture, par, pt_rupture, lower.tail = F)
-                )
+            d[k <- k + 1] <-
+                w(par[1]) + (1 - w(par[1])) * (ppareto1(x, par[4], par[1]))
     }
-    return(P)
+    return(d)
 }
 
 Q_splice <- function(uu, par) {
     k <- 0
     Q <- numeric(length(uu))
     for (u in uu){
-        if (u <= w)
-            Q[k <- k + 1] <- qgamma(u * pgamma(pt_rupture, mle_gamma$par[2], mle_gamma$par[1]) / w,
-                                    mle_gamma$par[2], mle_gamma$par[1])
+        if (u <= w(par[1]))
+            Q[k <- k + 1] <- qgamma(u * pgamma(par[1], par[3], par[2]) / w(par[1]),
+                                    par[3], par[2])
         else 
-            Q[k <- k + 1] <- qpareto1((u - w) / (1 - w),
-                                      par, pt_rupture)
+            Q[k <- k + 1] <- qpareto1((u - w(par[1])) / (1 - w(par[1])),
+                                      par[4], par[1])
     }
     return(Q)
 }
 
 
 p <- sapply(loss,function(x)F_splice(x, mle_gam.pareto1$par))
-plot(loss[1:10], Q_splice(p[1:10], mle_gam.pareto1$par),
+plot(loss[], Q_splice(p[], mle_gam.pareto1$par),
      xlab="Quantiles observes", ylab="Quantiles theoriques",
      type="l")
 lines(loss, loss, col='red')
@@ -426,15 +448,123 @@ axis(2, tck = 1, lty = 2, col = "grey")
 
 
 
-# =============== Mise en commun
-# max_freq <- max(freq)
-# ID <- sort(freMTPLfreq[freMTPLfreq$ClaimNb > 0, 1])
-# DATA <- matrix(ncol = max_freq + 2, nrow = length(ID))
-# for (i in 1:length(ID)){
-#     DATA[i,] <- c(ID[i],
-#                   N <- freMTPLfreq[freMTPLfreq$PolicyID == ID[i], 2],
-#                   freMTPLsev[freMTPLsev$PolicyID == ID[i], 2],
-#                   rep(NA, max_freq - N))
-# }
-# summary(DATA[,-1])
+# =========================== Calcul de la dépendance =====================
+max_freq <- max(freq)
+ID <- sort(freMTPLfreq[freMTPLfreq$ClaimNb > 0, 1])
+DATA <- matrix(ncol = max_freq + 2, nrow = length(ID))
+for (i in 1:length(ID)){
+    DATA[i,] <- c(ID[i],
+                  N <- freMTPLfreq[freMTPLfreq$PolicyID == ID[i], 2],
+                  freMTPLsev[freMTPLsev$PolicyID == ID[i], 2],
+                  rep(NA, max_freq - N))
+}
+summary(DATA[,-1])
+
+
+# Test numéro 1 : Logarithmique-Gamma -----
+{
+    Copule0 <- frankCopula
+    struct_copule <- function(alpha0, alpha1){
+        LOG(1-exp(-alpha0), NULL, list(GAMMA(1/alpha1, 1:2, NULL)))
+    }
+    
+    F_N <- ppois.zero.inf
+    para <- list(N=list(lambda=mle_pois.zero.inf$par[1],
+                        prob=mle_pois.zero.inf$par[2]))
+    n_max <- qpois.zero.inf(1-1e-6, para$N$lambda, para$N$prob)
+    
+}# Les paramètres
+
+
+set.seed(20190618)
+tau_0 <- tau_NX(DATA[,-1], nsim=10, silent=F)
+
+var_tau <- var(tau_0)
+(mean_tau <- mean(tau_0))
+(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
+             mean_tau + sqrt(var_tau) * qnorm(0.975)))
+
+
+{
+    Tau_graph <- sapply(domaine <- c(-5:-1, 1:10), function(a)
+        tau_kendall_theorique(F_N, para, Copule0, a, n_max))
+    
+    plot(domaine, Tau_graph,
+         ylab="tau de kendall",
+         xlab="alpha",
+         type="l"
+    )
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
+    abline(a=mean_tau, b=0, col="green")
+}# Analyse graphique
+
+{
+    bornes <- c(6, 7)
+    
+    temps_0 <- system.time(
+        alpha0_n <- inversion_tau_kendall(F_N, F_X,
+                                          para,
+                                          Copule0,
+                                          bornes,
+                                          mean_tau,
+                                          n_max, x_max)
+    )
+    
+    (tbl_0 <- rbind(
+        "Vrai paramètre" = alpha0,
+        "Paramètre trouvé" = alpha0_n,
+        "Temps d'optimisation" = temps_0[[3]]
+    ))
+} # Alpha0
+
+set.seed(20190618)
+tau_1 <- tau_XX(DATA_train, nsim=30, silent=T)
+
+(var_tau <- var(tau_1, na.rm = T))
+(mean_tau <- mean(tau_1, na.rm = T))
+(IC_tau <- c(mean_tau - sqrt(var_tau) * qnorm(0.975),
+             mean_tau + sqrt(var_tau) * qnorm(0.975)))
+tau_kendall_theorique_continues(struct_copule,
+                                alpha0_n, alpha1)
+
+{
+    Tau_graph <- sapply(c(0.001,1:5), function(a)
+        tau_kendall_theorique_continues(struct_copule,
+                                        alpha0_n, alpha1=a))
+    
+    plot(0:5, Tau_graph,
+         ylab="tau de kendall",
+         xlab="alpha",
+         type="l"
+    )
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=0:5, tck=1, lty = 2, col = "grey", labels = F) # L'axe des abscisses
+    abline(a=mean_tau, b=0, col="green")
+    
+    plot(0.001, Tau_graph[1],
+         ylab="tau de kendall",
+         xlab="alpha",
+         type="p"
+    )
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=(0:2)/10, tck=1, lty = 2, col = "grey", labels = F) # L'axe des abscisses
+    abline(a=mean_tau, b=0, col="green")
+}# Analyse graphique
+
+bornes <- c(1e-12, 0.001)
+
+temps_1 <- system.time(
+    alpha1_n <- inversion_tau_kendall_XX(struct_copule, alpha0_n, mean_tau, bornes)
+)
+
+(tbl_1 <- rbind(
+    "Vrai paramètre" = alpha1,
+    "Paramètre trouvé" = alpha1_n,
+    "Temps d'optimisation" = temps_1[[3]]
+))
+
+tbl_tot <- cbind(tbl_0, tbl_1)
+colnames(tbl_tot) <- c("alpha0", "alpha1")
+tbl_tot
 

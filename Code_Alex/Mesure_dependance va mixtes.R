@@ -86,7 +86,7 @@ tau_XX <- function(DATA, nsim = 50, silent = T) {
 
 
 bootstrap_tau_mixte <- function(data, 
-                                nb_sous_intervalles = min(nrow(data) / 10, 1e+4),
+                                nb_sous_intervalles = min(nrow(data) / 10, 1e+3),
                                 nb_samples = min(100, nb_sous_intervalles)) {
     # Fonction pour utiliser la méthode de ré-échantillonage (bootstrap) sur les
     # données
@@ -114,18 +114,18 @@ bootstrap_tau_continues <- function(data,
 
 #---------------------------------- Calcul du tau de Kendall théorique ------------
 
-tau_kendall_theorique <- function(F_N, F_X,
+tau_kendall_theorique <- function(F_N,
                                   para,
                                   Copule,
                                   alpha,
-                                  n_max, x_max){
+                                  n_max){
     # Fonction qui permet de calculer le tau de kendall avec une variable aléatoire
     # discrète et une autre qui est continue.
     #
-    # F_N et F_X peuvent être des fonctions pré-programmées de R.
+    # F_N peut être une fonction pré-programmée de R.
     # 
     # Para doit être une liste nommée de la forme 
-    # para = list(N=list(size=5, prob=0.3), X=list(par1=1, par2=2, ...))
+    # para = list(N=list(size=5, prob=0.3))
     #
     # alpha est le paramètre de dépendance de la copule.
             
@@ -133,34 +133,33 @@ tau_kendall_theorique <- function(F_N, F_X,
         # Paramétriser la fonction de répartition de N.
         do.call(F_N, list.flatten(list(q = n, para$N)))
     }
-    F_X. <- function(x) {
-        # Paramétriser la fonction de répartition de X.
-        do.call(F_X, list.flatten(list(q = x, para$X)))
-    }
     
-    f_N <- function(n) F_N.(n) - F_N.(n-1)
+    f_N <- function(n) {
+        if (n == 0)
+            F_N.(n)
+        else
+            F_N.(n) - F_N.(n-1)}
     
-    F_NX <- function(n, x) {
+    F_NX <- function(n, u) {
         # Fonction de répartition conjointe de N et X.
         # f <- pCompCop(struct_copule, T , F)
         f <- function(U) pCopula(U, Copule(alpha, use.indepC = "FALSE"))
-        return(f(c(F_N.(n), F_X.(x))))
+        return(f(c(F_N.(n), u)))
     }
     
-    f_NX <- function(n, x) {
+    f_NX <- function(n, u) {
         eps <- .Machine$double.eps^0.25
-        f <- function(n,x) (F_NX(n, x + eps) - F_NX(n, x)) / eps
-        return(f(n, x) - f(n - 1, x))
+        f <- function(n, u) (F_NX(n, u + eps) - F_NX(n, u)) / eps
+        if (n==0)
+            return(f(n, u))
+        return(f(n, u) - f(n - 1, u))
     }
     
     return(sum(sapply(0:n_max, function(n)
         4 * integrate(
-                Vectorize(function(x)
-                    F_NX(n - 1, x) * f_NX(n, x)),
-                0, x_max,
-                subdivisions = 100L,
-                rel.tol = .Machine$double.eps ^ 0.25
-            )$value +
+                Vectorize(function(u)
+                    F_NX(n - 1, u) * f_NX(n, u)),
+                0, 1)$value +
             f_N(n) ^ 2)) - 1)
 }
 
@@ -203,12 +202,12 @@ tau_kendall_theorique_continues <- function(struct_copule,
 
 #---------------------------------- Inversion du tau de Kendall -------------------
 
-inversion_tau_kendall <- function(F_N, F_X,
+inversion_tau_kendall <- function(F_N,
                          para,
                          Copule,
                          bornes,
                          Tau_Kendall,
-                         n_max, x_max){
+                         n_max){
     # Fonction qui permet de trouver le paramètre de dépendance à l'aide du 
     # tau de Kendall empirique lorsque le modèle comprend une v.a. discrète et
     # une v.a. continue.
@@ -222,11 +221,11 @@ inversion_tau_kendall <- function(F_N, F_X,
     # ===========================
     alpha <- uniroot(
         function(alpha)
-            tau_kendall_theorique(F_N, F_X,
+            tau_kendall_theorique(F_N,
                                   para,
                                   Copule,
                                   alpha,
-                                  n_max, x_max) - Tau_Kendall,
+                                  n_max) - Tau_Kendall,
         bornes
     )$root
     return(alpha)
