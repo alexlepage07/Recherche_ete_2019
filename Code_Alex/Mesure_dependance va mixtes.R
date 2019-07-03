@@ -131,7 +131,7 @@ tau_kendall_theorique <- function(F_N,
             
     F_N. <- function(n) {
         # Paramétriser la fonction de répartition de N.
-        do.call(F_N, list.flatten(list(q = n, para$N)))
+        do.call(F_N, list.flatten(list(n, para$N)))
     }
     
     f_N <- function(n) {
