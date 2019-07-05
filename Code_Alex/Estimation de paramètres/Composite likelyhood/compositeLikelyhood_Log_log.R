@@ -23,7 +23,7 @@ q <- 2/5
 beta <- 1/100
 alpha0 <- 8
 alpha1 <- 7
-nsim <- n_obs <- 1e+4
+nsim <- n_obs <- 1e+3
 
 DATA_train <- rCompCop(nsim, LOG(1-exp(-alpha0), 1, list(LOG(1-exp(-alpha1), 1:nb_xi, NULL))))
 
@@ -37,6 +37,7 @@ for (i in 1:nsim){
 
 colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
 head(DATA_train)
+# write.csv(DATA_train, file = "Data_LOG-LOG")
 
 # Sommaire des résultats de simulation
 (sommaire_train <- summary(DATA_train))
@@ -52,9 +53,18 @@ mle_binom; q
 temps_N
 
 # Estimation des paramètres de X
-lst_XX <- array(DATA_train[, -1])
-lst_XX <- lst_XX[!is.na(lst_XX)]
-summary(lst_XX)
+mat_X <- matrix(nrow = sum(DATA_train[,1] > 0), ncol=100)
+for (j in 1:100){
+    k <- 0
+    for (i in 1:nrow(DATA_train)){
+        if ((N <- DATA_train[i, 1]) == 0)
+            next
+        mat_X[k <- k + 1, j] <- sample(DATA_train[i, 2:(N + 1)], 1)
+    }
+}
+
+arr_X <- array(mat_X)
+(summary_X <- summary(arr_X))
 
 # plot(domaine <- (1:100)/1000, 
 #      sapply(domaine, function(para) -sum(log(dexp(lst_XX, para)))),
@@ -63,8 +73,8 @@ summary(lst_XX)
 # axis(1, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
 # abline(a=tau_0, b=0, col="green")
 temps_X <- system.time(
-(mle_exp <-  optimize(function(par) -sum(log(dexp(lst_XX, par))), 
-                      interval = c(1/summary(lst_XX)[[5]], 1/summary(lst_XX)[[2]]))$minimum)
+(mle_exp <-  optimize(function(par) -sum(log(dexp(arr_X, par))), 
+                      interval = c(1/summary_X[[5]], 1/summary_X[[2]]))$minimum)
 )[[3]]
 mle_exp; beta
 temps_X
@@ -162,14 +172,15 @@ fct_Score_NX <- function(para, Data = DATA_train) {
     return(neg_log_vrais)
 }
 
+temps_M <- system.time({
+    
+    plot(domaine <- 1:10, sapply(domaine, fct_Score_NX), type="l")
+    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+    axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
 
-plot(domaine <- 1:10, sapply(domaine, fct_Score_NX), type="l")
-axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
 
-temps_M <- system.time(
-    mle_M <- optimize(fct_Score_NX, interval = c(6, 9))
-)[[3]]
+    mle_M <- optimize(fct_Score_NX, interval = c(7, 9))
+})[[3]]
 
 
 # ====================== Estimation des paramètres des v.a. M, N et X. ==========================
@@ -251,7 +262,7 @@ temps_M_moments <- system.time({
     abline(a=tau_0, b=0, col="green")
     
     
-    bornes <- c(7.5, 8.5)
+    bornes <- c(8, 8.5)
     
     alpha0_n <- inversion_tau_kendall(pbinom,
                                       list(N=list(size=nb_xi, prob=mle_binom)),
@@ -262,14 +273,14 @@ temps_M_moments <- system.time({
 # Valeurs de départ de l'optimisation
 (val_depart <- c(
     "prob" = mean(DATA_train[, 1]) / nb_xi,
-    "beta" = 1 / mean(DATA_train[,-1], na.rm = T),
+    "beta" = mle_exp,
     "alpha0" = alpha0_n
 ))
 
 # Bornes de l'optimisation
 bounds <- matrix(c(1e-6, 1 - 1e-6,
-                   1e-6, Inf,
-                   1e-6, Inf), ncol = 2, byrow = T)
+                   1/summary_X[[5]], 1/summary_X[[2]],
+                   1e-6, 10), ncol = 2, byrow = T)
 # Convertir les constraintes en matrices ui et ci.
 n_par <- nrow(bounds)
 ui <- rbind( diag(n_par), -diag(n_par) )
@@ -287,7 +298,7 @@ temps_M.N.X <- system.time(
 
 
 # ====================== Estimation du paramètre de la v.a. theta ==========================
-# # Méthode de dérivation numérique ----
+# Méthode de dérivation numérique ----
 # F_X. <- function(x) {
 #     # Fonction de répartition marginale de X.
 #     eval(parse(text = F_X), list(pa2 = mle_exp))
@@ -300,27 +311,39 @@ temps_M.N.X <- system.time(
 # F_XX <- function(xx, alpha1, struct_Copule){
 #     # Fonction de répartition conjointe de X_1,...,X_k.
 #     f <- pCompCop(struct_Copule(xx, alpha1), T, F)
-#     return(f(c(F_X.(xx))))
+#     return(unname(f(c(F_X.(xx)))))
 # }
 # 
-# f_XX <- function(xx, alpha, struct_Copule) {
-#     # Fonction de densité conjointe de X_1,...,X_k.
-#     eps <- .Machine$double.eps^0.5
-#     k <- length(xx)
-#     mat <- numeric(k)
-#     for (i in 1:(k - 1)) {
-#         perm <- unique(permn(c(rep(1, i), rep(0, k - i))))
+# 
+# mat_deriv <- function(d){
+#     # Fonction qui permet de créer la matrice de 1 et de 0 qui servira à
+#     # produire la dérivation numérique.
+#     mat <- numeric(d)
+#     for (i in 1:(d - 1)) {
+#         perm <- unique(permn(c(rep(1, i), rep(0, d - i))))
 #         nperm <- length(perm)
 #         
 #         mat <- rbind(mat, matrix(unlist(perm),
-#                                  nperm, k, byrow = T))
+#                                  nperm, d, byrow = T))
 #     }
-#     mat <- rbind(mat, numeric(k) + 1)
+#     mat <- rbind(mat, numeric(d) + 1)
+#     return(mat)
+# }
+# 
+# temps_mat_deriv <- system.time(
+#     # Création des matrices de dérivation
+#     lst_mat_deriv <- lapply(2:nb_xi, mat_deriv)
+# )
+# 
+# f_XX <- function(xx, alpha, struct_Copule) {
+#     # Fonction de densité conjointe de X_1,...,X_k.
+#     eps <- .Machine$double.eps^0.25
+#     mat <- lst_mat_deriv[[length(xx) - 1]]
 #     
 #     f_XX <- sum(sapply(1:nrow(mat), function(i)
-#         (-1) ^ sum(mat[i,]) * F_XX(xx - mat[i,] * eps, alpha, struct_Copule))) / eps
-#     
-#     return(f_XX)
+#         (-1) ^ (sum(mat[i,])+1) * F_XX(xx - mat[i,] * eps, alpha, struct_Copule))) / eps
+# 
+#     return(abs(f_XX))
 # }
 # 
 # fct_Score_XX <- function(alpha, struct_Copule=Copule1, Data = DATA_train) {
@@ -328,20 +351,22 @@ temps_M.N.X <- system.time(
 #     neg_log_vrais <- 0
 #     for (i in 1:nrow(Data)) {
 #         N <- Data[i, 1]
-#         if (N > 2)
+#         if (N < 2)
 #             next
 #         neg_log_vrais <- neg_log_vrais - log(f_XX(Data[i, 2:(N+1)], alpha, struct_Copule))
 #     }
 #     return(neg_log_vrais)
 # }
 # 
-# plot(domaine <- (5:10), sapply(domaine, fct_Score_XX), type="l")
-# axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-# axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
+# temps_theta_deriv_num <- system.time({
+#     
+#     plot(domaine <- (5:10), sapply(domaine, fct_Score_XX), type="l")
+#     axis(2, tck = 1, lty = 2, col = "grey")
+#     axis(1, at=domaine, tck=1, lty = 2, col = "grey")
 # 
-# temps_solv <- system.time(
-#     mle_theta <- optimize(fct_Score_XX, interval = c(6, 8))
-# )
+# 
+#     mle_theta_deriv_num <- optimize(fct_Score_XX, interval = c(6, 8))
+# })
 # 
 # # Tableaux permettant de présenter les résultats
 # (resultats <- rbind("Estimateurs" = round(mle_theta$par, 4),
@@ -426,30 +451,28 @@ dCopule <- function(xx, para){
 }
 
 
-fct_Score_XX <- function(para, Data = DATA_train) {
+mat_XX <- combn2(na.omit(DATA_train[1,-1]))
+for (i in 2:nrow(DATA_train)) {
+    N <- DATA_train[i, 1]
+    if (N < 2)
+        next
+    mat_XX <- rbind(mat_XX, combn2(DATA_train[i, 2:(N + 1)]))
+}
+
+
+fct_Score_XX <- function(para, Data=mat_XX) {
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
-    neg_log_vrais <- 0
-    for (i in 1:nrow(Data)) {
-        N <- Data[i, 1]
-        if (N < 2)
-            next
-        
-        mat_XX <- combn2(Data[i, 2:(N + 1)])
-        
-        for (i in 1:nrow(mat_XX)) {
-            neg_log_vrais <- neg_log_vrais - log(dCopule(mat_XX[i,], para))
-        }
-    }
-    return(neg_log_vrais)
+    return(-sum(log(apply(Data, 1, dCopule, para))))
 }
 
 temps_theta <- system.time({
-    plot(domaine <- 7:12, sapply(domaine, fct_Score_XX), type="l")
+    
+    plot(domaine <- 7:10, sapply(domaine, fct_Score_XX), type="l")
     axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
     axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
 
 
-    mle_theta <- optimize(fct_Score_XX, interval = c(8.5, 9.5))
+    mle_theta <- optimize(fct_Score_XX, interval = c(7.5, 9))
 })
 
 
@@ -520,23 +543,21 @@ generateur_evalue_deriv <- function(derivee){
 dCopule <- generateur_evalue_deriv(derivees)
 
 
-fct_Score_XX <- function(para, Data) {
-    # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
-    neg_log_vrais <- 0
-    for (i in 1:nrow(Data)) {
-        N <- Data[i, 1]
-        if (N < 2)
-            next
-        
-        mat_XX <- combn2(Data[i, 2:(N + 1)])
-        
-        for (j in 1:nrow(mat_XX)) {
-            neg_log_vrais <- neg_log_vrais - log(dCopule(mat_XX[j,], para))
-        }
-    }
-    return(neg_log_vrais)
+mat_XX <- combn2(na.omit(DATA_train[1,-1]))
+for (i in 2:nrow(DATA_train)) {
+    N <- DATA_train[i, 1]
+    if (N < 2)
+        next
+    mat_XX <- rbind(mat_XX, combn2(DATA_train[i, 2:(N + 1)]))
 }
-Data
+
+
+fct_Score_XX <- function(para, Data=mat_XX) {
+    # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
+    return(-sum(log(apply(Data, 1, dCopule, para))))
+}
+
+
 {
 set.seed(20190618)
 mean_tau <- mean(tau_XX(DATA_train, nsim=30, silent=T), na.rm=T)
@@ -568,13 +589,13 @@ temps_theta_moments <- system.time({
 
 # Valeurs de départ de l'optimisation
 (val_depart <- c(
-    "beta" = mle_M.N.X$par[2],
+    mle_M.N.X$par[2],
     "alpha1" = alpha1_n
 ))
 
 # Bornes de l'optimisation
 bounds <- matrix(c(1e-06, 1 - 1e-06,
-                   1, Inf),
+                   1, 10),
                  ncol = 2,
                  byrow = T)
 # Convertir les constraintes en matrices ui et ci.
@@ -589,7 +610,7 @@ ci <- ci[i]
 temps_X.theta <- system.time(
     # Estimation des paramètres
     mle_X.theta <- constrOptim(val_depart, fct_Score_XX, grad=NULL,
-                          ui=ui, ci=ci, outer.eps = 1e-04)
+                          ui=ui, ci=ci, outer.eps = 1e-03)
 )
 mle_M.N.X$par[2]; mle_X.theta[1]
 
