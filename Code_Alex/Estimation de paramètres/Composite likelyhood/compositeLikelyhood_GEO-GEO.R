@@ -2,7 +2,7 @@
 # sur des données simulées.
 #
 # Le modèle est construit avec une copule archimédienne hiérachique dont la v.a. mère
-# suit une loi logarithmique de même que la v.a. enfant.
+# suit une loi Géométrique de même que la v.a. enfant.
 library(copula)
 library(nCopula)
 library(Deriv)
@@ -11,35 +11,64 @@ library(xtable)
 library(ggplot2)
 library(psych)
 library(combinat)
+library(graphics)
 
 source("../../Mesure_dependance va mixtes.R")
-
+#
 
 # ====================== Simulations des données d'entraînement ================
+simul_modele.collectif <- function(n, q, beta, alpha0, alpha1, nsim){
+  # Fonction qui permet de simuler le modèle collectif du risque avec une loi 
+  # binomiale comme loi de fréquence, une loi exponentielle comme loi de sévérité
+  # et une copule archimédienne hiérarchique GEO-GEO.
+  DATA_train <- rCompCop(nsim, GEO(1-alpha0, 1, list(GEO(1-alpha1, 1:nb_xi, NULL))))
+  
+  for (i in 1:nsim){
+    DATA_train[i, 1] <- N <- qbinom(DATA_train[i,1], nb_xi, q)
+    if (N==0){ 
+      DATA_train[i,-1] <- rep(NaN, nb_xi)
+    }else{
+      DATA_train[i,-1] <- c(qexp(DATA_train[i, 2:(N + 1)], beta), rep(NaN, nb_xi - N))}
+  }
+  
+  colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+  return(DATA_train)
+}
+
+
 # Paramètres de simulation
-set.seed(20190702)
-nb_xi <- 10
-q <- 1/5
+nb_xi <- 5
+q <- 3/5
 beta <- 1/100
 alpha0 <- 0.6
 alpha1 <- 0.4
 nsim <- n_obs <- 1e+4
 
-DATA_train <- rCompCop(nsim, GEO(1-alpha0, 1, list(GEO(1-alpha1, 1:nb_xi, NULL))))
+# Comportement du tau de Kendall empirique en fonction de la paramétrisation ----
+# de la loi de fréquence.
+tau.th <- tau_kendall_theorique(pbinom, list(N=list(5, 4/5)), amhCopula, alpha0, nb_xi)
 
-for (i in 1:nsim){
-    DATA_train[i, 1] <- N <- qbinom(DATA_train[i,1], nb_xi, q)
-    if (N==0){ 
-        DATA_train[i,-1] <- rep(NaN, nb_xi)
-    }else{
-        DATA_train[i,-1] <- c(qexp(DATA_train[i, 2:(N + 1)], beta), rep(NaN, nb_xi - N))}
-}
+datas <- sapply(1:5, function(n)
+  sapply((1:9) / 10, function(q)
+    mean(sapply(1:50, function(i) tau_NX(simul_modele.collectif(n, q, beta, alpha0, alpha1, 1e+2),
+           50)$moyenne))))
 
-colnames(DATA_train) <- c("N", sapply(1:(ncol(DATA_train)-1),function(i) paste0("X", i)))
+plot((1:9) / 10, datas[,1], type="l", col=1,
+     xlab="Paramètre q de la loi binomiale",
+     ylab="Tau de Kendall empirique", 
+     ylim=c(0.02, 0.16))
+sapply(2:5, function(c)lines((1:9) / 10, datas[,c], col=c))
+abline(a=tau.th, b=0, col=6)
+par(cex = 0.7)
+legend("bottomright",
+       legend=c(paste0("n=",1:5),"tau théorique"),
+       col=1:6, pch="l", ncol = 3)
+#----
+
+set.seed(2^12)
+DATA_train <- simul_modele.collectif(nb_xi, q, beta, alpha0, alpha1, nsim)
+
 head(DATA_train)
-# write.csv(DATA_train, file = "Data_LOG-LOG")
-
-# Sommaire des résultats de simulation
 (sommaire_train <- summary(DATA_train))
 # xtable(sommaire_train)  # Permet de  convertir un tableau de R à LaTeX.
 
@@ -53,14 +82,15 @@ mle_binom; q
 temps_N
 
 # Estimation des paramètres de X
-mat_X <- matrix(nrow = sum(DATA_train[,1] > 0), ncol=100)
-for (j in 1:100){
-    k <- 0
-    for (i in 1:nrow(DATA_train)){
-        if ((N <- DATA_train[i, 1]) == 0)
-            next
-        mat_X[k <- k + 1, j] <- sample(DATA_train[i, 2:(N + 1)], 1)
-    }
+mat_X <- matrix(nrow = sum(DATA_train[, 1] > 0), ncol = 100)
+for (j in 1:100) {
+  k <- 0
+  for (i in 1:nrow(DATA_train)) {
+    if ((N <- DATA_train[i, 1]) == 0)
+      next
+    X_i <- sample.int(N, 1)
+    mat_X[k <- k + 1, j] <- DATA_train[i, X_i + 1]
+  }
 }
 
 arr_X <- array(mat_X)
@@ -68,13 +98,16 @@ arr_X <- array(mat_X)
 
 
 temps_X <- system.time(
-(mle_exp <-  optimize(function(par) -sum(log(dexp(arr_X, par))), 
-                      interval = c(1/summary_X[[5]], 1/summary_X[[2]]))$minimum)
+    (mle_exp <-  optimize(function(par) -sum(log(dexp(arr_X, par))),
+                          interval = c(1/summary_X[[5]], 1/summary_X[[2]]))$minimum)
 )[[3]]
 mle_exp; beta
 temps_X
 
-# Graphiques de goodness of fit pour les données simulées.
+1 / mean(DATA_train[,-1], na.rm = T)
+
+
+# Graphiques de goodness of fit pour les données simulées. ----
 datas <- data.frame(c(DATA_train[,1], qbinom((0:100)/100, nb_xi, mle_binom)),
                     Source <- c(rep("Empirique", length(DATA_train[,1])),rep("Théorique", 101)))
 
@@ -89,26 +122,38 @@ for (n in unique(DATA_train[,1])){
         sum(DATA_train[,1] == n)
 }
 chi2 <- rbind(
-              "Binomiale" = c(
-                  Q,
-                  qchisq(0.95, length(unique(DATA_train[,1])) - 2, lower.tail = T),
-                  pchisq(Q, length(unique(DATA_train[,1])) - 2, lower.tail = F)
-              ))
+    "Binomiale" = c(
+        Q,
+        qchisq(0.95, length(unique(DATA_train[,1])) - 2, lower.tail = T),
+        pchisq(Q, length(unique(DATA_train[,1])) - 2, lower.tail = F)
+    ))
 colnames(chi2) <- c("Statistique", "valeur critique" , "P-value")
 chi2
 
 
-datas <- data.frame(c(lst_XX, qexp((0:100)/100, mle_exp)),
-                    Source <- c(rep("Simul", length(lst_XX)),
-                                rep("théorique", 101)))
+# datas <- data.frame(c(arr_X, qexp((0:100)/100, mle_exp)),
+#                     Source <- c(rep("Simul", length(arr_X)),
+#                                 rep("théorique", 101)))
+# 
+# ggplot() + 
+#     geom_histogram(alpha = 0.3, aes(x= arr_X, y = ..density.., fill = "Empirique"), position = 'identity')+
+#     geom_density(alpha = 0.3, aes(x= qexp((0:100)/100, beta), y = ..density.., fill = "Théorique")) + 
+#     xlab("x") + ylab("Densité") +
+#     theme(legend.title = element_blank())
 
-ggplot() + 
-    geom_histogram(alpha = 0.3, aes(x= lst_XX, y = ..density.., fill = "Empirique"), position = 'identity')+
-    geom_density(alpha = 0.3, aes(x= qexp((0:100)/100, beta), y = ..density.., fill = "Théorique")) + 
-    xlab("x") + ylab("Densité") +
-    theme(legend.title = element_blank())
+# qqplot avec le vecteur des simulations...pour la sélection aléatoire des X_i.
+plot(arr_X, qexp(pexp(arr_X, mle_exp), mle_exp),
+     xlab="Quantiles empiriques",
+     ylab="quantiles théoriques", type="l")
+lines(arr_X, arr_X, col="red")
 
-ks.test(lst_XX, pexp, mle_exp)
+# qqplot avec toutes les observations de X mises en commun.
+plot(DATA_train[,-1], qexp(pexp(DATA_train[,-1], mle_exp), mle_exp),
+     xlab="Quantiles empiriques",
+     ylab="quantiles théoriques", type="l")
+lines(DATA_train[,-1], DATA_train[,-1], col="red")
+
+ks.test(unique(arr_X), pexp, mle_exp)
 
 # ====================== Estimation du paramètre de la v.a. M. ============================
 Copule0 <- amhCopula
@@ -172,13 +217,12 @@ temps_M <- system.time({
     plot(domaine <- (1:10)/10, sapply(domaine, fct_Score_NX), type="l")
     axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
     axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
-
-
-    mle_M <- optimize(fct_Score_NX, interval = c(0.55, 0.75))
+    
+    mle_M <- optimize(fct_Score_NX, interval = c(0.4, 0.7))$minimum
 })[[3]]
 
 # ====================== Estimation du paramètre de la v.a. theta ==========================
-mle_alpha0 <- mle_M$minimum
+mle_alpha0 <- mle_M
 
 F_X <- "1 - exp(-x_i * mle_exp)"
 
@@ -225,7 +269,7 @@ for (n in 1:(2)){
     # Calcul des dérivées
     temps_deriv[n] <- system.time(
         derivees <- append(derivees, parse(text = 
-            chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
+                                               chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
@@ -252,15 +296,20 @@ dCopule <- function(xx, para){
 }
 
 
-mat_XX <- combn2(na.omit(DATA_train[1,-1]))
-for (i in 2:nrow(DATA_train)) {
-    N <- DATA_train[i, 1]
-    if (N < 2)
-        next
-    mat_XX <- rbind(mat_XX, combn2(DATA_train[i, 2:(N + 1)]))
+constr_mat_XX <- function(Data){
+  # Fonction qui construit une matrice dont qui crée
+  # des paires de (N, X_i) de façon aléatoire.
+  Data <- Data[(Data[,1] > 1),]
+  mat_XX <- combn2(na.omit(Data[1, -1]))
+  
+  for (i in 2:nrow(Data)) {
+    mat_XX <- rbind(mat_XX, combn2(na.omit(Data[i, -1])))
+  }
+  return(mat_XX)
 }
 
 
+mat_XX <- constr_mat_XX(DATA_train)
 fct_Score_XX <- function(para, Data=mat_XX) {
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
     return(-sum(log(apply(Data, 1, dCopule, para))))
@@ -268,13 +317,13 @@ fct_Score_XX <- function(para, Data=mat_XX) {
 
 temps_theta <- system.time({
     
-    plot(domaine <- (4:8)/10, sapply(domaine, fct_Score_XX), type="l")
+    plot(domaine <- (4:9)/10, sapply(domaine, fct_Score_XX), type="l")
     axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
     axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
-
-
-    mle_theta <- optimize(fct_Score_XX, interval = c(0.55, 0.75))
-})
+    
+    
+    mle_theta <- optimize(fct_Score_XX, interval = c(0.5, 0.7))$minimum
+})[[3]]
 
 
 # ====================== Estimation des paramètres des v.a. M, N et X. ==========================
@@ -317,52 +366,42 @@ f_NX <- function(n, x, para){
 }
 
 
-fct_Score_NX <- function(para, Data = DATA_train) {
+mat_NX <- constr_mat_NX(DATA_train)
+fct_Score_NX <- function(para, Data=mat_NX) {
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
     neg_log_vrais <- 0
-    for (i in 1:nrow(Data)) {
-        N <- Data[i, 1]
-        if (N == 0) {
-            neg_log_vrais <- neg_log_vrais - log(F_N(0, para[1]))
-        } else{
-            for (j in 1:N) {
-                X <- Data[i, j + 1]
-                neg_log_vrais <-
-                    neg_log_vrais - log(f_NX(N, X, para))
-                # print(c(N, X, f_NX(N,X,para)))}
-            }
-        }
+    for (i in 1:nrow(Data)){
+        neg_log_vrais <- neg_log_vrais - log(f_NX(Data[i, 1], Data[i, 2], para))
     }
     return(neg_log_vrais)
 }
 
 {
-    tau_0 <- mean(tau_NX(DATA_train, nsim=5, silent=F))
+  (tau_0  <- tau_NX(DATA_train, 30)$moyenne)
     
-    temps_M_moments <- system.time({
+  temps_M_moments <- system.time({
         
-        Tau_graph <- sapply(domaine <- (1:5)/5, function(a)
-            tau_kendall_theorique(pbinom,
-                                  list(N=list(size=nb_xi, prob=mle_binom)),
-                                  Copule0, a, nb_xi))
-        
-        plot(domaine, Tau_graph,
-             ylab="tau de kendall",
-             xlab="alpha",
-             type="l"
-        )
-        axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-        axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
-        abline(a=tau_0, b=0, col="green")
-        
-        
-        bornes <- c(8, 8.5)
-        
-        alpha0_n <- inversion_tau_kendall(pbinom,
-                                          list(N=list(size=nb_xi, prob=mle_binom)),
-                                          Copule0, bornes, tau_0, nb_xi)
-    })[[3]]
+      Tau_graph <- sapply(domaine <- (1:9)/10, function(a)
+          tau_kendall_theorique(pbinom,
+                                list(N=list(size=nb_xi, prob=mle_binom)),
+                                Copule0, a, nb_xi))
+      
+      plot(domaine, Tau_graph,
+           ylab="tau de kendall",
+           xlab="alpha",
+           type="l")
+      axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
+      axis(1, at=domaine, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
+      abline(a=tau_0, b=0, col="green")
+      
+      bornes <- c(0.55, 0.65)
+      
+      alpha0_n <- inversion_tau_kendall(pbinom,
+                                        list(N=list(size=nb_xi, prob=mle_binom)),
+                                        Copule0, bornes, tau_0, nb_xi)
+  })[[3]]
 } # Estimation alpha0 par la méthode des moments.
+
 
 # Valeurs de départ de l'optimisation
 (val_depart <- c(
@@ -374,7 +413,7 @@ fct_Score_NX <- function(para, Data = DATA_train) {
 # Bornes de l'optimisation
 bounds <- matrix(c(1e-6, 1 - 1e-6,
                    1/summary_X[[5]], 1/summary_X[[2]],
-                   1e-6, 10), ncol = 2, byrow = T)
+                   1e-6, 1 - 1e-6), ncol = 2, byrow = T)
 # Convertir les constraintes en matrices ui et ci.
 n_par <- nrow(bounds)
 ui <- rbind( diag(n_par), -diag(n_par) )
@@ -384,27 +423,50 @@ i <- as.vector(is.finite(bounds))
 ui <- ui[i,]
 ci <- ci[i]
 
-temps_M.N.X <- system.time(
-    # Estimation des paramètres
-    mle_M.N.X <- constrOptim(val_depart, fct_Score_NX, grad=NULL,
-                             ui=ui, ci=ci)
-)[[3]]
+# Estimation des paramètres
+temps_M.N.X <- 0
+arr_mle_M.N.X <- matrix(ncol=3, nrow=nsim <- 3)
+for (iter in 1:nsim) {
+    temps_M.N.X <- temps_M.N.X + system.time({
+        
+        mat_NX <- constr_mat_NX(DATA_train)
+        arr_mle_M.N.X[iter,] <- constrOptim(val_depart, fct_Score_NX, grad=NULL,
+                                            ui=ui, ci=ci, outer.eps = 1e-3)$par
+        
+    })[[3]]
+    
+    print(c(paste0(iter, "/", nsim),
+            paste0(round(temps_M.N.X %/% 60),":", round(temps_M.N.X %% 60)),
+            arr_mle_M.N.X[iter,]))
+}
 
+# sapply(1:3, function(i) hist(arr_mle_M.N.X[, i]))
+mle_M.N.X <- apply(arr_mle_M.N.X, 2, mean)
+var_M.N.X <- apply(arr_mle_M.N.X, 2, var)
+IC_M.N.X <- matrix(
+    c(mle_M.N.X - qnorm(0.975) * var_M.N.X,
+      mle_M.N.X + qnorm(0.975) * var_M.N.X),
+    ncol=2)
+
+round(mle_M.N.X, 4)
+round(IC_M.N.X, 4)
+
+mle_M
 
 # ====================== Estimation du paramètre des v.a. X et theta ==========================
 # Méthode d'estimation par décomposition de la densité conjointe.
-mle_alpha0 <- mle_M.N.X$par[3]
+mle_alpha0 <- mle_M.N.X[3]
 
 F_X <- "1 - exp(-x_i * pa1)"
-LST.Log_M <- "-1 / mle_alpha0 * log(1 - (1 - exp(-mle_alpha0)) * exp(-T)) "
-LST.Log_M.inv <- "- log((1 - exp(-mle_alpha0 * U)) / (1 - exp(-mle_alpha0)))"
-LST.Log_B <- "-1 / pa2 * log(1 - (1 - exp(-pa2)) * exp(-T)) "
-LST.Log_B.inv <- "log((1 - exp(-pa2 * U)) / (1 - exp(-pa2)))"
+LST.M <- "(1 - mle_alpha0) / (exp(T) - mle_alpha0)"
+LST.M.inv <- "log((1 - mle_alpha0) / U + mle_alpha0)"
+LST.B <- "(1 - pa2) / (exp(T) - pa2)"
+LST.B.inv <- "log((1 - pa2) / U + pa2)"
 
-str_copule_ext <- str_replace(LST.Log_M, "T",
-                              paste0("-log(", LST.Log_B,")"))
-str_copule_int <- str_replace(LST.Log_B.inv, "U",
-                              paste0("exp(-",LST.Log_M.inv,")"))
+str_copule_ext <- str_replace(LST.M, "T",
+                              paste0("-log(", LST.B,")"))
+str_copule_int <- str_replace(LST.B.inv, "U",
+                              paste0("exp(-",LST.M.inv,")"))
 
 
 func_str_copule <- function(str_copule_ext, str_copule_int, nb_xi) {
@@ -438,7 +500,7 @@ for (n in 1:(2)){
     # Calcul des dérivées
     temps_deriv[n] <- system.time(
         derivees <- append(derivees, parse(text = 
-            chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
+                                               chain_derivative(func_str_copule(str_copule_ext, str_copule_int, n), n)))
     )[[3]]
     print(c("Dérivée"=n, "temps"=temps_deriv[n]))
 }
@@ -458,15 +520,7 @@ generateur_evalue_deriv <- function(derivee){
 dCopule <- generateur_evalue_deriv(derivees)
 
 
-mat_XX <- combn2(na.omit(DATA_train[1,-1]))
-for (i in 2:nrow(DATA_train)) {
-    N <- DATA_train[i, 1]
-    if (N < 2)
-        next
-    mat_XX <- rbind(mat_XX, combn2(DATA_train[i, 2:(N + 1)]))
-}
-
-
+mat_XX <- constr_mat_XX(DATA_train)
 fct_Score_XX <- function(para, Data=mat_XX) {
     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
     return(-sum(log(apply(Data, 1, dCopule, para))))
@@ -474,43 +528,45 @@ fct_Score_XX <- function(para, Data=mat_XX) {
 
 
 {
-set.seed(20190618)
-mean_tau <- mean(tau_XX(DATA_train, nsim=30, silent=T), na.rm=T)
-
-struct_copule <- function(alpha0, alpha1) {
-    LOG(1 - exp(-alpha0), NULL, list(LOG(1 - exp(-alpha1), 1:2, NULL)))}
-
-temps_theta_moments <- system.time({
+    set.seed(20190618)
+    mean_tau <- mean(tau_XX(DATA_train, nsim=50, silent=T), na.rm=T)
     
-    Tau_graph <- sapply(domaine <- (1:5)*2, function(a)
-        tau_kendall_theorique_continues(struct_copule,
-                                        mle_alpha0, alpha1 = a))
+    struct_copule <- function(alpha0, alpha1) {
+        GEO(1 - mle_alpha0, NULL, list(GEO(1 - alpha1, 1:2, NULL)))}
     
-    plot(domaine, Tau_graph,
-         ylab="tau de kendall",
-         xlab="alpha",
-         type="l"
-    )
-    axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
-    axis(1, at=domaine, tck=1, lty = 2, col = "grey", labels = F) # L'axe des abscisses
-    abline(a=mean_tau, b=0, col="green")
+    temps_theta_moments <- system.time({
+        
+        Tau_graph <- sapply(domaine <- (1:4)/5, function(a)
+            tau_kendall_theorique_continues(struct_copule,
+                                            mle_alpha0, alpha1 = a))
+        
+        plot(domaine, Tau_graph,
+             ylab="tau de kendall",
+             xlab="alpha",
+             type="l"
+        )
+        axis(2, tck = 1, lty = 2, col = "grey")
+        axis(1, at=domaine, tck=1, lty = 2, col = "grey", labels = F)
+        abline(a=mean_tau, b=0, col="green")
+        
+        bornes <- c(0.3, 0.5)
+        
+        alpha1_n <- inversion_tau_kendall_XX(struct_copule,
+                                             mle_alpha0, mean_tau,
+                                             bornes)
+    })[[3]]
     
-    bornes <- c(5, 6)
-    
-    alpha1_n <- inversion_tau_kendall_XX(struct_copule, mle_alpha0, mean_tau, bornes)
-})
-
 } # Estimation de alpha1 par la méthode des moments.
 
 # Valeurs de départ de l'optimisation
 (val_depart <- c(
-    mle_M.N.X$par[2],
+    mle_M.N.X[2],
     "alpha1" = alpha1_n
 ))
 
 # Bornes de l'optimisation
-bounds <- matrix(c(1e-06, 1 - 1e-06,
-                   1, 10),
+bounds <- matrix(c(1 / summary_X[[5]], 1 / summary_X[[2]],
+                   1e-6, 1 - 1e-6),
                  ncol = 2,
                  byrow = T)
 # Convertir les constraintes en matrices ui et ci.
@@ -525,35 +581,33 @@ ci <- ci[i]
 temps_X.theta <- system.time(
     # Estimation des paramètres
     mle_X.theta <- constrOptim(val_depart, fct_Score_XX, grad=NULL,
-                          ui=ui, ci=ci, outer.eps = 1e-03)
-)
-mle_M.N.X$par[2]; mle_X.theta[1]
+                               ui=ui, ci=ci, outer.eps = 1e-03)$par
+)[[3]]
+mle_X.theta
 
 # Résultats --------------------------------------------------------------------------
 {
     tbl_resultats <- rbind(
         "Vrais paramètres" = c(q, beta, alpha0, alpha1),
-        "Méthode IFM" = c(mle_binom, mle_exp, mle_M$minimum, mle_theta$minimum),
-        "méthode composite" = c(mle_M.N.X$par[1], mle_M.N.X$par[2], mle_M.N.X$par[3], mle_),
-        "méthode des moments" = c(
+        "Méthode IFM" = c(mle_binom, mle_exp, mle_M, mle_theta),
+        "Méthode composite" = c(mle_M.N.X[1], mle_M.N.X[2], mle_M.N.X[3], mle_X.theta[2]),
+        "Méthode des moments" = c(
             mean(DATA_train[, 1]) / nb_xi,
             1 / mean(DATA_train[, -1], na.rm = T),
-            alpha0_n,
-            alpha1_n
+            alpha0_n, alpha1_n
         )
     )
-    cbind(tbl_resultats,
-          c(
-            "s.o.",
-            temps_N + temps_X + temps_M + temps_theta,
-            temps_M.N.X + temps_X.theta,
-            temps_M_moments + temps_theta_moments
-          )
-    )
-    colnames(tbl_resultats) <- c(q, beta, alpha0, alpha1)
+    # tbl_resultats <- cbind(tbl_resultats,
+    #       c(
+    #           NaN,
+    #           temps_N + temps_X + temps_M + temps_theta,
+    #           temps_M.N.X + temps_X.theta,
+    #           temps_M_moments + temps_theta_moments
+    #       )
+    # )
+    colnames(tbl_resultats) <- c("q", "beta", "alpha0", "alpha1")
 } # Production du tableau des résultats
 
 tbl_resultats
 
 xtable(tbl_resultats, digits=4)
-
