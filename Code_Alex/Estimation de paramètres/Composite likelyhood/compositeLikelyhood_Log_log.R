@@ -35,7 +35,7 @@ simul_modele.collectif <- function(n, q, beta, alpha0, alpha1, nsim){
     return(DATA_train)
 }
 # Paramètres de simulation
-nb_xi <- 5
+nb_xi <- 10
 q <- 3/5
 beta <- 1/100
 alpha0 <- 8
@@ -207,75 +207,68 @@ temps_M <- system.time({
 
 
 # ====================== Estimation du paramètre de la v.a. theta ==========================
-# Méthode de dérivation numérique ----
-# F_X. <- function(x) {
-#     # Fonction de répartition marginale de X.
-#     eval(parse(text = F_X), list(pa2 = mle_exp))
+# # Méthode de dérivation numérique ----
+# mle_alpha0 <- mle_M.N.X[3]
+# 
+# Copule1 <- function(U, alpha1) {
+#   LOG(1 - exp(-mle_alpha0), NULL, list(LOG(1 - exp(-alpha1), 1:length(U), NULL)))
 # }
 # 
-# Copule1 <- function(xx, alpha1) {
-#     LOG(1 - exp(-alpha0), NULL, list(LOG(1 - exp(-alpha1), 1:length(xx), NULL)))
-# }
-# 
-# F_XX <- function(xx, alpha1, struct_Copule){
-#     # Fonction de répartition conjointe de X_1,...,X_k.
-#     f <- pCompCop(struct_Copule(xx, alpha1), T, F)
-#     return(unname(f(c(F_X.(xx)))))
+# PCopule <- function(U, alpha1, struct_Copule){
+#   # Fonction de répartition conjointe de X_1,...,X_k.
+#   f <- pCompCop(struct_Copule(U, alpha1), T, F)
+#   return(unname(f(U)))
 # }
 # 
 # 
 # mat_deriv <- function(d){
-#     # Fonction qui permet de créer la matrice de 1 et de 0 qui servira à
-#     # produire la dérivation numérique.
-#     mat <- numeric(d)
-#     for (i in 1:(d - 1)) {
-#         perm <- unique(permn(c(rep(1, i), rep(0, d - i))))
-#         nperm <- length(perm)
-#         
-#         mat <- rbind(mat, matrix(unlist(perm),
-#                                  nperm, d, byrow = T))
-#     }
-#     mat <- rbind(mat, numeric(d) + 1)
-#     return(mat)
+#   # Fonction qui permet de créer la matrice de 1 et de 0 qui servira à
+#   # produire la dérivation numérique.
+#   mat <- numeric(d)
+#   for (i in 1:(d - 1)) {
+#     perm <- unique(permn(c(rep(1, i), rep(0, d - i))))
+#     nperm <- length(perm)
+#     
+#     mat <- rbind(mat, matrix(unlist(perm),
+#                              nperm, d, byrow = T))
+#   }
+#   mat <- rbind(mat, numeric(d) + 1)
+#   return(mat)
 # }
 # 
 # temps_mat_deriv <- system.time(
-#     # Création des matrices de dérivation
-#     lst_mat_deriv <- lapply(2:nb_xi, mat_deriv)
+#   # Création des matrices de dérivation
+#   lst_mat_deriv <- lapply(2:nb_xi, mat_deriv)
 # )
 # 
-# f_XX <- function(xx, alpha, struct_Copule) {
-#     # Fonction de densité conjointe de X_1,...,X_k.
-#     eps <- .Machine$double.eps^0.25
-#     mat <- lst_mat_deriv[[length(xx) - 1]]
-#     
-#     f_XX <- sum(sapply(1:nrow(mat), function(i)
-#         (-1) ^ (sum(mat[i,])+1) * F_XX(xx - mat[i,] * eps, alpha, struct_Copule))) / eps
-# 
-#     return(abs(f_XX))
+# dCopule <- function(U, alpha1, struct_Copule) {
+#   # Fonction de densité conjointe de X_1,...,X_k.
+#   eps <- .Machine$double.eps ^ 0.25
+#   U <- na.omit(U)
+#   mat <- lst_mat_deriv[[length(U) - 1]]
+#   signes <- (-1) ^ rowSums(mat)
+#   d <- signes %*% apply((U + t(mat) * eps), 2, PCopule, alpha1, struct_Copule) / eps
+#   return(d)
 # }
 # 
-# fct_Score_XX <- function(alpha, struct_Copule=Copule1, Data = DATA_train) {
-#     # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
-#     neg_log_vrais <- 0
-#     for (i in 1:nrow(Data)) {
-#         N <- Data[i, 1]
-#         if (N < 2)
-#             next
-#         neg_log_vrais <- neg_log_vrais - log(f_XX(Data[i, 2:(N+1)], alpha, struct_Copule))
-#     }
-#     return(neg_log_vrais)
+# fct_Score_XX <- function(alpha1, F_X, ..., struct_Copule=Copule1, Data = DATA_train) {
+#   # Fonction de score: On cherchera à minimiser la log-vraisemblance négative
+#   Data <- Data[Data[,1] > 1,-1]
+#   Data <- F_X(Data, ...)
+#   -sum(log(sapply(1:nrow(Data), function(i)
+#     dCopule(Data[i, ], alpha1, struct_Copule))))
 # }
 # 
 # temps_theta_deriv_num <- system.time({
-#     
-#     plot(domaine <- (5:10), sapply(domaine, fct_Score_XX), type="l")
-#     axis(2, tck = 1, lty = 2, col = "grey")
-#     axis(1, at=domaine, tck=1, lty = 2, col = "grey")
-# 
-# 
-#     mle_theta_deriv_num <- optimize(fct_Score_XX, interval = c(6, 8))
-# })
+#   
+#   plot(domaine <- (5:10), sapply(domaine, fct_Score_XX, pexp, beta), type="l")
+#   axis(2, tck = 1, lty = 2, col = "grey")
+#   axis(1, at=domaine, tck=1, lty = 2, col = "grey")
+#   
+#   
+#   mle_theta_deriv_num <- optimize(fct_Score_XX, interval = c(6, 8),
+#                                   F_X=pexp, rate=1/100)$minimum
+# })[[3]]
 # 
 # # Tableaux permettant de présenter les résultats
 # (resultats <- rbind("Estimateurs" = round(mle_theta$par, 4),
@@ -284,11 +277,9 @@ temps_M <- system.time({
 # # Conversion en LaTeX
 # xtable(resultats, digits = 4)
 # xtable(temps_tot)
+# mle_alpha0 <- mle_M
 
-
-# Méthode de dérivation symbolique ----
-mle_alpha0 <- mle_M
-
+# Méthode de dérivation symbolique -----
 F_X <- "1 - exp(-x_i * mle_exp)"
 
 LST.Log_M <- "-1 / mle_alpha0 * log(1 - (1 - exp(-mle_alpha0)) * exp(-T)) "

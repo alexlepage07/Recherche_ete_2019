@@ -1,6 +1,5 @@
 # Normale
 epsilon <- rnorm(1e+4)
-mat <- matrix(1,nrow = 1e+4, ncol=1)
 
 mu <- mean(epsilon)
 sig <- sqrt(var(epsilon))
@@ -14,7 +13,6 @@ mle$par
 # Poisson
 lambda <- exp(2 + X * 1 + epsilon)
 NN <- rpois(1e+4, lambda)
-mat <- matrix(1,nrow = 1e+4, ncol=1)
 lambda <- mean(NN)
 log(lambda)
 
