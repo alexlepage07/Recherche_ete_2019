@@ -1,4 +1,4 @@
-# semaine du 13 main 2019
+# semaine du 13 mai 2019
 #============================ exercice 3 =================================
 
 F_S <- function(x){

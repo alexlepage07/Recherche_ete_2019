@@ -28,7 +28,7 @@ q <- 1/2
 beta <- 1/100
 alpha0 <- -log(1 - 0.5)
 alpha1 <- 0.7
-nsim <- n_obs <- 1e+3
+nsim <- n_obs <- 1e+4
 
 set.seed(2^12)
 DATA_train <- simul_modele.collectif(nb_xi, q, beta, alpha0, alpha1, nsim)
@@ -46,9 +46,9 @@ TLS <- function(mere=c("geo", "log"),
     mere <- match.arg(mere)
     enfant <- match.arg(enfant)
     
-    TLS_log <- "-log(1 - (1 - exp(-ai)) * exp(-(T))) / ai"
-    TLS_geo <- "(1 - ai) / (exp(T) - ai)"
-    TLS_gamma <- "(1 + T)^(-ai)"
+    TLS_log <- "-log(1 - (1 - exp(-ai)) * exp(-(Z))) / ai"
+    TLS_geo <- "(1 - ai) / (exp(Z) - ai)"
+    TLS_gamma <- "(1 + Z)^(-ai)"
     TLS_log.inv <- "-log( (1 - exp(-ai * (ui))) / (1 - exp(-ai)) )"
     TLS_geo.inv <- "log((1 - ai) / (ui) + ai)"
     TLS_gamma.inv <- "((ui)^{-1 / ai} - 1)"
@@ -61,17 +61,17 @@ TLS <- function(mere=c("geo", "log"),
     
     # TLS de theta
     TLS_Theta <- str_replace_all(TLS_mere, "ai", "a0")
-    TLS_Theta <- str_replace_all(TLS_Theta, "T",
+    TLS_Theta <- str_replace_all(TLS_Theta, "Z",
                                  paste0("-log(", TLS_enfant,")"))
     TLS_Theta <- str_replace_all(TLS_Theta, "ai", "a1")
-    # TLS_Theta <- Simplify(TLS_Theta)
+    TLS_Theta <- Simplify(TLS_Theta)
     
     # TLS inverse de theta
     TLS_Theta.inv <- str_replace_all(TLS_enfant.inv, "ai", "a1")
     TLS_Theta.inv <- str_replace_all(TLS_Theta.inv, "ui",
                                      paste0("exp(-",TLS_mere.inv,")"))
     TLS_Theta.inv <- str_replace_all(TLS_Theta.inv, "ai", "a0")
-    # TLS_Theta.inv <- Simplify(TLS_Theta.inv)
+    TLS_Theta.inv <- Simplify(TLS_Theta.inv)
     
     return(list("TLS_Theta" = TLS_Theta, 
                 "TLS_Theta.inv" = TLS_Theta.inv))
@@ -79,43 +79,49 @@ TLS <- function(mere=c("geo", "log"),
 (TLS_ <- TLS("log", "gamma"))
 
 
-#-----------------------------------------------------------
-func.TLS_ <- function(T, a0, a1) eval(parse(text = TLS_$TLS_Theta))
-func.TLS_(2, -log(1 - 0.5), 0.7)
-#-----------------------------------------------------------
+# #-----------------------------------------------------------
+# func.TLS_ <- function(Z, a0, a1) eval(parse(text = TLS_$TLS_Theta))
+# func.TLS_(2, -log(1 - 0.5), 0.7)
+# #-----------------------------------------------------------
 
 
-derivee <- function(., d=2) {
+derivee <- function(TLS_, d=2) {
     # Fonction qui trouve la densité d'une copule
     # archimédienne de d dimensions.
     TLS_theta <- TLS_$TLS_Theta
     TLS_Theta.inv <- TLS_$TLS_Theta.inv
     
-    deriv_1 <- Deriv(TLS_theta, "T")
-    for (i in 1:(d - 1)) {
-        deriv_1 <- Deriv(deriv_1, "T")
+    # deriv_1 <- Deriv(TLS_theta, "Z")
+    # for (i in 1:(d - 1)) {
+    #     deriv_1 <- Deriv(deriv_1, "Z")
+    # }
+    theta <- function(a0, a1){
+        M <- rlog(1, a0)
+        B <- rgamma(1, M, a1)
+        return(B)
     }
+    deriv_1 <- "mean(sapply(1:1e+4, function(k) (-theta(a0, a1))^d * exp(-theta(a0, a1) * Z)))"
     
     
     #-----------------------------------------------------------
-    func.TLS_ <- function(T, a0, a1) eval(parse(text = deriv_1))
+    func.TLS_ <- function(Z, a0, a1) eval(parse(text = deriv_1))
     func.TLS_(2, -log(1 - 0.5), 0.7)
     #-----------------------------------------------------------
-    func.TLS_ <- function(ui, a0, a1) eval(parse(text = TLS_Theta.inv))
-    func.TLS_(2, -log(1 - 0.5), 0.7)
-    #-----------------------------------------------------------
+    # func.TLS_ <- function(ui, a0, a1) eval(parse(text = TLS_Theta.inv))
+    # func.TLS_(2, -log(1 - 0.5), 0.7)
+    # #-----------------------------------------------------------
     
     
-    deriv_1 <- str_replace(deriv_1, "T",
+    deriv_1 <- str_replace_all(deriv_1, "Z",
                            paste0("sum(sapply(U, function(ui)",
                                   TLS_Theta.inv, "))"))
     # deriv_1 <- paste0("(-1)^", d, " * (", deriv_1, ")")
     
     
-    #-----------------------------------------------------------
-    func.TLS_ <- function(U, a0, a1) eval(parse(text = deriv_1))
-    func.TLS_(c(0.4,0.5,0.3,0.6,0.5), -log(1 - 0.5), 0.7)
-    #-----------------------------------------------------------
+    # #-----------------------------------------------------------
+    # func.TLS_ <- function(U, a0, a1) eval(parse(text = deriv_1))
+    # func.TLS_(c(0.4,0.5,0.3,0.6,0.5), -log(1 - 0.5), 0.7)
+    # #-----------------------------------------------------------
     
     
     deriv_2 <- Deriv(TLS_Theta.inv, "ui")
@@ -123,6 +129,11 @@ derivee <- function(., d=2) {
                       deriv_2, "))")
     
     deriv_tot <- paste("(", deriv_1, ") * (", deriv_2, ")")
+    
+    # #-----------------------------------------------------------
+    # func.TLS_ <- function(U, a0, a1) eval(parse(text = deriv_tot))
+    # func.TLS_(c(0.4,0.5,0.3,0.6,0.5), -log(1 - 0.5), 0.7)
+    # #-----------------------------------------------------------
     
     return(parse(text = deriv_tot))
 }
@@ -172,10 +183,10 @@ temps_deriv <- system.time(
 )[[3]]
 
 
-#-----------------------------------------------------------
-func.TLS_ <- function(U, a0, a1) eval(liste_derivees[[5-1]])
-func.TLS_(c(0.4,0.5,0.3,0.6,0.5), -log(1 - 0.5), 0.7)
-#-----------------------------------------------------------
+# #-----------------------------------------------------------
+# func.TLS_ <- function(U, a0, a1) eval(liste_derivees[[5-1]])
+# func.TLS_(c(0.4,0.5,0.3,0.6,0.5), -log(1 - 0.5), 0.7)
+# #-----------------------------------------------------------
 
 
 fct_Score_XX <- function(a1){
@@ -189,12 +200,12 @@ summary(apply(Data, 1, dCopule, alpha0, alpha1, liste_derivees))
 
 
 temps_optimize <- system.time({
-    plot(domaine <- (6:9)/10, sapply(domaine, fct_Score_XX), type="l")
+    plot(domaine <- seq(0.6, 0.75, 0.05), sapply(domaine, fct_Score_XX), type="l")
     axis(2, tck = 1, lty = 2, col = "grey") # L'axe des ordonnées
     axis(1, tck=1, lty = 2, col = "grey",) # L'axe des abscisses
 })[[3]]
 
 temps_optimize <- temps_optimize + system.time(
-    mle_alpha1 <- optimize(fct_Score_XX, interval = c(0.6, 0.8))$minimum
-)
-
+    mle_alpha1 <- optimize(fct_Score_XX, interval = c(0.65, 0.75))$minimum
+)[[3]]
+mle_alpha1

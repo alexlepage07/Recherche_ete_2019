@@ -85,7 +85,7 @@ logv_M <- function(alpha){
 }
 
 
-plot(domaine <- (6:9)/10, 
+plot(domaine <- seq(0.6, 0.75, 0.05), 
      sapply(domaine, logv_M), type="l")
 axis(2, tck = 1, lty = 2, col = "grey")
 axis(1, tck=1, lty = 2, col = "grey")
