@@ -16,4 +16,4 @@ S.func <- function(mu) {
                0,
                sum(rgamma(N[i], 1 / 2, 1 / mu / 2))))
 }
-glm(S.func(mu[1])~
+glm(S.func(mu[1]) ~ x)

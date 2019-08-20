@@ -128,8 +128,8 @@ optim_rho <- function(data, x, N.coef, Y.coef, Y.disp,
     ci <- ci[i]
 
     Depart <- numeric(2)
-    Depart[1] <- cor(as.double(unlist(data[,1])), as.double(unlist(data[,2])), method="spearman")
-    Depart[2] <- cor(as.double(unlist(data[,2])), as.double(unlist(data[,3])), method="spearman")
+    Depart[1] <- cor(as.double(unlist(data[,1])), as.double(unlist(data[,2])), method="pearson")
+    Depart[2] <- cor(as.double(unlist(data[,2])), as.double(unlist(data[,3])), method="pearson")
     
     mle_rho <- matrix(ncol=2, nrow=nsim)
     for (j in 1:nsim) {
@@ -152,7 +152,7 @@ optim_rho <- function(data, x, N.coef, Y.coef, Y.disp,
         
         Depart <- mle_rho[j,]
         
-        # print(paste0(j/nsim*100,"%", " : ", list(mle_rho[j, ])))
+        print(paste0(j/nsim*100,"%", " : ", list(mle_rho[j, ])))
     }
     mean_rho <- apply(mle_rho, 2, mean, na.rm = T)
     var_rho <- apply(mle_rho, 2, var)
@@ -218,8 +218,8 @@ for (simul in 1:nsim){
     Y.coef <- Y.mod$coefficients
     k <- 2
     
-    (Depart <- c(cor(rank(DATA[,1], ties.method = "random"), DATA[,2], method = "spearman"),
-                 cor(DATA[,2], DATA[,3], method = "spearman")))
+    (Depart <- c(cor(rank(DATA[,1], ties.method = "random"), DATA[,2], method = "pearson"),
+                 cor(DATA[,2], DATA[,3], method = "pearson")))
     
     (rho2 <- 2 * sin(pi * Depart[2] / 6))
     rho1 <- Depart[1]
@@ -240,19 +240,19 @@ for (simul in 1:nsim){
     # # Optim est plus long que Optimize
     
     # system.time({
-      # rho1 <- optimize(function(rho1)
-      #   - sum(log(sapply(1:nrow(DATA), function(i)
-      #     dGaussian.copula(
-      #       n = DATA[i,1],
-      #       Y = DATA[i, 2:3],
-      #       x = (c(1, DATA[i,4:5])),
-      #       N.coef , Y.coef, Y.disp,
-      #       rho = c(rho1, rho2)
-      #     )))),
-      #   interval =  c(-0.1, sqrt(((k - 1) * rho2 + 1) / k)))$minimum
+      rho1 <- optimize(function(rho1)
+        - sum(log(sapply(1:nrow(DATA), function(i)
+          dGaussian.copula(
+            n = DATA[i,1],
+            Y = DATA[i, 2:3],
+            x = (c(1, DATA[i,4:5])),
+            N.coef , Y.coef, Y.disp,
+            rho = c(rho1, rho2)
+          )))),
+        interval =  c(-0.1, sqrt(((k - 1) * rho2 + 1) / k)))$minimum
     # })[[3]]
     
-    # system.time({
+    # # system.time({
     #   mle_rho <- optim_rho(data=DATA[,1:3],
     #                        x=cbind(1, DATA[,4:5]),
     #                        N.coef=N.coef,
@@ -261,7 +261,7 @@ for (simul in 1:nsim){
     #                        bornes = c(-0.2, 0.2, 0, 0.2),
     #                        nsim = 1,
     #                        length.ech = 5000)
-    # })[[3]]
+    # # })[[3]]
     # rho1 <- mle_rho$mean[1] ; rho2 <- mle_rho$mean[2]
     # # La full maximum likelyhood pour les paramètres de dépendance
     # # Est beaucoup plus longue, mais n'apporte pas beaucoup plus de
@@ -341,6 +341,7 @@ FREQ <- aggregate(AGG[train.id, ]$losspaid,
                          AGG[train.id, ]$class4,
                          AGG[train.id, ]$tgroup),
                function(x) sum(x>0))
+
 colnames(FREQ) <- c("pol_id", "class4", "tgroup", "N")
 # nrow(FREQ); nrow(SEV)
 summary(unlist(FREQ$N))
@@ -434,8 +435,8 @@ agg_means_AGG <- aggregate(agg_N.test$x,
 tbl_agg_AGG <- cbind(agg_means_AGG, agg_pred_AGG$x, agg_pred_AGG$x - agg_means_AGG$x)
 colnames(tbl_agg_AGG) <- c("Class", "Territory", "Empirical mean", "theorical mean", "Écarts")
 tbl_agg_AGG
-MSE <- mean((tbl_agg_AGG$`Empirical mean` - tbl_agg_AGG$`theorical mean`)^2)
-sqrt(MSE)
+sum((tbl_agg_AGG$`Empirical mean` - tbl_agg_AGG$`theorical mean`)^2 / tbl_agg_AGG$`Empirical mean`)
+qchisq(0.95, 30 - 20 -1)
 
 prob <- function(x) {
   # Fonction qui calcule la probabilité d'avoir un accident.
@@ -474,9 +475,9 @@ randomize.Y <- function(data, n) {
   Y <- matrix(sapply(1:nrow(data), function(i) sample(unlist(data[,-1][[i]]), n)), ncol=n, byrow = T)
   cbind(unlist(data[,1]), Y)
 }
+summary(randomize.Y(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid), 1))
 
-
-Y.disp_ <- numeric(nsim <- 5)
+Y.disp_ <- numeric(nsim <- 15)
 Y.coef_ <- matrix(NA, nsim, 10)
 for (sim in 1:nsim){
   print(paste0(sim, "/", nsim))
@@ -496,7 +497,6 @@ for (sim in 1:nsim){
 Y.disp <- mean(Y.disp_, na.rm=T)
 Y.coef <- apply(Y.coef_, 2, mean, na.rm=T)
 
-
 F2 <- function(Y, x) {
   pgamma(Y, 1 / Y.disp, exp(-x %*% Y.coef) / Y.disp)
 }
@@ -507,42 +507,38 @@ F2.inv <- function(p, x) {
   qgamma(p, 1 / Y.disp, exp(-x %*% Y.coef) / Y.disp)
 }
 
-# Analyse graphique de l'adéquation 
+
+#--- Mesures de l'adéquation du modèle gamma 
 SEV.test <- AGG[-train.id,]
 SEV.test <- SEV.test[SEV.test$losspaid > 0,]
 x.mat_test <- model.matrix(losspaid ~ class4 + tgroup, data = SEV.test)
-U <- F2(SEV.test$losspaid, x.mat_test)
-q <- qgamma(U, 1 / Y.disp, 1 / Y.disp / exp(x.mat_test %*% Y.coef))
-plot(SEV.test$losspaid, q, type = "l",
-     xlab = "quantiles empiriques",
-     ylab = "quantiles théoriques")
-abline(a=0, b=1, col="red")
-axis(2, tck = 1, lty = 2, col = "grey")
-axis(1, tck=1, lty = 2, col = "grey")
-# Graphiquement, le modèle semble adéquat.
+# # Analyse graphique de l'adéquation 
+#
+# U <- F2(SEV.test$losspaid, x.mat_test)
+# q <- qgamma(U, 1 / Y.disp, 1 / Y.disp / exp(x.mat_test %*% Y.coef))
+# plot(SEV.test$losspaid, q, type = "l",
+#      xlab = "quantiles empiriques",
+#      ylab = "quantiles théoriques")
+# abline(a=0, b=1, col="red")
+# axis(2, tck = 1, lty = 2, col = "grey")
+# axis(1, tck=1, lty = 2, col = "grey")
+# # Graphiquement, le modèle semble adéquat.
 
 
-# Mesures de l'adéquation du modèle gamma 
-sev.pred <- predict(gamma.model, newdata = SEV.test, type = "response")
-agg_pred_sev <- aggregate(sev.pred, by = list(SEV.test$class4, SEV.test$tgroup), mean)
-agg_means_sev <- aggregate(SEV.test$losspaid, by = list(SEV.test$class4, SEV.test$tgroup), mean)
-tbl_agg_sev <- cbind(agg_means_sev, agg_pred_sev$x, agg_pred_sev$x - agg_means_sev$x)
-colnames(tbl_agg_sev) <- c("Class", "Territory", "Empirical mean", "theorical mean", "Écarts")
-head(tbl_agg_sev)
+#--- Données de test - Test du Chi2 : À retravailler...
 
-(MSE <- mean((tbl_agg_sev$Écarts)^2))
-sqrt(MSE) # L'adéquation est pitoyable
 
 # Avec le Chi2 de pearson
 # Sur les données d'entraînement
 (Chi2_pearson <- sum((fitted(gamma.model) - rand.Y)^2 / var(fitted(gamma.model))))
 qchisq(0.99, nrow(SEV[train.id, ]) - 10)
 # Sur les données de test.
-(Chi2_pearson <- sum((sev.pred - SEV.test$losspaid)^2 / var(sev.pred)))
+sev.pred <- exp(x.mat_test %*% Y.coef)
+(Chi2_pearson <- sum((sev.pred - SEV.test$losspaid)^2) / var(sev.pred))
 qchisq(0.99, nrow(SEV.test) - 10)
 # Le Chi-2 de Pearson est pourris...
 
-
+# Test de kolmogorov-Smirnov
 ks.test(fitted (gamma.model), SEV$losspaid)  # Sur les données d'entraînement
 ks.test(sev.pred, SEV.test$losspaid) # Sur les données de test.
 # En revenche, selon le test de Kolmogorov-Smirnov, le modèle est adéquat.
@@ -615,7 +611,7 @@ spearmans.Rho <- function(data, nsim=30) {
   cor.spearman <- numeric(nsim)
   for (i in 1:nsim) {
     couples.YY <- randomize.Y(data, 2)
-    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3], method = "spearman")
+    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3], method = "pearson")
     print(paste0(i, "/", nsim))
   }
   rep <- list()
@@ -682,7 +678,7 @@ optim_rho <- function(data, x, Depart, bornes, nsim=30, length.ech=1e+4){
 }
 
 
-rho1 <- cor(rank(N, ties.method = "random"), rand.Y[,2], method = "spearman")
+rho1 <- cor(rank(N, ties.method = "random"), rand.Y[,2], method = "pearson")
 (rho2 <- spearmans.Rho(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid)))
 rho2.mean <- 2 * sin(pi * rho2$mean / 6)
 # rho2.IC <- 2 * sin(pi * rho2$IC / 6)
@@ -695,9 +691,8 @@ rho2.mean <- 2 * sin(pi * rho2$mean / 6)
 # # paramètres de dépendance.
 
 
-# mle_rho <- optimize(fct_Score, lower = 0,
-#                     upper = sqrt(((k - 1) * rho2.mean + 1) / k))$minimum
-# rho <- c(mle_rho, rho2.mean)
+rho1 <- optimize(fct_Score, lower = 0,
+                    upper = sqrt(((k - 1) * rho2.mean + 1) / k))$minimum
 
 
 # mle_rho <- optim_rho(data = cbind(N, LOSS$losspaid),
@@ -732,6 +727,7 @@ simul.S <- function(n_sim, x, rho, k = max(FREQ$N), z = 1) {
           qgamma(U[i,-1], 1 / Y.disp, 1 / exp(unlist(x) %*% Y.coef) / Y.disp)),
         nrow = n_sim, byrow = T
       ))
+    print(Couples)
     
     S <- numeric(n_sim)
     for (i in 1:n_sim) {

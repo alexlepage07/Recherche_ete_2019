@@ -1,0 +1,7 @@
+\select@language {french}
+\contentsline {section}{\numberline {1}Estimation de param\IeC {\`e}tres avec une copule archim\IeC {\'e}dienne \IeC {\`a} hautes dimensions.}{1}
+\contentsline {section}{\numberline {2}Revue de litt\IeC {\'e}rature sur le mod\IeC {\`e}le collectif du risque avec structure de d\IeC {\'e}pendance.}{2}
+\contentsline {subsection}{\numberline {2.1}Mod\IeC {\`e}le de probabilit\IeC {\'e}s conditionnelles (\textit {Two-steps frequency-severity model})}{2}
+\contentsline {subsection}{\numberline {2.2}Copules}{3}
+\contentsline {subsection}{\numberline {2.3}L'effet al\IeC {\'e}atoire partag\IeC {\'e} (\textit {Shared random effect})}{3}
+\contentsline {section}{\numberline {3}Conclusion}{4}

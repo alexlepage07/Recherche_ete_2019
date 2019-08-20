@@ -1,0 +1,66 @@
+\begin{thebibliography}{}
+
+\bibitem[Baumgartner et~al., 2015]{baumgartner2015bayesian}
+Baumgartner, C., Gruber, L.~F., and Czado, C. (2015).
+\newblock Bayesian total loss estimation using shared random effects.
+\newblock {\em Insurance: Mathematics and Economics}, 62:194--201.
+
+\bibitem[Brooks et~al., 2011]{brooks2011handbook}
+Brooks, S., Gelman, A., Jones, G., and Meng, X.-L. (2011).
+\newblock {\em Handbook of markov chain monte carlo}.
+\newblock CRC press.
+
+\bibitem[Cossette et~al., 2019]{Itre5}
+Cossette, H., Marceau, E., and Mtalai, I. (2019).
+\newblock Collective risk models with dependance.
+
+\bibitem[Czado et~al., 2012]{czado2012mixed}
+Czado, C., Kastenmeier, R., Brechmann, E.~C., and Min, A. (2012).
+\newblock A mixed copula model for insurance claims and claim sizes.
+\newblock {\em Scandinavian Actuarial Journal}, 2012(4):278--305.
+
+\bibitem[Garrido et~al., 2016]{garrido2016generalized}
+Garrido, J., Genest, C., and Schulz, J. (2016).
+\newblock Generalized linear models for dependent frequency and severity of
+  insurance claims.
+\newblock {\em Insurance: Mathematics and Economics}, 70:205--215.
+
+\bibitem[Hern{\'a}ndez-Bastida et~al., 2009]{hernandez2009net}
+Hern{\'a}ndez-Bastida, A., Fern{\'a}ndez-S{\'a}nchez, M., and
+  G{\'o}mez-D{\'e}niz, E. (2009).
+\newblock The net bayes premium with dependence between the risk profiles.
+\newblock {\em Insurance: Mathematics and Economics}, 45(2):247--254.
+
+\bibitem[Hofert et~al., 2013]{hofert2013ArchimedeanHighDimension}
+Hofert, M., M{\"a}chler, M., and McNeil, A.~J. (2013).
+\newblock Archimedean copulas in high dimensions: Estimators and numerical
+  challenges motivated by financial applications.
+\newblock {\em Journal de la Soci{\'e}t{\'e} Fran{\c{c}}aise de Statistique},
+  154(1):25--63.
+
+\bibitem[Kr{\"a}mer et~al., 2013]{kramer2013total}
+Kr{\"a}mer, N., Brechmann, E.~C., Silvestrini, D., and Czado, C. (2013).
+\newblock Total loss estimation using copula-based regression models.
+\newblock {\em Insurance: Mathematics and Economics}, 53(3):829--839.
+
+\bibitem[Oh et~al., 2019a]{oh2019copula}
+Oh, R., Ahn, J.~Y., and Lee, W. (2019a).
+\newblock On copula-based collective risk models.
+\newblock {\em arXiv preprint arXiv:1906.03604}.
+
+\bibitem[Oh et~al., 2019b]{oh2019implementation}
+Oh, R., Shi, P., and Ahn, J.~Y. (2019b).
+\newblock Implementation of frequency-severity association in bms ratemaking.
+\newblock {\em arXiv preprint arXiv:1903.05851}.
+
+\bibitem[Roberts et~al., 2004]{roberts2004general}
+Roberts, G.~O., Rosenthal, J.~S., et~al. (2004).
+\newblock General state space markov chains and mcmc algorithms.
+\newblock {\em Probability surveys}, 1:20--71.
+
+\bibitem[Shi et~al., 2015]{shi2015Dependant}
+Shi, P., Feng, X., and Ivantsova, A. (2015).
+\newblock Dependent frequency--severity modeling of insurance claims.
+\newblock {\em Insurance: Mathematics and Economics}, 64:417--428.
+
+\end{thebibliography}
