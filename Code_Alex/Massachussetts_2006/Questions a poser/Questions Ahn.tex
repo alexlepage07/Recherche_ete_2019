@@ -1,0 +1,44 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{hyperref} 
+\usepackage[left=2.00cm, right=2.00cm]{geometry}
+\author{Alexandre Lepage}
+\begin{document}
+	
+	\section{Questions}
+	\begin{itemize}
+		\item Section 8.1 states that the database contains 3,991,012 insured persons. To my understanding, there are not 3,991,012 insurance policies. For the same policy, there may be several people and several vehicles. Or even, it is possible a person changes of risk category. Then, there is more than one line for the same vehicle and insured person. How do you deal with this? There is no unique primary key for the exposure. In fact, in the document of reference joined with the database, the authors refer to several primary keys in order to link the different tables. Did you use them all? Besides, I was wondering if you had made your dataset public, or, at least, your SQL code. It would save me a lot of time to replicate your results.
+					
+		\item When I tried to reproduce Table 4 of your paper with the dataset I produced, I got that the mean of my claims was close to \$2,500 and the pattern according to the risk is the same than in your table. However, when I look to the result presented in Table 4, the mean of the claims is more about \$4,000. Did you consider the negative claim amounts? These are for adjustment.	
+		
+		\item In the case study of Section 8, I understood that an ordinary Poisson regression model was used to represent the frequency random variable, but, in your paper, you presented the Hurdle model. With the inflated mass of probability at 0 in the dataset, I wonder why you didn’t use this model for your case study.
+		
+		\item In Table 5, I obtained $\rho_1 = 0.26$ and $\rho_2 = 0.19$. These are a lot different then yours. How did you estimate them? Personally, I maximised the joint log-likelihood with the \texttt{R} function \texttt{constrOptim} and I used the Spearman's rhos as my starting values. The function I maximised is inspired from (20).
+		
+		\item For the claim amount random variable, do you take into account the censorship at \$ 25,000? Moreover, considering the dependence between the amounts of loss, when you estimate the parameters, are all observations of $ \{ Y_{i, j}; j = 1, \dots, k, \, i = 1, \dots, I \} $ taken together or a bootstrap is made to take only one claim amount per policy ($ i $) at a time ?	Personally, because my dependence parameters where pretty high, I opted for the bootstrap method because all the biggest claims are regrouped together. The result is that my severity model gives lower predictions. Even then, I have that my aggregated results are overestimating the real data. At this point, I wonder how did you get such accurate results?
+			
+	\end{itemize}
+
+	\section{Raised erratas}
+		I tried equation 8 and it appeared that I didn't get the same result as if I use the \texttt{R} function \texttt{solve} to inverse the $\Sigma_{\rho_1,\rho_2}^{\left[k,1\right]}$ matrix. According to me, in order to obtain the same result, this equation should be
+		\begin{equation*}
+			\left[\Sigma_{\rho_1,\rho_2}^{\left[k,1\right]} \right]^{-1} = 
+			\left( \begin{matrix}
+				\textcolor{red}{1 +} \frac{\rho_1^2 k}{1+(k-1)\rho_2 - k \rho_1^2} & \frac{\textcolor{red}{-}\rho_1}{1+(k-1)\rho_2 - k \rho_1^2} \textbf{1}_{k}^{T} \\
+				\frac{\textcolor{red}{-}\rho_1}{1+(k-1)\rho_2 - k \rho_1^2} \textbf{1}_{k} & \frac{1}{1-\rho_2} \left[\textbf{I}_k - \frac{\rho_2 - \rho_1^2}{1+(k-1)\rho_2 - k \rho_1^2} \textbf{J}_{k \times k} \right]
+			\end{matrix} \right).
+		\end{equation*}
+		\\
+		Then, when I considered the equation in the top of page 14, I realised that it didn't match to the one presented in \url{http://users.isy.liu.se/en/rt/roth/student.pdf}%{Roth M. 2013, On the Multivariate t Distribution. : }
+		. Then, according to me and to this link, I think that one should have
+		\begin{equation*}
+			f(z) = \frac{\Gamma(\frac{k+\mathrm{df}}{2})}{\Gamma(\frac{\mathrm{df}}{2}) (\pi \mathrm{df})^{k/2}\, |\Sigma|^{1/2} }
+			\left(1 + \frac{1}{\mathrm{df}}\textcolor{red}{\textbf{z}}^T \Sigma^{-1}\textcolor{red}{\textbf{z}}\right)^{\textcolor{red}{-\frac{\mathrm{df}+k}{2}}}.
+		\end{equation*}
+	
+\end{document}

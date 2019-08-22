@@ -192,12 +192,12 @@ section7.simul <- function(nsim, scenario, z=1) {
           qgamma(U[i,-1], 1 / v, exp(-t(c(1, x_i[i], w_i[i])) %*% Y.para) / v)),
         nrow = nsim, byrow = T
       ))
-    
+
     cbind(Couples, x_i, w_i)
 }
 
 
-tbl_result <- array(dim = c(12, 9, nsim <- 10))
+tbl_result <- array(dim = c(12, 9, nsim <- 100))
 # tbl_result <- as.data.frame(tbl_result)
 colnames(tbl_result) <- c("beta0", "beta1", "beta2",
                           "gamma0", "gamma1", "gamma2", "v",
@@ -206,7 +206,7 @@ for (simul in 1:nsim){
   for (scenario in 1:12){
     # Boucle qui recré chacun des scénario de la section 7 de l'article.
     
-    print(paste0("Scenario ", scenario, "/12"))
+    print(paste0("simul ", simul, "/", nsim,", ", "Scenario ", scenario, "/12"))
     
     DATA <- as.data.frame(section7.simul(5e+3, scenario))
     
@@ -218,11 +218,11 @@ for (simul in 1:nsim){
     Y.coef <- Y.mod$coefficients
     k <- 2
     
-    (Depart <- c(cor(rank(DATA[,1], ties.method = "random"), DATA[,2], method = "pearson"),
-                 cor(DATA[,2], DATA[,3], method = "pearson")))
-    
-    (rho2 <- 2 * sin(pi * Depart[2] / 6))
-    rho1 <- Depart[1]
+    # (Depart <- c(cor(rank(DATA[,1], ties.method = "random"), DATA[,2], method = "spearman"),
+    #              cor(DATA[,2], DATA[,3], method = "spearman")))
+    # 
+    # (rho2 <- 2 * sin(pi * Depart[2] / 6))
+    # rho1 <- Depart[1]
     # DATA <- as.matrix(DATA)
     
     # system.time({
@@ -239,33 +239,33 @@ for (simul in 1:nsim){
     # })[[3]]
     # # Optim est plus long que Optimize
     
-    # system.time({
-      rho1 <- optimize(function(rho1)
-        - sum(log(sapply(1:nrow(DATA), function(i)
-          dGaussian.copula(
-            n = DATA[i,1],
-            Y = DATA[i, 2:3],
-            x = (c(1, DATA[i,4:5])),
-            N.coef , Y.coef, Y.disp,
-            rho = c(rho1, rho2)
-          )))),
-        interval =  c(-0.1, sqrt(((k - 1) * rho2 + 1) / k)))$minimum
-    # })[[3]]
-    
     # # system.time({
-    #   mle_rho <- optim_rho(data=DATA[,1:3],
-    #                        x=cbind(1, DATA[,4:5]),
-    #                        N.coef=N.coef,
-    #                        Y.coef=Y.coef,
-    #                        Y.disp=Y.disp,
-    #                        bornes = c(-0.2, 0.2, 0, 0.2),
-    #                        nsim = 1,
-    #                        length.ech = 5000)
+    #   rho1 <- optimize(function(rho1)
+    #     - sum(log(sapply(1:nrow(DATA), function(i)
+    #       dGaussian.copula(
+    #         n = DATA[i,1],
+    #         Y = DATA[i, 2:3],
+    #         x = (c(1, DATA[i,4:5])),
+    #         N.coef , Y.coef, Y.disp,
+    #         rho = c(rho1, rho2)
+    #       )))),
+    #     interval =  c(-0.2, sqrt(((k - 1) * rho2 + 1) / k)))$minimum
     # # })[[3]]
-    # rho1 <- mle_rho$mean[1] ; rho2 <- mle_rho$mean[2]
-    # # La full maximum likelyhood pour les paramètres de dépendance
-    # # Est beaucoup plus longue, mais n'apporte pas beaucoup plus de
-    # # précision par rapport à la méthode par parties.
+    
+    # system.time({
+    mle_rho <- optim_rho(data=DATA[,1:3],
+                         x=cbind(1, DATA[,4:5]),
+                         N.coef=N.coef,
+                         Y.coef=Y.coef,
+                         Y.disp=Y.disp,
+                         bornes = c(-0.2, 0.2, 0, 0.2),
+                         nsim = 1,
+                         length.ech = 5000)
+    # })[[3]]
+    rho1 <- mle_rho$mean[1] ; rho2 <- mle_rho$mean[2]
+    # La full maximum likelyhood pour les paramètres de dépendance
+    # Est beaucoup plus longue, mais n'apporte pas beaucoup plus de
+    # précision par rapport à la méthode par parties.
       
     tbl_result[scenario,,simul] <-
       c(
@@ -458,6 +458,7 @@ F1.inv <- function(p, x) {
 
 #==== Analyse de la sévérité =================
 hist(SEV$losspaid)
+sum(SEV$losspaid == 25000) / length(SEV$losspaid)
 
 # Matrice d'aggrégation de la moyenne de la sévérité
 agg_means_sev <- aggregate(unlist(SEV$losspaid), by = list(SEV$class4, SEV$tgroup), mean)
@@ -475,9 +476,9 @@ randomize.Y <- function(data, n) {
   Y <- matrix(sapply(1:nrow(data), function(i) sample(unlist(data[,-1][[i]]), n)), ncol=n, byrow = T)
   cbind(unlist(data[,1]), Y)
 }
-summary(randomize.Y(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid), 1))
+# summary(randomize.Y(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid)))
 
-Y.disp_ <- numeric(nsim <- 15)
+Y.disp_ <- numeric(nsim <- 30)
 Y.coef_ <- matrix(NA, nsim, 10)
 for (sim in 1:nsim){
   print(paste0(sim, "/", nsim))
@@ -512,6 +513,9 @@ F2.inv <- function(p, x) {
 SEV.test <- AGG[-train.id,]
 SEV.test <- SEV.test[SEV.test$losspaid > 0,]
 x.mat_test <- model.matrix(losspaid ~ class4 + tgroup, data = SEV.test)
+x.mat_train <- model.matrix(losspaid ~ class4 + tgroup, data = SEV)
+
+
 # # Analyse graphique de l'adéquation 
 #
 # U <- F2(SEV.test$losspaid, x.mat_test)
@@ -525,39 +529,26 @@ x.mat_test <- model.matrix(losspaid ~ class4 + tgroup, data = SEV.test)
 # # Graphiquement, le modèle semble adéquat.
 
 
-#--- Données de test - Test du Chi2 : À retravailler...
-
-
-# Avec le Chi2 de pearson
+#--- Tests d'adéquation
 # Sur les données d'entraînement
-(Chi2_pearson <- sum((fitted(gamma.model) - rand.Y)^2 / var(fitted(gamma.model))))
-qchisq(0.99, nrow(SEV[train.id, ]) - 10)
-# Sur les données de test.
-sev.pred <- exp(x.mat_test %*% Y.coef)
-(Chi2_pearson <- sum((sev.pred - SEV.test$losspaid)^2) / var(sev.pred))
-qchisq(0.99, nrow(SEV.test) - 10)
-# Le Chi-2 de Pearson est pourris...
+Y.obs <- aggregate(rand.Y[,2], list(SEV[FREQ$N > 0,]$class4, SEV[FREQ$N > 0,]$tgroup), mean)
+x.mat_train <- model.matrix(x ~ Group.1 + Group.2, data = Y.obs)
+sev.pred <- exp(x.mat_train %*% Y.coef)
 
-# Test de kolmogorov-Smirnov
-ks.test(fitted (gamma.model), SEV$losspaid)  # Sur les données d'entraînement
-ks.test(sev.pred, SEV.test$losspaid) # Sur les données de test.
-# En revenche, selon le test de Kolmogorov-Smirnov, le modèle est adéquat.
+cbind("Predictions" = sev.pred, "Observations" = Y.obs$x)
 
-{
-# mean.y <- mean(SEV$losspaid[train.id])
-# var.y <- var(SEV$losspaid[train.id])
-# mle_gamma <- constrOptim(c(mean.y^2/var.y, mean.y/var.y),
-#             function(para) 
-#                 -sum(log(dgamma(SEV$losspaid[train.id], para[1], para[2]))),
-#             grad = NULL, ui=diag(2), ci=c(0,0))
-# 
-# # Test du ratio de vraisemblance
-# sumry_gam$aic
-# 2 * (2 + mle_gamma$value)
-# (sumry_gam$aic - 20 - 2*mle_gamma$value)
-# qchisq(0.95, 8)
-# # Le modèle avec le glm est significativement meilleur.
-}# Modèle de sévérité gamma construit sans glm
+mat_sev.pred <- matrix(sev.pred, ncol = 5, byrow = T)
+colnames(mat_sev.pred) <- agg_means_sev$Group.1[1:5]
+rownames(mat_sev.pred) <- 1:6
+mat_sev.pred
+
+# Chi2 de pearson
+(Chi2_pearson <- sum((sev.pred - Y.obs$x)^2) / var(sev.pred))
+qchisq(0.99, nrow(SEV) - 11)
+# On trouve que le modèle est adéquat si on prend un sinistre par assuré de façon aléatoire.
+
+# Kolmogorov-Smirnov
+ks.test(sev.pred, Y.obs$x)
 
 
 #==== Modèle d'aggrégation =================
@@ -596,49 +587,46 @@ dGaussian.copula <- function(n, Y, x, rho, z=1) {
   
   c_Y <- c_Y * prod(f2(Y, x))
   
-  if (n == 1)
-    d <- p_R.1 * c_Y * pnorm((qnorm(F1(n, x)) - mu) / Sig)
-  else
-    d <- p_R.1 * c_Y * (pnorm((qnorm(F1(n, x)) - mu) / Sig) -
+  d <- p_R.1 * c_Y * (pnorm((qnorm(F1(n, x)) - mu) / Sig) -
                 pnorm((qnorm(F1(n-1, x)) - mu) / Sig))
   
   # print(paste(n, d))
   return(d)
 }
 
-spearmans.Rho <- function(data, nsim=30) {
+spearmans.Rho <- function(data, nsim=100) {
   # Fonction qui retourne le rho de spearman pour une base de données d'assurance.
   cor.spearman <- numeric(nsim)
   for (i in 1:nsim) {
     couples.YY <- randomize.Y(data, 2)
-    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3], method = "pearson")
+    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3], method = "spearman")
     print(paste0(i, "/", nsim))
   }
   rep <- list()
   rep$mean <- mean(cor.spearman)
   rep$variance <- var(cor.spearman)
   rep$IC <- c(rep$mean - qnorm(0.975) * sqrt(rep$variance),
-              rep$mean + qnorm(0.975)* sqrt(rep$variance))
+              rep$mean + qnorm(0.975) * sqrt(rep$variance))
   return(rep)
 }
 
-fct_Score <- function(rho) {
-  # Fonction à minimiser afin de maximiser la vraisemblance du
-  # paramètre de dépendance rho1.
-  
-  print(rho)
-  
-  Score <- - sum(log(sapply(1:nrow(LOSS), function(i)
-    dGaussian.copula(
-      n = N[[i]],
-      Y = unlist(LOSS$losspaid[[i]]),
-      x = x.mat_train[i, -1],
-      rho = c(rho, rho2.mean)
-    ))))
-  return(Score)
-}
+# fct_Score <- function(rho) {
+#   # Fonction à minimiser afin de maximiser la vraisemblance du
+#   # paramètre de dépendance rho1.
+#   
+#   print(rho)
+#   
+#   Score <- - sum(log(sapply(1:nrow(LOSS), function(i)
+#     dGaussian.copula(
+#       n = N[[i]],
+#       Y = unlist(LOSS$losspaid[[i]]),
+#       x = x.mat_train[i, -1],
+#       rho = c(rho, rho2.mean)
+#     ))))
+#   return(Score)
+# }
 
-optim_rho <- function(data, x, Depart, bornes, nsim=30, length.ech=1e+4){
+optim_rho <- function(data, x, Depart, bornes, nsim=100, length.ech=1e+4){
   # Fonction qui permet de trouver les paramètres de dépendance
   # d'une copule gaussienne par optimisation numérique en utilisant un bootstrap.
   #
@@ -669,43 +657,43 @@ optim_rho <- function(data, x, Depart, bornes, nsim=30, length.ech=1e+4){
     
     print(paste0(j / nsim * 100,"%", " : ", list(mle_rho[j, ])))
   }
+  
   mean_rho <- apply(mle_rho, 2, mean, na.rm = T)
   var_rho <- apply(mle_rho, 2, var)
   IC_rho <- matrix(c(mean_rho - qnorm(0.975) * sqrt(var_rho),
                      mean_rho + qnorm(0.975)* sqrt(var_rho)),
                    ncol=2)
+  
   return(list("mean"=mean_rho, "variance"=var_rho, "IC"=IC_rho))
 }
 
 
-rho1 <- cor(rank(N, ties.method = "random"), rand.Y[,2], method = "pearson")
+rho1 <- cor(rank(N, ties.method = "random"), rand.Y[,2], method = "spearman")
+rho1 <- 2 * sin(pi * rho1 / 6)
+
 (rho2 <- spearmans.Rho(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid)))
 rho2.mean <- 2 * sin(pi * rho2$mean / 6)
-# rho2.IC <- 2 * sin(pi * rho2$IC / 6)
-# rho1 <- 2 * sin(pi * rho1 / 6)
-#
+rho2.IC <- 2 * sin(pi * rho2$IC / 6)
+
 # unique(copula::rho(normalCopula(P2p(Sig_rho1.2.z1(c(0.2, rho1$mean), k - 1)), k, dispstr = "un")))[2]
 # 6/pi * asin(Depart$mean / 2)
 # # On voit que le rho de Spearman empirique est un excellent point de départ pour l'optimisation
 # # numérique puisque pour la copule gaussienne, celui-ci est pratiquement identique à ses
 # # paramètres de dépendance.
 
+# rho1 <- optimize(fct_Score, lower = -1,
+#                     upper = sqrt(((k - 1) * rho2.mean + 1) / k))$minimum
+# rho <- c(rho1, rho2.mean)
 
-rho1 <- optimize(fct_Score, lower = 0,
-                    upper = sqrt(((k - 1) * rho2.mean + 1) / k))$minimum
 
-
-# mle_rho <- optim_rho(data = cbind(N, LOSS$losspaid),
-#                      x = x.mat_train[,-1],
-#                      Depart = c(rho1, rho2.mean),
-#                      bornes = c(0.02, 0.3, rho2.IC[1], rho2.IC[2]),
-#                      nsim = 10, length.ech = 1e+3)
-# rho <- mle_rho$mean
-
-# Il a été démontré dans les simulations de la section 7 qu'il était beaucoup plus rapide
-# sans qu'il n'y ait toutefois de perte significative de précision en utilisant la méthode
-# d'inversion du rho de spearman pour rho2 et de trouver rho par maximum de vraisemblance univariée.
-rho <- c(rho1, rho2.mean)
+mle_rho <- optim_rho(data = cbind(N, LOSS$losspaid),
+                     x = x.mat_train[,-1],
+                     Depart = c(0, rho2.mean),
+                     bornes = c(-1, sqrt(((k - 1) * rho2.mean + 1) / k),
+                                rho2.IC[1], rho2.IC[2]),
+                     nsim = 1, length.ech = nrow(LOSS))
+rho <- mle_rho$mean
+ 
 
 #==== Reproduction du tableau 6 - Résultats ----
 rGaussian.copula <- function(n_sim, rho, k = max(FREQ$N), z = 1) {
@@ -727,7 +715,6 @@ simul.S <- function(n_sim, x, rho, k = max(FREQ$N), z = 1) {
           qgamma(U[i,-1], 1 / Y.disp, 1 / exp(unlist(x) %*% Y.coef) / Y.disp)),
         nrow = n_sim, byrow = T
       ))
-    print(Couples)
     
     S <- numeric(n_sim)
     for (i in 1:n_sim) {
@@ -845,7 +832,7 @@ x.mat_test <- aggregate(x.mat_test,
 
 risk_groups <- unique(x.mat_test[,-1])
 for (i in 1:30) {
-  proposed[i,] <- round(unlist(simul.S(5e+3, unlist(risk_groups[i,]), rho)))
+  proposed[i,] <- round(unlist(simul.S(1e+4, unlist(risk_groups[i,]), rho)))
 }
 Class <- as.matrix(risk_groups[1:5]) %*% 0:4 + 1
 Territory <- as.matrix(risk_groups[c(1,6:10)]) %*% 0:5 + 1
@@ -879,8 +866,7 @@ tbl_6
 tbl_6_test
 
 round(rbind("Mean" = c("Test" = MSE.test.mean, "train"=MSE.train.mean,
-                    "Article"=469),
-      "Tweedie" = c(MSE.test.tweedie, MSE.train.Tweedie, 476),
-      "VaR" = c(MSE.test.VaR, MSE.train.VaR, 4192541)
+                    "Article"=2837),
+      "Tweedie" = c(MSE.test.tweedie, MSE.train.Tweedie, 2984),
+      "VaR" = c(MSE.test.VaR, MSE.train.VaR, 21187813)
       ))
-compare
