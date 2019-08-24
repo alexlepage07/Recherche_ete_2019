@@ -1,13 +1,13 @@
-.Rhistory
-.aux
-.bbl
-.blg
-.log
-.nav
-.out
-.snm
-.gz
-.toc
+*.Rhistory
+*.aux
+*.bbl
+*.blg
+*.log
+*.nav
+*.out
+*.snm
+*.gz
+*.toc
 Hofert Elements Of Copula Modeling With R Springer 2018.pdf
 Klugman_Loss Model_2012.pdf
-.RData
+*.RData
