@@ -105,6 +105,11 @@ VaR <- function(x){
     # Valeur au risque empirique avec un seuil de 0.005
     sort(x)[ceiling(length(x) * 0.995)]
 }
+TVaR <- function(x) {
+    # TVaR empirique avec un seuil de 0.005
+    mean(x[x > VaR(x)])
+
+}
 
 simul.S <- function(n_sim, x, rho, k = max(FREQ.train$N), z = 1) {
     # Fonction qui permet de faire de la simulation Monte-Carlo
@@ -113,10 +118,10 @@ simul.S <- function(n_sim, x, rho, k = max(FREQ.train$N), z = 1) {
     
     Couples <- cbind(
         "N" = sapply(1:n_sim, function(i)
-            F1.inv(U[i,1], unlist(x))),
+            F1.inv(U[i, 1], unlist(x))),
         "Y" = matrix(
             sapply(1:n_sim, function(i)
-                qgamma(U[i,-1], 1 / Y.disp, 1 / exp(unlist(x) %*% Y.coef) / Y.disp)),
+                qgamma(U[i, -1], 1 / Y.disp, 1 / exp(unlist(x) %*% Y.coef) / Y.disp)),
             nrow = n_sim, byrow = T
         ))
     
@@ -128,11 +133,11 @@ simul.S <- function(n_sim, x, rho, k = max(FREQ.train$N), z = 1) {
         else
             S[i] <- sum(Couples[i, 2:(N + 1)])
     }
-    mean_S <- mean(S)
-    VaR_0.995 <- VaR(S)
+
     return(list(
-        "E[S]" = mean_S,
-        "VaR_0.995" = VaR_0.995
+        "E[S]" = mean(S),
+        "VaR_0.995" = VaR(S),
+        "TVaR_0.995" = TVaR(S)
     ))
 }
 
@@ -254,7 +259,7 @@ F1 <- function(n, x) {
 F1.inv <- function(p, x) {
     p.0 <- 1 - prob(x)
     if(p <= p.0) return(0)
-    ceiling(uniroot(function(n) F1(n, x) - p, c(0, 50))$root)
+    floor(uniroot(function(n) F1(n, x) - p, c(0, 50))$root)
 }
 
 #---- Sévérité
@@ -300,21 +305,25 @@ F2.inv <- function(p, x) {
     qgamma(p, 1 / Y.disp, exp(-x %*% Y.coef) / Y.disp)
 }
 
+
 #==== Paramétrisation de la copule ====
+AGG.SUM.train_mean <- aggregate(SUM.train$S, list(SUM.train$class4, SUM.train$tgroup), mean)
+AGG.SUM.train_VaR <- aggregate(SUM.train$S, list(SUM.train$class4, SUM.train$tgroup), VaR)
+AGG.SUM.train_TVaR <- aggregate(SUM.train$S, list(SUM.train$class4, SUM.train$tgroup), TVaR)
+AGG.SUM.train <- cbind(AGG.SUM.train_mean, AGG.SUM.train_VaR$x, AGG.SUM.train_TVaR$x)
+colnames(AGG.SUM.train) <- c("tgroup", "class4", "mean.S", "VaR", "TVaR")
+
 (rho_ <- spearmans.Rho(cbind(FREQ.train$N[FREQ.train$N > 0], SEV.train$losspaid), 100))
 rho.IC <- rho_$IC
 rho <- 2 * sin(pi * rho_$mean / 6)
 
-AGG.SUM.train_mean <- aggregate(SUM.train$S, list(SUM.train$class4, SUM.train$tgroup), mean)
-AGG.SUM.train_VaR <- aggregate(SUM.train$S, list(SUM.train$class4, SUM.train$tgroup), VaR)
-AGG.SUM.train <- cbind(AGG.SUM.train_mean, AGG.SUM.train_VaR$x)
-colnames(AGG.SUM.train) <- c("tgroup", "class4", "mean.S", "VaR")
-x.train <- model.matrix(mean.S ~ class4 + tgroup, data = AGG.SUM.train)
 
+#---- Par minimisation du MSE ----
+x.train <- model.matrix(mean.S ~ class4 + tgroup, data = AGG.SUM.train)
 fct_score <- function(rho) {
     # Fonction à minimiser pour estimer les paramètres de dépendance.
-    MSE <- mean(sapply(1:30, function(i) 
-        simul.S(1e+4, x.train[i,], rho)$'E[S]') - AGG.SUM.train$mean.S)^2
+    MSE <- mean((sapply(1:30, function(i) 
+        simul.S(1e+4, x.train[i,], rho)$'E[S]') - AGG.SUM.train$mean.S)^2)
     print(paste0("Rho = ",rho[1], ", ", rho[2], ", MSE = ", MSE))
     return(MSE)
 }
@@ -323,42 +332,135 @@ EstimParamDependance <- function(){
     # Fonction qui estime les paramètres de dépendance en minimisant
     # L'erreur quadratique sur les valeurs agrégées.
     k <- max(FREQ.train$N)
-    bounds <- matrix(c(-1, 0, sqrt(((k - 1) * rho[2] + 1) / k), 1), 2)
+    
+    bounds <- matrix(c(-1, rho.IC[2], sqrt(((k - 1) * rho.IC[2] + 1) / k), rho.IC[4]), 2)
     ui <- rbind( diag(2), -diag(2) )
     ci <- c( bounds[,1], - bounds[,2] )
     
     constrOptim(rho, fct_score, grad = NULL, ui, ci,
-                outer.eps = 1e-02, mu = 1e-02, outer.iterations = 15)
+                outer.eps = 1e-05, mu = 1e-03, outer.iterations = 100)
 }
+
 MinimizedSquareError.rho <- EstimParamDependance()
 rho.optim <- MinimizedSquareError.rho$par
+rho.optim <- c(0.116208594597012, 0.177315720293825) # MSE = 25439.5143346203
+rho.optim <- rho
+
+
+#---- Par maximisation de la vraisemblance ----
+EstimParamDependance <- function(nsim=100){
+    # Fonction qui permet de trouver les paramètres de dépendance
+    # d'une copule gaussienne par optimisation numérique en utilisant un bootstrap.
+    #
+    # nsim correspond au nombre de simulations du bootstrap
+    k <- max(FREQ.train$N)
+    x.train <- model.matrix(N ~ class4 + tgroup, data = FREQ.train[FREQ.train$N > 0,])
+    
+    bounds <- matrix(c(-1, 0, sqrt(((k - 1) * rho[2] + 1) / k), 1), 2)
+    ui <- rbind( diag(2), -diag(2) )
+    ci <- c( bounds[,1], - bounds[,2] )
+    
+    fct_score <- function(rho) {
+        -sum(log(sapply(sample(nrow(SEV.train), 1e+4), function(i)
+            dGaussian.copula(
+                n = length(SEV.train$losspaid[[i]]),
+                Y = unlist(SEV.train$losspaid[[i]]),
+                x = x.train[i,],
+                rho = rho
+            ))))
+    }
+    
+    values <- sapply(1:nsim, function(sim) {
+        constrOptim(rho, fct_score, grad = NULL,
+                ui = ui, ci = ci, outer.eps = 1e-2)$par
+        })
+    
+    Resultat <- list()
+    Resultat$mean <- apply(values, 1, mean)
+    Resultat$variance <- apply(values, 1, var)
+    Resultat$IC <- matrix(c(Resultat$mean - qnorm(0.975) * sqrt(Resultat$variance), 
+                     Resultat$mean + qnorm(0.975) * sqrt(Resultat$variance)), 2)
+    return(Resultat)
+}
+(MLE.rho <- EstimParamDependance(100))
+rho.optim <- MLE.rho$mean
+
+
+#=== Modèle de tweedie ====
+Tweedie.mod <- glm(S ~ class4 + tgroup, data = SUM.train,
+                   family = tweedie(1.1, 0))
+summary.Tweedie <- summary(Tweedie.mod)
+
+mean_Tweedie.train <- aggregate(fitted(Tweedie.mod), list(SUM.train$class4, SUM.train$tgroup), mean)
+
+mean_Tweedie.test <- predict(Tweedie.mod, newdata = SUM.test, type = "response")
+mean_Tweedie.test <- aggregate(mean_Tweedie.test, list(SUM.test$class4, SUM.test$tgroup), mean)
+
+VaR_Tweedie.train <- sapply(1:30, function(i)
+    qtweedie(0.995, 1.1, mu = exp(Tweedie.mod$coefficients %*% x.train[i,]), phi = summary.Tweedie$dispersion))
+TVaR_Tweedie.train <- sapply(1:30, function(i)
+    TVaR(rtweedie(1e+5, 1.1, mu = exp(Tweedie.mod$coefficients %*% x.train[i,]), phi = summary.Tweedie$dispersion)))
 
 #==== Résultats ====
+x.train <- model.matrix(mean.S ~ class4 + tgroup, data = AGG.SUM.train)
 Predictions <- sapply(1:30, function(i)
-    simul.S(1e+6, x.train[i,], rho.optim))
+    simul.S(1e+4, x.train[i,], rho.optim))
+
 
 RESULT.train <- cbind(
     "tgroup" = AGG.SUM.train$tgroup,
     "class4" = AGG.SUM.train$class4,
     "mean.S" = AGG.SUM.train$mean.S,
-    "E[S]" = Predictions$'E[S]',
-    "VaR_0.995" = Predictions$'VaR_0.995'
+    "VaR_n" = AGG.SUM.train$VaR,
+    "TVaR_n" = AGG.SUM.train$TVaR,
+    "E[S]" = unlist(Predictions[1,]),
+    "VaR_0.995" = unlist(Predictions[2,]),
+    "TVaR_0.995" = unlist(Predictions[3,]),
+    "E[S]_Tweedie" = Predict_Tweedie.train$x,
+    "VaR_Tweedie" = VaR_Tweedie.train,
+    "TVaR_Tweedie" = TVaR_Tweedie.train
 )
 
-AGG.SUM.test <- aggregate(SUM.test$S, list(SUM.test$class4, SUM.test$tgroup), mean)
-colnames(AGG.SUM.test) <- c("tgroup", "class4", "mean.S")
+AGG.SUM.test.mean <- aggregate(SUM.test$S, list(SUM.test$class4, SUM.test$tgroup), mean)
+AGG.SUM.test.VaR <- aggregate(SUM.test$S, list(SUM.test$class4, SUM.test$tgroup), VaR)
+AGG.SUM.test.TVaR <- aggregate(SUM.test$S, list(SUM.test$class4, SUM.test$tgroup), TVaR)
+AGG.SUM.test <- cbind(AGG.SUM.test.mean, AGG.SUM.test.VaR$x, AGG.SUM.test.TVaR$x)
+colnames(AGG.SUM.test) <- c("tgroup", "class4", "mean.S", "VaR", "TVaR")
 RESULT.test <- cbind(
     "tgroup" = AGG.SUM.test$tgroup,
     "class4" = AGG.SUM.test$class4,
     "mean.S" = AGG.SUM.test$mean.S,
-    "E[S]" = Predictions$'E[S]',
-    "VaR_0.995" = Predictions$'VaR_0.995'
+    "VaR_n" = AGG.SUM.test$VaR,
+    "TVaR_n" = AGG.SUM.test$TVaR,
+    "E[S]" = unlist(Predictions[1,]),
+    "VaR_0.995" = unlist(Predictions[2,]),
+    "TVaR_0.995" = unlist(Predictions[3,]),
+    "E[S]_Tweedie" = Predict_Tweedie.test$x,
+    "VaR_Tweedie" = VaR_Tweedie.train,
+    "TVaR_Tweedie" = TVaR_Tweedie.train
 )
 
 RESULT.train
 RESULT.test
 
-mean((RESULT.train[,3] - RESULT.train[,4])^2)
-mean((RESULT.test[,3] - RESULT.test[,4])^2)
+MSE <- matrix(c(
+    mean((RESULT.train[,3] - RESULT.train[,6])^2),
+    mean((RESULT.train[,3] - RESULT.train[,9])^2),
+    mean((RESULT.train[,4] - RESULT.train[,7])^2),
+    mean((RESULT.train[,4] - RESULT.train[,10])^2),
+    mean((RESULT.train[,5] - RESULT.train[,8])^2),
+    mean((RESULT.train[,5] - RESULT.train[,11])^2),
+    mean((RESULT.test[,3] - RESULT.test[,6])^2),
+    mean((RESULT.test[,3] - RESULT.test[,9])^2),
+    mean((RESULT.test[,4] - RESULT.test[,7])^2),
+    mean((RESULT.test[,4] - RESULT.test[,10])^2),
+    mean((RESULT.test[,5] - RESULT.test[,8])^2),
+    mean((RESULT.test[,5] - RESULT.test[,11])^2),
+    2837, 2984, 21187813, 28210104, NA, NA
+    ), 6
+)
+colnames(MSE) <- c("train", "test", "Papier")
+rownames(MSE) <- c("Mean", "Mean Tweedie", "VaR", "VaR Tweedie", "TVaR", "TVaR Tweedie")
+round(MSE, 0)
 
 save.image("C:/Users/Alex/Desktop/Recherche_ete_2019/Code_Alex/Massachussetts_2006/minimisation du mse.RData")
