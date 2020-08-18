@@ -5,6 +5,7 @@ library(pscl)
 library(statmod)
 library(tweedie)
 library(copula)
+library(utils)
 
 
 #==== Fonctions pour évaluer les paramètres de dépendance de la copule gaussienne. ====
@@ -596,17 +597,19 @@ dGaussian.copula <- function(n, Y, x, rho, z=1) {
 
 spearmans.Rho <- function(data, nsim=100) {
   # Fonction qui retourne le rho de spearman pour une base de données d'assurance.
+  pb <- txtProgressBar(min = 1, max = nsim, style = 3)
   cor.spearman <- numeric(nsim)
   for (i in 1:nsim) {
     couples.YY <- randomize.Y(data, 2)
-    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3], method = "spearman")
-    print(paste0(i, "/", nsim))
+    cor.spearman[i] <- cor(couples.YY[,2], couples.YY[,3])
+    setTxtProgressBar(pb, i)
   }
   rep <- list()
   rep$mean <- mean(cor.spearman)
   rep$variance <- var(cor.spearman)
   rep$IC <- c(rep$mean - qnorm(0.975) * sqrt(rep$variance),
               rep$mean + qnorm(0.975) * sqrt(rep$variance))
+  close(pb)
   return(rep)
 }
 
@@ -626,7 +629,7 @@ spearmans.Rho <- function(data, nsim=100) {
 #   return(Score)
 # }
 
-optim_rho <- function(data, x, Depart, bornes, nsim=100, length.ech=1e+4){
+optim_rho <- function(data, x, Depart, bornes, nsim=50, length.ech=1e+3){
   # Fonction qui permet de trouver les paramètres de dépendance
   # d'une copule gaussienne par optimisation numérique en utilisant un bootstrap.
   #
@@ -638,6 +641,7 @@ optim_rho <- function(data, x, Depart, bornes, nsim=100, length.ech=1e+4){
   ui <- rbind( diag(2), -diag(2) )
   ci <- c( bounds[,1], - bounds[,2] )
   
+  pb <- txtProgressBar(min = 1, max = nsim, style = 3)
   mle_rho <- matrix(ncol=2, nrow=nsim)
   for (j in 1:nsim) {
     # Bootstrap et optimisation numérique.
@@ -655,20 +659,22 @@ optim_rho <- function(data, x, Depart, bornes, nsim=100, length.ech=1e+4){
     
     Depart <- mle_rho[j,]
     
-    print(paste0(j / nsim * 100,"%", " : ", list(mle_rho[j, ])))
+    setTxtProgressBar(pb, j)
   }
   
   mean_rho <- apply(mle_rho, 2, mean, na.rm = T)
   var_rho <- apply(mle_rho, 2, var)
   IC_rho <- matrix(c(mean_rho - qnorm(0.975) * sqrt(var_rho),
-                     mean_rho + qnorm(0.975)* sqrt(var_rho)),
+                   mean_rho + qnorm(0.975)* sqrt(var_rho)),
                    ncol=2)
-  
+  names(mean_rho) <-  names(var_rho) <- c("rho1","rho2")
+  dimnames(IC_rho) <- list(c("rho1","rho2"), c("inf","sup"))
+  close(pb)
   return(list("mean"=mean_rho, "variance"=var_rho, "IC"=IC_rho))
 }
 
 
-rho1 <- cor(rank(N, ties.method = "random"), rand.Y[,2], method = "spearman")
+rho1 <- cor(N, rand.Y[,2], method = "spearman")
 rho1 <- 2 * sin(pi * rho1 / 6)
 
 (rho2 <- spearmans.Rho(cbind(FREQ$N[FREQ$N > 0], LOSS$losspaid)))
@@ -688,12 +694,13 @@ rho2.IC <- 2 * sin(pi * rho2$IC / 6)
 
 mle_rho <- optim_rho(data = cbind(N, LOSS$losspaid),
                      x = x.mat_train[,-1],
-                     Depart = c(0, rho2.mean),
+                     Depart = c(rho1, rho2.mean),
                      bornes = c(-1, sqrt(((k - 1) * rho2.mean + 1) / k),
                                 rho2.IC[1], rho2.IC[2]),
-                     nsim = 1, length.ech = nrow(LOSS))
+                     nsim=50,
+                     length.ech=1e+3)
 rho <- mle_rho$mean
- 
+
 
 #==== Reproduction du tableau 6 - Résultats ----
 rGaussian.copula <- function(n_sim, rho, k = max(FREQ$N), z = 1) {
